@@ -1,1166 +1,454 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>KK5 Facility Booking</title>
 
-
   <style>
-
-    /* =========================================================
-       RESET
-       ========================================================= */
-
     * {
       box-sizing: border-box;
-      margin: 0;
-      padding: 0;
     }
-
 
     body {
-      font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        Roboto,
-        Arial,
-        sans-serif;
-
-      background: #f5f7fa;
-
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f5f6f8;
       color: #1f2937;
-
-      min-height: 100vh;
     }
 
-
-    button,
-    input,
-    select {
-      font: inherit;
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 30px 20px 60px;
     }
-
-
-    button {
-      cursor: pointer;
-    }
-
-
-    /* =========================================================
-       HEADER
-       ========================================================= */
 
     header {
-      background: #ffffff;
-
-      border-bottom: 1px solid #e5e7eb;
-
-      padding: 20px 24px;
+      margin-bottom: 30px;
     }
 
-
-    .header-inner {
-      max-width: 1100px;
-
-      margin: 0 auto;
-
-      display: flex;
-
-      align-items: center;
-
-      justify-content: space-between;
-
-      gap: 20px;
+    header h1 {
+      margin: 0 0 8px;
+      font-size: 32px;
     }
 
-
-    .brand {
-      display: flex;
-
-      align-items: center;
-
-      gap: 14px;
-    }
-
-
-    .brand-logo {
-      width: 44px;
-
-      height: 44px;
-
-      border-radius: 12px;
-
-      background: #111827;
-
-      color: #ffffff;
-
-      display: flex;
-
-      align-items: center;
-
-      justify-content: center;
-
-      font-weight: 800;
-
-      font-size: 16px;
-    }
-
-
-    .brand-text h1 {
-      font-size: 18px;
-
-      font-weight: 750;
-
-      color: #111827;
-    }
-
-
-    .brand-text p {
-      font-size: 13px;
-
+    header p {
+      margin: 0;
       color: #6b7280;
-
-      margin-top: 2px;
     }
-
-
-    /* =========================================================
-       MAIN
-       ========================================================= */
-
-    main {
-      max-width: 1100px;
-
-      margin: 0 auto;
-
-      padding: 42px 24px 70px;
-    }
-
 
     .page {
       display: none;
     }
 
-
     .page.active {
       display: block;
     }
 
-
-    /* =========================================================
-       PAGE HEADER
-       ========================================================= */
-
-    .page-heading {
-      margin-bottom: 28px;
-    }
-
-
-    .page-heading h2 {
-      font-size: 32px;
-
-      line-height: 1.15;
-
-      color: #111827;
-
-      margin-bottom: 8px;
-    }
-
-
-    .page-heading p {
-      color: #6b7280;
-
-      font-size: 15px;
-
-      line-height: 1.6;
-    }
-
-
-    /* =========================================================
-       STATUS
-       ========================================================= */
-
-    .status {
-      display: none;
-
-      padding: 13px 16px;
-
-      border-radius: 10px;
-
-      margin-bottom: 20px;
-
-      font-size: 14px;
-
-      line-height: 1.5;
-    }
-
-
-    .status.show {
-      display: block;
-    }
-
-
-    .status.loading {
-      background: #eff6ff;
-
-      color: #1d4ed8;
-
-      border: 1px solid #bfdbfe;
-    }
-
-
-    .status.error {
-      background: #fef2f2;
-
-      color: #b91c1c;
-
-      border: 1px solid #fecaca;
-    }
-
-
-    .status.success {
-      background: #f0fdf4;
-
-      color: #15803d;
-
-      border: 1px solid #bbf7d0;
-    }
-
-
-    /* =========================================================
-       FACILITY GRID
-       ========================================================= */
+    /* =========================
+       FACILITY CARDS
+    ========================= */
 
     .facility-grid {
       display: grid;
-
-      grid-template-columns:
-        repeat(
-          auto-fill,
-          minmax(230px, 1fr)
-        );
-
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       gap: 16px;
     }
 
-
     .facility-card {
-      appearance: none;
-
-      width: 100%;
-
-      text-align: left;
-
+      background: white;
       border: 1px solid #e5e7eb;
-
-      background: #ffffff;
-
-      border-radius: 16px;
-
-      padding: 22px;
-
-      min-height: 125px;
-
-      transition:
-        transform 0.15s ease,
-        box-shadow 0.15s ease,
-        border-color 0.15s ease;
-
-      box-shadow:
-        0 2px 8px
-        rgba(15, 23, 42, 0.04);
+      border-radius: 14px;
+      padding: 20px;
+      cursor: pointer;
+      transition: 0.2s ease;
     }
-
 
     .facility-card:hover {
       transform: translateY(-2px);
-
-      border-color: #cbd5e1;
-
-      box-shadow:
-        0 8px 24px
-        rgba(15, 23, 42, 0.08);
+      border-color: #9ca3af;
+      box-shadow: 0 5px 18px rgba(0,0,0,0.07);
     }
 
-
-    .facility-card:active {
-      transform: translateY(0);
+    .facility-card h3 {
+      margin: 0 0 10px;
+      font-size: 18px;
     }
 
-
-    .facility-card-name {
-      font-size: 17px;
-
-      font-weight: 700;
-
-      color: #111827;
-
-      margin-bottom: 10px;
-    }
-
-
-    .facility-card-hours {
+    .facility-card p {
+      margin: 4px 0;
       color: #6b7280;
-
-      font-size: 13px;
-    }
-
-
-    /* =========================================================
-       EMPTY
-       ========================================================= */
-
-    .empty {
-      background: #ffffff;
-
-      border: 1px dashed #d1d5db;
-
-      border-radius: 12px;
-
-      padding: 28px;
-
-      text-align: center;
-
-      color: #6b7280;
-
       font-size: 14px;
-
-      grid-column: 1 / -1;
     }
 
+    /* =========================
+       BUTTONS
+    ========================= */
 
-    /* =========================================================
-       BACK BUTTON
-       ========================================================= */
-
-    .back-button {
+    button {
       border: none;
-
-      background: transparent;
-
-      color: #4b5563;
-
-      padding: 0;
-
-      margin-bottom: 24px;
-
-      display: inline-flex;
-
-      align-items: center;
-
-      gap: 7px;
-
+      border-radius: 9px;
+      padding: 11px 17px;
       font-size: 14px;
-
+      cursor: pointer;
       font-weight: 600;
     }
 
+    .primary-btn {
+      background: #111827;
+      color: white;
+    }
 
-    .back-button:hover {
+    .primary-btn:hover {
+      background: #374151;
+    }
+
+    .secondary-btn {
+      background: #e5e7eb;
       color: #111827;
     }
 
+    .secondary-btn:hover {
+      background: #d1d5db;
+    }
 
-    /* =========================================================
+    .back-btn {
+      margin-bottom: 20px;
+    }
+
+    /* =========================
        FACILITY INFO
-       ========================================================= */
+    ========================= */
 
-    .selected-facility {
-      background: #ffffff;
-
-      border: 1px solid #e5e7eb;
-
-      border-radius: 16px;
-
+    .facility-header {
+      background: white;
+      border-radius: 14px;
       padding: 22px;
-
-      margin-bottom: 22px;
-
-      box-shadow:
-        0 2px 8px
-        rgba(15, 23, 42, 0.04);
+      margin-bottom: 20px;
+      border: 1px solid #e5e7eb;
     }
 
-
-    .selected-facility-name {
-      font-size: 22px;
-
-      font-weight: 750;
-
-      color: #111827;
-
-      margin-bottom: 5px;
+    .facility-header h2 {
+      margin: 0 0 10px;
     }
 
-
-    .selected-facility-hours {
-      font-size: 14px;
-
+    .facility-header p {
+      margin: 5px 0;
       color: #6b7280;
     }
 
+    /* =========================
+       DATE
+    ========================= */
 
-    /* =========================================================
-       CONTROL CARD
-       ========================================================= */
-
-    .control-card {
-      background: #ffffff;
-
+    .date-section {
+      background: white;
       border: 1px solid #e5e7eb;
-
-      border-radius: 16px;
-
-      padding: 22px;
-
-      margin-bottom: 22px;
-
-      box-shadow:
-        0 2px 8px
-        rgba(15, 23, 42, 0.04);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 20px;
     }
 
-
-    .control-label {
+    .date-section label {
       display: block;
-
-      font-size: 13px;
-
-      font-weight: 700;
-
-      color: #374151;
-
+      font-weight: 600;
       margin-bottom: 8px;
     }
-
 
     input[type="date"],
     select {
       width: 100%;
-
+      padding: 12px;
       border: 1px solid #d1d5db;
-
-      border-radius: 10px;
-
-      padding: 12px 13px;
-
-      background: #ffffff;
-
-      color: #111827;
-
-      outline: none;
+      border-radius: 8px;
+      font-size: 15px;
+      background: white;
     }
 
+    /* =========================
+       AVAILABILITY
+    ========================= */
 
-    input[type="date"]:focus,
-    select:focus {
-      border-color: #111827;
-
-      box-shadow:
-        0 0 0 3px
-        rgba(17, 24, 39, 0.08);
-    }
-
-
-    /* =========================================================
-       SCHEDULE
-       ========================================================= */
-
-    .schedule-card {
-      background: #ffffff;
-
+    .availability-section {
+      background: white;
       border: 1px solid #e5e7eb;
-
-      border-radius: 16px;
-
-      padding: 22px;
-
-      margin-bottom: 22px;
-
-      box-shadow:
-        0 2px 8px
-        rgba(15, 23, 42, 0.04);
+      border-radius: 14px;
+      padding: 20px;
     }
 
-
-    .schedule-header {
-      display: flex;
-
-      justify-content: space-between;
-
-      align-items: center;
-
-      gap: 15px;
-
-      margin-bottom: 18px;
+    .availability-section h3 {
+      margin-top: 0;
     }
 
-
-    .schedule-header h3 {
-      font-size: 17px;
-
-      color: #111827;
-    }
-
-
-    .schedule-date {
+    .loading {
       color: #6b7280;
-
-      font-size: 13px;
-
-      text-align: right;
+      padding: 20px 0;
     }
 
+    .error {
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 14px;
+      border-radius: 9px;
+      margin-top: 15px;
+    }
 
-    .schedule {
+    .slot-grid {
       display: grid;
-
-      grid-template-columns:
-        repeat(
-          auto-fill,
-          minmax(130px, 1fr)
-        );
-
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
       gap: 10px;
+      margin-top: 15px;
     }
-
 
     .slot {
+      padding: 13px 8px;
+      border-radius: 9px;
+      text-align: center;
+      font-size: 13px;
       border: 1px solid #d1d5db;
-
-      background: #ffffff;
-
-      border-radius: 11px;
-
-      padding: 13px 10px;
-
-      text-align: left;
-
-      min-height: 76px;
-
-      transition:
-        transform 0.12s ease,
-        border-color 0.12s ease;
     }
-
-
-    .slot:not(:disabled):hover {
-      transform: translateY(-1px);
-
-      border-color: #111827;
-    }
-
-
-    .slot-time {
-      font-size: 14px;
-
-      font-weight: 700;
-
-      color: #111827;
-
-      margin-bottom: 5px;
-    }
-
-
-    .slot-status {
-      font-size: 12px;
-
-      font-weight: 600;
-    }
-
 
     .slot.available {
-      border-color: #bbf7d0;
-
-      background: #f0fdf4;
+      background: #ecfdf5;
+      border-color: #86efac;
+      color: #166534;
+      cursor: pointer;
     }
 
-
-    .slot.available .slot-status {
-      color: #15803d;
+    .slot.available:hover {
+      background: #dcfce7;
     }
-
-
-    .slot.booked {
-      background: #fef2f2;
-
-      border-color: #fecaca;
-
-      cursor: not-allowed;
-    }
-
-
-    .slot.booked .slot-status {
-      color: #b91c1c;
-    }
-
 
     .slot.pending {
-      background: #fffbeb;
-
-      border-color: #fde68a;
-
+      background: #fef3c7;
+      border-color: #fcd34d;
+      color: #92400e;
       cursor: not-allowed;
     }
 
-
-    .slot.pending .slot-status {
-      color: #a16207;
+    .slot.booked {
+      background: #fee2e2;
+      border-color: #fca5a5;
+      color: #991b1b;
+      cursor: not-allowed;
     }
 
-
-    /* =========================================================
-       LEGEND
-       ========================================================= */
-
-    .legend {
-      display: flex;
-
-      flex-wrap: wrap;
-
-      gap: 16px;
-
-      margin-top: 18px;
-
-      padding-top: 16px;
-
-      border-top: 1px solid #f1f5f9;
+    .slot.selected {
+      outline: 3px solid #111827;
     }
 
-
-    .legend-item {
-      display: flex;
-
-      align-items: center;
-
-      gap: 7px;
-
-      color: #6b7280;
-
-      font-size: 12px;
-    }
-
-
-    .legend-dot {
-      width: 10px;
-
-      height: 10px;
-
-      border-radius: 50%;
-    }
-
-
-    .legend-dot.available {
-      background: #22c55e;
-    }
-
-
-    .legend-dot.pending {
-      background: #eab308;
-    }
-
-
-    .legend-dot.booked {
-      background: #ef4444;
-    }
-
-
-    /* =========================================================
+    /* =========================
        BOOKING CONTROLS
-       ========================================================= */
+    ========================= */
 
     .booking-controls {
-      display: grid;
-
-      grid-template-columns:
-        1fr 1fr;
-
-      gap: 16px;
-
-      margin-bottom: 22px;
+      margin-top: 25px;
+      padding-top: 20px;
+      border-top: 1px solid #e5e7eb;
     }
 
-
-    /* =========================================================
-       BOOKING PREVIEW
-       ========================================================= */
-
-    .booking-preview {
-      display: none;
-
-      background: #ffffff;
-
-      border: 1px solid #e5e7eb;
-
-      border-radius: 16px;
-
-      padding: 22px;
-
-      box-shadow:
-        0 2px 8px
-        rgba(15, 23, 42, 0.04);
-    }
-
-
-    .booking-preview h3 {
-      font-size: 17px;
-
-      color: #111827;
-
+    .control-group {
       margin-bottom: 15px;
     }
 
-
-    .preview-time {
-      font-size: 22px;
-
-      font-weight: 750;
-
-      color: #111827;
-
-      margin-bottom: 6px;
-    }
-
-
-    .preview-details {
-      color: #6b7280;
-
-      font-size: 14px;
-
-      margin-bottom: 18px;
-    }
-
-
-    /* =========================================================
-       AVAILABILITY RESULT
-       ========================================================= */
-
-    .availability-result {
-      min-height: 20px;
-
-      margin-bottom: 16px;
-
-      font-size: 14px;
-
+    .control-group label {
+      display: block;
       font-weight: 600;
+      margin-bottom: 7px;
     }
 
-
-    .availability-result.available {
-      color: #15803d;
-    }
-
-
-    .availability-result.unavailable {
-      color: #b91c1c;
-    }
-
-
-    /* =========================================================
-       BOOK BUTTON
-       ========================================================= */
-
-    .book-button {
+    .continue-btn {
       width: 100%;
-
-      border: none;
-
-      border-radius: 11px;
-
-      padding: 14px 18px;
-
-      background: #111827;
-
-      color: #ffffff;
-
-      font-weight: 700;
-
-      transition:
-        background 0.15s ease,
-        opacity 0.15s ease;
+      margin-top: 10px;
     }
 
-
-    .book-button:hover:not(:disabled) {
-      background: #000000;
-    }
-
-
-    .book-button:disabled {
-      opacity: 0.4;
-
+    .continue-btn:disabled {
+      background: #9ca3af;
       cursor: not-allowed;
     }
 
-
-    /* =========================================================
-       FOOTER
-       ========================================================= */
-
-    footer {
-      text-align: center;
-
-      padding: 25px 20px 40px;
-
-      color: #9ca3af;
-
-      font-size: 12px;
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 18px;
+      font-size: 13px;
+      color: #6b7280;
     }
 
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
 
-    /* =========================================================
+    .legend-box {
+      width: 14px;
+      height: 14px;
+      border-radius: 4px;
+    }
+
+    .legend-available {
+      background: #86efac;
+    }
+
+    .legend-pending {
+      background: #fcd34d;
+    }
+
+    .legend-booked {
+      background: #fca5a5;
+    }
+
+    /* =========================
        MOBILE
-       ========================================================= */
+    ========================= */
 
-    @media (max-width: 700px) {
-
-      header {
-        padding: 16px 18px;
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px 15px 40px;
       }
 
-
-      main {
-        padding:
-          30px 18px
-          55px;
+      header h1 {
+        font-size: 26px;
       }
-
-
-      .page-heading h2 {
-        font-size: 27px;
-      }
-
 
       .facility-grid {
-        grid-template-columns:
-          1fr;
+        grid-template-columns: 1fr;
       }
 
-
-      .booking-controls {
-        grid-template-columns:
-          1fr;
+      .slot-grid {
+        grid-template-columns: repeat(2, 1fr);
       }
-
-
-      .schedule {
-        grid-template-columns:
-          repeat(
-            2,
-            minmax(0, 1fr)
-          );
-      }
-
-
-      .schedule-header {
-        align-items: flex-start;
-
-        flex-direction: column;
-      }
-
-
-      .schedule-date {
-        text-align: left;
-      }
-
     }
-
-
-    @media (max-width: 420px) {
-
-      .schedule {
-        grid-template-columns:
-          1fr;
-      }
-
-
-      .legend {
-        gap: 10px;
-      }
-
-    }
-
   </style>
-
 </head>
-
 
 <body>
 
+<div class="container">
 
-  <!-- =======================================================
-       HEADER
-       ======================================================== -->
+  <!-- =========================
+       HOMEPAGE
+  ========================= -->
 
-  <header>
+  <div id="homePage" class="page active">
 
-    <div class="header-inner">
+    <header>
+      <h1>KK5 Facility Booking</h1>
+      <p>Select a facility to view its availability.</p>
+    </header>
 
-      <div class="brand">
+    <div id="facilityLoading" class="loading">
+      Loading facilities...
+    </div>
 
-        <div class="brand-logo">
-          KK5
-        </div>
+    <div id="facilityError" class="error" style="display:none;"></div>
 
+    <div id="facilityGrid" class="facility-grid"></div>
 
-        <div class="brand-text">
-
-          <h1>
-            KK5 Facility Booking
-          </h1>
+  </div>
 
 
-          <p>
-            Kolej Kediaman Dayasari
-          </p>
+  <!-- =========================
+       FACILITY AVAILABILITY PAGE
+  ========================= -->
 
-        </div>
+  <div id="facilityPage" class="page">
 
-      </div>
+    <button
+      class="secondary-btn back-btn"
+      onclick="goHome()">
+      ← Back to Facilities
+    </button>
+
+    <div class="facility-header">
+
+      <h2 id="selectedFacilityName">
+        Facility
+      </h2>
+
+      <p id="selectedFacilityHours">
+        Operating hours
+      </p>
 
     </div>
 
-  </header>
+
+    <!-- DATE -->
+
+    <div class="date-section">
+
+      <label for="bookingDate">
+        Select Date
+      </label>
+
+      <input
+        type="date"
+        id="bookingDate"
+        onchange="loadAvailability()">
+
+    </div>
 
 
+    <!-- AVAILABILITY -->
 
-  <!-- =======================================================
-       MAIN
-       ======================================================== -->
+    <div class="availability-section">
 
-  <main>
+      <h3>
+        Availability
+      </h3>
 
-
-    <!-- =====================================================
-         PAGE 1 — FACILITY SELECTION
-         ====================================================== -->
-
-    <section
-      id="facilityPage"
-      class="page active"
-    >
-
-
-      <div class="page-heading">
-
-        <h2>
-          Choose a facility
-        </h2>
-
-
-        <p>
-          Select the facility you want to check.
-          You will be able to view its availability
-          before making a booking.
-        </p>
-
+      <div id="availabilityLoading" class="loading">
+        Select a date to view availability.
       </div>
-
 
       <div
-        id="facilityStatus"
-        class="status"
-      ></div>
-
+        id="availabilityError"
+        class="error"
+        style="display:none;">
+      </div>
 
       <div
-        id="facilityGrid"
-        class="facility-grid"
-      >
-
-        <div class="empty">
-          Loading facilities...
-        </div>
-
-      </div>
-
-    </section>
-
-
-
-    <!-- =====================================================
-         PAGE 2 — AVAILABILITY
-         ====================================================== -->
-
-    <section
-      id="bookingPage"
-      class="page"
-    >
-
-
-      <!-- BACK BUTTON -->
-
-      <button
-        type="button"
-        class="back-button"
-        onclick="goBackToFacilities()"
-      >
-
-        ← Back to facilities
-
-      </button>
-
-
-
-      <!-- FACILITY INFORMATION -->
-
-      <div class="selected-facility">
-
-        <div
-          id="selectedFacilityName"
-          class="selected-facility-name"
-        >
-          Facility
-        </div>
-
-
-        <div
-          id="selectedFacilityHours"
-          class="selected-facility-hours"
-        >
-          —
-        </div>
-
+        id="slotGrid"
+        class="slot-grid">
       </div>
 
 
+      <div class="legend">
 
-      <!-- STATUS -->
-
-      <div
-        id="pageStatus"
-        class="status"
-      ></div>
-
-
-
-      <!-- DATE -->
-
-      <div class="control-card">
-
-        <label
-          class="control-label"
-          for="date"
-        >
-          Select date
-        </label>
-
-
-        <input
-          type="date"
-          id="date"
-        >
-
-      </div>
-
-
-
-      <!-- SCHEDULE -->
-
-      <div class="schedule-card">
-
-        <div class="schedule-header">
-
-          <h3>
-            Availability
-          </h3>
-
-
-          <div
-            id="availabilityDate"
-            class="schedule-date"
-          >
-            —
-          </div>
-
+        <div class="legend-item">
+          <div class="legend-box legend-available"></div>
+          Available
         </div>
 
-
-        <div
-          id="schedule"
-          class="schedule"
-        >
-
-          <div class="empty">
-            Select a facility to view availability.
-          </div>
-
+        <div class="legend-item">
+          <div class="legend-box legend-pending"></div>
+          Pending
         </div>
 
-
-        <!-- LEGEND -->
-
-        <div class="legend">
-
-          <div class="legend-item">
-
-            <span
-              class="legend-dot available"
-            ></span>
-
-            Available
-
-          </div>
-
-
-          <div class="legend-item">
-
-            <span
-              class="legend-dot pending"
-            ></span>
-
-            Pending
-
-          </div>
-
-
-          <div class="legend-item">
-
-            <span
-              class="legend-dot booked"
-            ></span>
-
-            Booked
-
-          </div>
-
+        <div class="legend-item">
+          <div class="legend-box legend-booked"></div>
+          Booked
         </div>
 
       </div>
-
 
 
       <!-- BOOKING CONTROLS -->
 
       <div class="booking-controls">
 
+        <div class="control-group">
 
-        <div class="control-card">
-
-          <label
-            class="control-label"
-            for="startTime"
-          >
-            Start time
+          <label for="startTime">
+            Start Time
           </label>
-
 
           <select
             id="startTime"
-            onchange="
-              updateDurationOptions();
-              updateBooking();
-            "
-          >
+            onchange="updateDurationOptions()">
 
             <option value="">
               Select start time
@@ -1171,22 +459,15 @@
         </div>
 
 
+        <div class="control-group">
 
-        <div class="control-card">
-
-          <label
-            class="control-label"
-            for="duration"
-          >
+          <label for="duration">
             Duration
           </label>
 
-
           <select
             id="duration"
-            disabled
-            onchange="updateBooking();"
-          >
+            onchange="updateEndTime()">
 
             <option value="">
               Select duration
@@ -1196,2947 +477,2218 @@
 
         </div>
 
-      </div>
 
+        <div class="control-group">
 
+          <label for="endTime">
+            End Time
+          </label>
 
-      <!-- BOOKING PREVIEW -->
+          <input
+            type="text"
+            id="endTime"
+            readonly
+            placeholder="Automatically calculated">
 
-      <div
-        id="bookingPreview"
-        class="booking-preview"
-      >
-
-        <h3>
-          Booking summary
-        </h3>
-
-
-        <div
-          id="previewTime"
-          class="preview-time"
-        >
-          —
         </div>
-
-
-        <div
-          id="previewDetails"
-          class="preview-details"
-        >
-          —
-        </div>
-
-
-        <div
-          id="availabilityResult"
-          class="availability-result"
-        ></div>
 
 
         <button
-          type="button"
-          id="bookButton"
-          class="book-button"
+          id="continueBtn"
+          class="primary-btn continue-btn"
           disabled
-          onclick="continueToForm()"
-        >
-          Continue to booking form
+          onclick="continueToForm()">
+
+          Continue to Booking Form
+
         </button>
 
       </div>
 
+    </div>
 
-    </section>
+  </div>
 
-
-  </main>
-
-
-
-  <!-- =======================================================
-       FOOTER
-       ======================================================== -->
-
-  <footer>
-
-    KK5 Technical Bureau ·
-    Kolej Kediaman Dayasari
-
-  </footer>
+</div>
 
 
+<script>
 
-  <!-- =======================================================
-       JAVASCRIPT
-       ======================================================== -->
+  /* =========================================================
+     CONFIGURATION
+  ========================================================= */
 
-  <script>
+  const PUBLIC_SHEET_ID =
+    "1PGb7g244LFMQlqJdJWDGaeGsZzJsel9WTUakDcNatiQ";
+
+  const FACILITIES_SHEET =
+    "Facilities";
+
+  const BOOKINGS_SHEET =
+    "Bookings";
+
+  const GOOGLE_FORM_URL =
+    "https://docs.google.com/forms/d/e/1FAIpQLSdja_U2aFCea0GAL6qZdaUxG5viyi4AlC-zROude_yzXAFIWg/viewform";
+
+  const FORM_FIELDS = {
+
+    facility:
+      "entry.1139525746",
+
+    date:
+      "entry.482205338",
+
+    start:
+      "entry.1117912077",
+
+    end:
+      "entry.866972168"
+
+  };
 
 
-    /* =========================================================
-       CONFIGURATION
-       ========================================================= */
+  /* =========================================================
+     STATE
+  ========================================================= */
 
+  let facilities = [];
+
+  let bookings = [];
+
+  let selectedFacility = null;
+
+  let selectedDate = null;
+
+  let selectedStartTime = null;
+
+  let selectedEndTime = null;
+
+
+  /* =========================================================
+     INITIAL LOAD
+  ========================================================= */
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+      setMinimumDate();
+
+      loadFacilities();
+
+    }
+  );
+
+
+  /* =========================================================
+     DATE SETUP
+  ========================================================= */
+
+  function setMinimumDate() {
+
+    const input =
+      document.getElementById("bookingDate");
+
+    const today =
+      new Date();
+
+    input.min =
+      formatDateForInput(today);
+
+  }
+
+
+  function formatDateForInput(date) {
+
+    const year =
+      date.getFullYear();
+
+    const month =
+      String(
+        date.getMonth() + 1
+      ).padStart(2, "0");
+
+    const day =
+      String(
+        date.getDate()
+      ).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+
+  }
+
+
+  /* =========================================================
+     GVIZ FETCH
+  ========================================================= */
+
+  async function fetchGviz(sheetName) {
+
+    const url =
+      "https://docs.google.com/spreadsheets/d/" +
+      PUBLIC_SHEET_ID +
+      "/gviz/tq?sheet=" +
+      encodeURIComponent(sheetName) +
+      "&tqx=out:json";
+
+    const response =
+      await fetch(url);
+
+    if (!response.ok) {
+
+      throw new Error(
+        "Google Sheet could not be accessed."
+      );
+
+    }
+
+    const text =
+      await response.text();
 
     /*
-     * PUBLIC GOOGLE SHEET
-     *
-     * This is NOT your private database.
-     *
-     * The GitHub website only reads this
-     * public spreadsheet.
-     */
+      Google returns something like:
 
-    const PUBLIC_SHEET_ID =
-      "1PGb7g244LFMQlqJdJWDGaeGsZzJsel9WTUakDcNatiQ";
+      google.visualization.Query.setResponse({...});
+
+      We remove the wrapper.
+    */
+
+    const start =
+      text.indexOf("(");
+
+    const end =
+      text.lastIndexOf(")");
+
+    if (
+      start === -1 ||
+      end === -1
+    ) {
+
+      throw new Error(
+        "Invalid Google Sheet response."
+      );
+
+    }
+
+    const jsonText =
+      text.substring(
+        start + 1,
+        end
+      );
+
+    return JSON.parse(jsonText);
+
+  }
 
 
-    /*
-     * Public sheet names.
-     */
+  /* =========================================================
+     GVIZ CELL VALUE
+  ========================================================= */
 
-    const FACILITIES_SHEET =
-      "Facilities";
+  function getCellValue(cell) {
 
-
-    const BOOKINGS_SHEET =
-      "Bookings";
-
-
-    /*
-     * Google Form.
-     */
-
-    const FORM_URL =
-      "https://docs.google.com/forms/d/e/1FAIpQLSdja_U2aFCea0GAL6qZdaUxG5viyi4AlC-zROude_yzXAFIWg/viewform";
-
-
-    /*
-     * Google Form prefill fields.
-     */
-
-    const FORM_FIELDS = {
-
-      facility:
-        "entry.1139525746",
-
-      date:
-        "entry.482205338",
-
-      start:
-        "entry.1117912077",
-
-      end:
-        "entry.866972168"
-
-    };
-
+    if (!cell) {
+      return "";
+    }
 
     /*
-     * Booking rules.
-     */
+      Prefer formatted value because
+      Google Sheets may return dates/times
+      in special internal formats.
+    */
 
-    const MIN_DURATION =
-      30;
+    if (
+      cell.f !== undefined &&
+      cell.f !== null
+    ) {
 
+      return String(cell.f).trim();
 
-    const MAX_DURATION =
-      240;
+    }
 
+    if (
+      cell.v !== undefined &&
+      cell.v !== null
+    ) {
 
-    const SLOT_INTERVAL =
-      30;
+      return String(cell.v).trim();
 
+    }
 
+    return "";
 
-    /* =========================================================
-       PUBLIC SHEET URLS
-       ========================================================= */
-
-
-    const FACILITIES_URL =
-      `https://docs.google.com/spreadsheets/d/${PUBLIC_SHEET_ID}/gviz/tq` +
-      `?sheet=${encodeURIComponent(FACILITIES_SHEET)}` +
-      `&tqx=out:json`;
-
-
-    const BOOKINGS_URL =
-      `https://docs.google.com/spreadsheets/d/${PUBLIC_SHEET_ID}/gviz/tq` +
-      `?sheet=${encodeURIComponent(BOOKINGS_SHEET)}` +
-      `&tqx=out:json`;
+  }
 
 
+  /* =========================================================
+     LOAD FACILITIES
+  ========================================================= */
 
-    /* =========================================================
-       GLOBAL VARIABLES
-       ========================================================= */
+  async function loadFacilities() {
 
-    let facilities = [];
+    const loading =
+      document.getElementById(
+        "facilityLoading"
+      );
 
-    let bookings = [];
+    const error =
+      document.getElementById(
+        "facilityError"
+      );
 
-    let selectedFacility = null;
+    const grid =
+      document.getElementById(
+        "facilityGrid"
+      );
+
+    loading.style.display =
+      "block";
+
+    error.style.display =
+      "none";
+
+    grid.innerHTML =
+      "";
+
+    try {
+
+      const data =
+        await fetchGviz(
+          FACILITIES_SHEET
+        );
+
+      facilities =
+        parseFacilities(
+          data.table
+        );
+
+      if (
+        facilities.length === 0
+      ) {
+
+        throw new Error(
+          "No facilities were found in the public Facilities sheet."
+        );
+
+      }
+
+      renderFacilities();
+
+      loading.style.display =
+        "none";
+
+    }
+
+    catch (err) {
+
+      console.error(
+        "Facility loading error:",
+        err
+      );
+
+      loading.style.display =
+        "none";
+
+      error.textContent =
+        "Failed to load facilities. " +
+        err.message;
+
+      error.style.display =
+        "block";
+
+    }
+
+  }
 
 
-    let selectedBooking = {
+  /* =========================================================
+     PARSE FACILITIES
+     
+     PUBLIC SHEET:
 
-      facility: "",
+     A = Facility
+     B = Opening Time
+     C = Closing Time
+  ========================================================= */
 
-      date: "",
+  function parseFacilities(table) {
 
-      start: "",
+    const result = [];
 
-      duration: 0,
+    if (
+      !table ||
+      !table.rows
+    ) {
 
-      end: ""
+      return result;
 
-    };
+    }
 
 
+    table.rows.forEach(
+      row => {
 
-    /* =========================================================
-       INITIALISE
-       ========================================================= */
+        if (
+          !row ||
+          !row.c
+        ) {
 
-    document.addEventListener(
-      "DOMContentLoaded",
-      function() {
+          return;
 
-        setDefaultDate();
+        }
 
-        loadFacilities();
+
+        const facility =
+          getCellValue(
+            row.c[0]
+          );
+
+        const openingRaw =
+          getCellValue(
+            row.c[1]
+          );
+
+        const closingRaw =
+          getCellValue(
+            row.c[2]
+          );
+
+
+        /*
+          Ignore the header row.
+        */
+
+        if (
+          !facility ||
+          facility.toLowerCase() ===
+          "facility"
+        ) {
+
+          return;
+
+        }
+
+
+        const openingTime =
+          normalizeTime(
+            openingRaw
+          );
+
+        const closingTime =
+          normalizeTime(
+            closingRaw
+          );
+
+
+        /*
+          Ignore incomplete rows.
+        */
+
+        if (
+          !openingTime ||
+          !closingTime
+        ) {
+
+          console.warn(
+            "Skipping facility because time is invalid:",
+            facility,
+            openingRaw,
+            closingRaw
+          );
+
+          return;
+
+        }
+
+
+        result.push({
+
+          facility:
+            facility,
+
+          openingTime:
+            openingTime,
+
+          closingTime:
+            closingTime
+
+        });
 
       }
     );
 
 
+    return result;
 
-    /* =========================================================
-       DEFAULT DATE
-       ========================================================= */
-
-    function setDefaultDate() {
-
-      const input =
-        document.getElementById(
-          "date"
-        );
+  }
 
 
-      const today =
-        new Date();
+  /* =========================================================
+     RENDER FACILITIES
+  ========================================================= */
 
+  function renderFacilities() {
 
-      const year =
-        today.getFullYear();
-
-
-      const month =
-        String(
-          today.getMonth() + 1
-        ).padStart(
-          2,
-          "0"
-        );
-
-
-      const day =
-        String(
-          today.getDate()
-        ).padStart(
-          2,
-          "0"
-        );
-
-
-      input.value =
-        `${year}-${month}-${day}`;
-
-
-      input.addEventListener(
-        "change",
-        function() {
-
-          if (
-            selectedFacility
-          ) {
-
-            resetBooking();
-
-            loadAvailability();
-
-          }
-
-        }
+    const grid =
+      document.getElementById(
+        "facilityGrid"
       );
 
-    }
+    grid.innerHTML =
+      "";
 
 
+    facilities.forEach(
+      facility => {
 
-    /* =========================================================
-       GVIZ FETCH
-       ========================================================= */
-
-    async function fetchGviz(
-      url
-    ) {
-
-      const response =
-        await fetch(
-          `${url}&t=${Date.now()}`,
-          {
-            method: "GET",
-
-            cache: "no-store"
-          }
-        );
-
-
-      if (
-        !response.ok
-      ) {
-
-        throw new Error(
-          `Google Sheets returned HTTP ${response.status}`
-        );
-
-      }
-
-
-      const text =
-        await response.text();
-
-
-      /*
-       * Google GViz returns something like:
-       *
-       * google.visualization.Query.setResponse({...});
-       *
-       * We need to extract the JSON object.
-       */
-
-      const match =
-        text.match(
-          /google\.visualization\.Query\.setResponse\(([\s\S]*)\);?\s*$/
-        );
-
-
-      if (!match) {
-
-        console.error(
-          "Unexpected GViz response:",
-          text
-        );
-
-
-        throw new Error(
-          "Google Sheets returned an unexpected response."
-        );
-
-      }
-
-
-      return JSON.parse(
-        match[1]
-      );
-
-    }
-
-
-
-    /* =========================================================
-       GVIZ VALUE HELPER
-       ========================================================= */
-
-    function getGvizCellValue(
-      cell
-    ) {
-
-      if (
-        !cell
-      ) {
-
-        return "";
-
-      }
-
-
-      /*
-       * Prefer formatted value.
-       */
-
-      if (
-        cell.f !== undefined &&
-        cell.f !== null
-      ) {
-
-        return String(
-          cell.f
-        ).trim();
-
-      }
-
-
-      /*
-       * Otherwise use raw value.
-       */
-
-      if (
-        cell.v !== undefined &&
-        cell.v !== null
-      ) {
-
-        return String(
-          cell.v
-        ).trim();
-
-      }
-
-
-      return "";
-
-    }
-
-
-
-    /* =========================================================
-       LOAD FACILITIES
-       ========================================================= */
-
-    async function loadFacilities() {
-
-      const container =
-        document.getElementById(
-          "facilityGrid"
-        );
-
-
-      container.innerHTML = `
-        <div class="empty">
-          Loading facilities...
-        </div>
-      `;
-
-
-      showStatus(
-        "facilityStatus",
-        "Loading facilities...",
-        "loading"
-      );
-
-
-      try {
-
-        console.log(
-          "Facilities URL:",
-          FACILITIES_URL
-        );
-
-
-        const data =
-          await fetchGviz(
-            FACILITIES_URL
+        const card =
+          document.createElement(
+            "div"
           );
 
-
-        console.log(
-          "Facilities GViz response:",
-          data
-        );
+        card.className =
+          "facility-card";
 
 
-        if (
-          !data ||
-          !data.table
-        ) {
+        card.innerHTML = `
 
-          throw new Error(
-            "Invalid Facilities sheet response."
-          );
+          <h3>
+            ${escapeHtml(
+              facility.facility
+            )}
+          </h3>
 
-        }
+          <p>
+            🕐 ${formatTime(
+              facility.openingTime
+            )}
+            –
+            ${formatTime(
+              facility.closingTime
+            )}
+          </p>
 
+          <p>
+            Click to view availability →
+          </p>
 
-        facilities =
-          parseFacilities(
-            data.table
-          );
-
-
-        console.log(
-          "Parsed facilities:",
-          facilities
-        );
-
-
-        if (
-          !facilities.length
-        ) {
-
-          throw new Error(
-            "No active facilities were found."
-          );
-
-        }
-
-
-        renderFacilities();
-
-
-        hideStatus(
-          "facilityStatus"
-        );
-
-
-      } catch (error) {
-
-        console.error(
-          "FACILITIES ERROR:",
-          error
-        );
-
-
-        container.innerHTML = `
-          <div class="empty">
-            Unable to load facilities.
-            Please refresh the page.
-          </div>
         `;
 
 
-        showStatus(
-          "facilityStatus",
-          `Failed to load facilities: ${error.message}`,
-          "error"
+        card.onclick =
+          () => openFacility(
+            facility
+          );
+
+
+        grid.appendChild(
+          card
         );
 
       }
+    );
+
+  }
+
+
+  /* =========================================================
+     OPEN FACILITY
+  ========================================================= */
+
+  function openFacility(
+    facility
+  ) {
+
+    selectedFacility =
+      facility;
+
+    selectedDate =
+      null;
+
+    selectedStartTime =
+      null;
+
+    selectedEndTime =
+      null;
+
+
+    document
+      .getElementById(
+        "homePage"
+      )
+      .classList
+      .remove("active");
+
+
+    document
+      .getElementById(
+        "facilityPage"
+      )
+      .classList
+      .add("active");
+
+
+    document
+      .getElementById(
+        "selectedFacilityName"
+      )
+      .textContent =
+      facility.facility;
+
+
+    document
+      .getElementById(
+        "selectedFacilityHours"
+      )
+      .textContent =
+      "Opening hours: " +
+      formatTime(
+        facility.openingTime
+      ) +
+      " – " +
+      formatTime(
+        facility.closingTime
+      );
+
+
+    const dateInput =
+      document.getElementById(
+        "bookingDate"
+      );
+
+    dateInput.value =
+      "";
+
+
+    document
+      .getElementById(
+        "slotGrid"
+      )
+      .innerHTML =
+      "";
+
+
+    document
+      .getElementById(
+        "availabilityLoading"
+      )
+      .textContent =
+      "Select a date to view availability.";
+
+
+    document
+      .getElementById(
+        "availabilityLoading"
+      )
+      .style.display =
+      "block";
+
+
+    document
+      .getElementById(
+        "availabilityError"
+      )
+      .style.display =
+      "none";
+
+
+    resetBookingControls();
+
+  }
+
+
+  /* =========================================================
+     BACK TO HOME
+  ========================================================= */
+
+  function goHome() {
+
+    selectedFacility =
+      null;
+
+    selectedDate =
+      null;
+
+    selectedStartTime =
+      null;
+
+    selectedEndTime =
+      null;
+
+
+    document
+      .getElementById(
+        "facilityPage"
+      )
+      .classList
+      .remove("active");
+
+
+    document
+      .getElementById(
+        "homePage"
+      )
+      .classList
+      .add("active");
+
+  }
+
+
+  /* =========================================================
+     LOAD AVAILABILITY
+  ========================================================= */
+
+  async function loadAvailability() {
+
+    if (
+      !selectedFacility
+    ) {
+
+      return;
 
     }
 
 
-
-    /* =========================================================
-       PARSE FACILITIES
-       ========================================================= */
-
-    function parseFacilities(
-      table
-    ) {
-
-      const rows =
-        table.rows || [];
-
-
-      const result = [];
-
-
-      rows.forEach(
-        row => {
-
-          const cells =
-            row.c || [];
-
-
-          const facility =
-            getGvizCellValue(
-              cells[0]
-            );
-
-
-          const type =
-            getGvizCellValue(
-              cells[1]
-            );
-
-
-          const location =
-            getGvizCellValue(
-              cells[2]
-            );
-
-
-          const capacity =
-            getGvizCellValue(
-              cells[3]
-            );
-
-
-          const openingTime =
-            normalizeTime(
-              getGvizCellValue(
-                cells[4]
-              )
-            );
-
-
-          const closingTime =
-            normalizeTime(
-              getGvizCellValue(
-                cells[5]
-              )
-            );
-
-
-          const status =
-            getGvizCellValue(
-              cells[6]
-            )
-            .trim()
-            .toUpperCase();
-
-
-          /*
-           * Ignore blank rows.
-           */
-
-          if (
-            !facility
-          ) {
-
-            return;
-
-          }
-
-
-          /*
-           * Ignore accidental header row.
-           */
-
-          if (
-            facility.toLowerCase() ===
-            "facility"
-          ) {
-
-            return;
-
-          }
-
-
-          /*
-           * Only ACTIVE facilities.
-           *
-           * If the public sheet does not have
-           * a Status column, we still allow
-           * the facility through.
-           */
-
-          if (
-            status &&
-            status !== "ACTIVE"
-          ) {
-
-            return;
-
-          }
-
-
-          result.push({
-
-            name:
-              facility,
-
-            type:
-              type,
-
-            location:
-              location,
-
-            capacity:
-              capacity,
-
-            openingTime:
-              openingTime,
-
-            closingTime:
-              closingTime
-
-          });
-
-        }
+    const dateInput =
+      document.getElementById(
+        "bookingDate"
       );
 
+    const date =
+      dateInput.value;
+
+
+    if (!date) {
+
+      return;
+
+    }
+
+
+    selectedDate =
+      date;
+
+
+    const loading =
+      document.getElementById(
+        "availabilityLoading"
+      );
+
+    const error =
+      document.getElementById(
+        "availabilityError"
+      );
+
+    const slotGrid =
+      document.getElementById(
+        "slotGrid"
+      );
+
+
+    loading.style.display =
+      "block";
+
+    loading.textContent =
+      "Loading availability...";
+
+
+    error.style.display =
+      "none";
+
+    slotGrid.innerHTML =
+      "";
+
+
+    resetBookingControls();
+
+
+    try {
+
+      const data =
+        await fetchGviz(
+          BOOKINGS_SHEET
+        );
+
+      bookings =
+        parseBookings(
+          data.table
+        );
+
+
+      renderAvailability();
+
+      loading.style.display =
+        "none";
+
+    }
+
+    catch (err) {
+
+      console.error(
+        "Availability error:",
+        err
+      );
+
+      loading.style.display =
+        "none";
+
+      error.textContent =
+        "Failed to load availability. " +
+        err.message;
+
+      error.style.display =
+        "block";
+
+    }
+
+  }
+
+
+  /* =========================================================
+     PARSE BOOKINGS
+     
+     PUBLIC SHEET:
+
+     A = Facility
+     B = Date
+     C = Start
+     D = End
+     E = Status
+  ========================================================= */
+
+  function parseBookings(table) {
+
+    const result = [];
+
+    if (
+      !table ||
+      !table.rows
+    ) {
 
       return result;
 
     }
 
 
-
-    /* =========================================================
-       RENDER FACILITIES
-       ========================================================= */
-
-    function renderFacilities() {
-
-      const container =
-        document.getElementById(
-          "facilityGrid"
-        );
-
-
-      container.innerHTML =
-        "";
-
-
-      if (
-        !facilities.length
-      ) {
-
-        container.innerHTML = `
-          <div class="empty">
-            No facilities are currently available.
-          </div>
-        `;
-
-        return;
-
-      }
-
-
-      facilities.forEach(
-        facility => {
-
-          const card =
-            document.createElement(
-              "button"
-            );
-
-
-          card.type =
-            "button";
-
-
-          card.className =
-            "facility-card";
-
-
-          card.innerHTML = `
-
-            <div class="facility-card-name">
-
-              ${escapeHtml(
-                facility.name
-              )}
-
-            </div>
-
-
-            <div class="facility-card-hours">
-
-              ${formatTime(
-                facility.openingTime
-              )}
-
-              –
-
-              ${formatTime(
-                facility.closingTime
-              )}
-
-            </div>
-
-          `;
-
-
-          card.addEventListener(
-            "click",
-            function() {
-
-              selectFacility(
-                facility.name
-              );
-
-            }
-          );
-
-
-          container.appendChild(
-            card
-          );
-
-        }
-      );
-
-    }
-
-
-
-    /* =========================================================
-       SELECT FACILITY
-       ========================================================= */
-
-    async function selectFacility(
-      facilityName
-    ) {
-
-      selectedFacility =
-        facilities.find(
-          facility =>
-            facility.name ===
-            facilityName
-        );
-
-
-      if (
-        !selectedFacility
-      ) {
-
-        return;
-
-      }
-
-
-      /*
-       * Switch to availability page.
-       */
-
-      document.getElementById(
-        "facilityPage"
-      ).classList.remove(
-        "active"
-      );
-
-
-      document.getElementById(
-        "bookingPage"
-      ).classList.add(
-        "active"
-      );
-
-
-      /*
-       * Show selected facility.
-       */
-
-      document.getElementById(
-        "selectedFacilityName"
-      ).textContent =
-        selectedFacility.name;
-
-
-      document.getElementById(
-        "selectedFacilityHours"
-      ).textContent =
-        `${formatTime(
-          selectedFacility.openingTime
-        )} – ${formatTime(
-          selectedFacility.closingTime
-        )}`;
-
-
-      /*
-       * Reset old selection.
-       */
-
-      resetBooking();
-
-
-      /*
-       * Load availability.
-       */
-
-      await loadAvailability();
-
-
-      window.scrollTo({
-
-        top: 0,
-
-        behavior: "smooth"
-
-      });
-
-    }
-
-
-
-    /* =========================================================
-       BACK TO FACILITIES
-       ========================================================= */
-
-    function goBackToFacilities() {
-
-      selectedFacility =
-        null;
-
-
-      bookings =
-        [];
-
-
-      resetBooking();
-
-
-      hideStatus(
-        "pageStatus"
-      );
-
-
-      document.getElementById(
-        "bookingPage"
-      ).classList.remove(
-        "active"
-      );
-
-
-      document.getElementById(
-        "facilityPage"
-      ).classList.add(
-        "active"
-      );
-
-
-      window.scrollTo({
-
-        top: 0,
-
-        behavior: "smooth"
-
-      });
-
-    }
-
-
-
-    /* =========================================================
-       LOAD AVAILABILITY
-       ========================================================= */
-
-    async function loadAvailability() {
-
-      if (
-        !selectedFacility
-      ) {
-
-        return;
-
-      }
-
-
-      const date =
-        document.getElementById(
-          "date"
-        ).value;
-
-
-      if (!date) {
-
-        return;
-
-      }
-
-
-      const schedule =
-        document.getElementById(
-          "schedule"
-        );
-
-
-      schedule.innerHTML = `
-        <div class="empty">
-          Loading availability...
-        </div>
-      `;
-
-
-      showStatus(
-        "pageStatus",
-        "Loading availability...",
-        "loading"
-      );
-
-
-      try {
-
-        console.log(
-          "Loading public bookings..."
-        );
-
-
-        const data =
-          await fetchGviz(
-            BOOKINGS_URL
-          );
-
-
-        console.log(
-          "Bookings GViz response:",
-          data
-        );
-
+    table.rows.forEach(
+      row => {
 
         if (
-          !data ||
-          !data.table
+          !row ||
+          !row.c
         ) {
 
-          throw new Error(
-            "Invalid Bookings sheet response."
-          );
+          return;
 
         }
 
 
-        bookings =
-          parseBookings(
-            data.table
+        const facility =
+          getCellValue(
+            row.c[0]
           );
 
+        const dateRaw =
+          getCellValue(
+            row.c[1]
+          );
 
-        console.log(
-          "All public bookings:",
-          bookings
-        );
+        const startRaw =
+          getCellValue(
+            row.c[2]
+          );
+
+        const endRaw =
+          getCellValue(
+            row.c[3]
+          );
+
+        const status =
+          getCellValue(
+            row.c[4]
+          ).toUpperCase();
 
 
         /*
-         * Filter to selected facility
-         * and selected date.
-         */
+          Ignore header row.
+        */
 
-        bookings =
-          bookings.filter(
-            booking => {
+        if (
+          !facility ||
+          facility.toLowerCase() ===
+          "facility"
+        ) {
 
-              return (
-                booking.facility ===
-                  selectedFacility.name &&
+          return;
 
-                booking.date ===
-                  date &&
+        }
 
-                (
-                  booking.status ===
-                    "APPROVED" ||
 
-                  booking.status ===
-                    "PENDING"
-                )
-              );
+        /*
+          Only PENDING and APPROVED
+          affect availability.
+        */
 
-            }
+        if (
+          status !== "PENDING" &&
+          status !== "APPROVED"
+        ) {
+
+          return;
+
+        }
+
+
+        const date =
+          normalizeDate(
+            dateRaw
+          );
+
+        const start =
+          normalizeTime(
+            startRaw
+          );
+
+        const end =
+          normalizeTime(
+            endRaw
           );
 
 
-        console.log(
-          "Filtered bookings:",
-          bookings
-        );
+        if (
+          !date ||
+          !start ||
+          !end
+        ) {
+
+          console.warn(
+            "Skipping invalid booking:",
+            facility,
+            dateRaw,
+            startRaw,
+            endRaw,
+            status
+          );
+
+          return;
+
+        }
 
 
-        renderAvailability();
+        result.push({
+
+          facility:
+            facility,
+
+          date:
+            date,
+
+          start:
+            start,
+
+          end:
+            end,
+
+          status:
+            status
+
+        });
+
+      }
+    );
 
 
-        hideStatus(
-          "pageStatus"
-        );
+    return result;
+
+  }
 
 
-      } catch (error) {
+  /* =========================================================
+     RENDER AVAILABILITY
+  ========================================================= */
 
-        console.error(
-          "AVAILABILITY ERROR:",
-          error
-        );
+  function renderAvailability() {
 
-
-        bookings =
-          [];
-
-
-        schedule.innerHTML = `
-          <div class="empty">
-            Unable to load availability.
-            Please try again.
-          </div>
-        `;
+    const slotGrid =
+      document.getElementById(
+        "slotGrid"
+      );
 
 
-        showStatus(
-          "pageStatus",
-          `Failed to load availability: ${error.message}`,
-          "error"
-        );
+    slotGrid.innerHTML =
+      "";
+
+
+    const openMinutes =
+      timeToMinutes(
+        selectedFacility.openingTime
+      );
+
+    const closeMinutes =
+      timeToMinutes(
+        selectedFacility.closingTime
+      );
+
+
+    /*
+      Create 30-minute slots.
+    */
+
+    for (
+      let minutes = openMinutes;
+      minutes < closeMinutes;
+      minutes += 30
+    ) {
+
+      const slotStart =
+        minutes;
+
+      const slotEnd =
+        minutes + 30;
+
+
+      if (
+        slotEnd > closeMinutes
+      ) {
+
+        break;
 
       }
 
+
+      const status =
+        getSlotStatus(
+          selectedFacility.facility,
+          selectedDate,
+          slotStart,
+          slotEnd
+        );
+
+
+      const slot =
+        document.createElement(
+          "div"
+        );
+
+
+      slot.className =
+        "slot " +
+        status;
+
+
+      slot.textContent =
+        `${formatMinutes(
+          slotStart
+        )} – ${formatMinutes(
+          slotEnd
+        )}`;
+
+
+      if (
+        status === "available"
+      ) {
+
+        slot.onclick =
+          () => selectSlot(
+            slotStart,
+            slot
+          );
+
+      }
+
+
+      slotGrid.appendChild(
+        slot
+      );
+
     }
 
+  }
 
 
-    /* =========================================================
-       PARSE BOOKINGS
-       ========================================================= */
+  /* =========================================================
+     GET SLOT STATUS
+  ========================================================= */
 
-    function parseBookings(
-      table
-    ) {
+  function getSlotStatus(
+    facility,
+    date,
+    slotStart,
+    slotEnd
+  ) {
 
-      const rows =
-        table.rows || [];
+    const matchingBookings =
+      bookings.filter(
+        booking => {
 
+          return (
+            booking.facility ===
+              facility &&
 
-      const result = [];
+            booking.date ===
+              date &&
 
-
-      rows.forEach(
-        row => {
-
-          const cells =
-            row.c || [];
-
-
-          /*
-           * Public Bookings structure:
-           *
-           * A Facility
-           * B Date
-           * C Start Time
-           * D End Time
-           * E Status
-           */
-
-
-          const facility =
-            getGvizCellValue(
-              cells[0]
-            );
-
-
-          const date =
-            normalizeDate(
-              getGvizCellValue(
-                cells[1]
+            intervalsOverlap(
+              slotStart,
+              slotEnd,
+              timeToMinutes(
+                booking.start
+              ),
+              timeToMinutes(
+                booking.end
               )
-            );
-
-
-          const start =
-            normalizeTime(
-              getGvizCellValue(
-                cells[2]
-              )
-            );
-
-
-          const end =
-            normalizeTime(
-              getGvizCellValue(
-                cells[3]
-              )
-            );
-
-
-          const status =
-            getGvizCellValue(
-              cells[4]
             )
-            .trim()
-            .toUpperCase();
-
-
-          /*
-           * Ignore blank rows.
-           */
-
-          if (
-            !facility
-          ) {
-
-            return;
-
-          }
-
-
-          /*
-           * Ignore header row.
-           */
-
-          if (
-            facility.toLowerCase() ===
-            "facility"
-          ) {
-
-            return;
-
-          }
-
-
-          /*
-           * Only PENDING / APPROVED
-           * should appear publicly.
-           */
-
-          if (
-            status !== "APPROVED" &&
-            status !== "PENDING"
-          ) {
-
-            return;
-
-          }
-
-
-          if (
-            !date ||
-            !start ||
-            !end
-          ) {
-
-            return;
-
-          }
-
-
-          result.push({
-
-            facility,
-
-            date,
-
-            start,
-
-            end,
-
-            status
-
-          });
+          );
 
         }
       );
 
 
-      return result;
+    if (
+      matchingBookings.some(
+        booking =>
+          booking.status ===
+          "APPROVED"
+      )
+    ) {
+
+      return "booked";
 
     }
 
 
+    if (
+      matchingBookings.some(
+        booking =>
+          booking.status ===
+          "PENDING"
+      )
+    ) {
 
-    /* =========================================================
-       RENDER AVAILABILITY
-       ========================================================= */
+      return "pending";
 
-    function renderAvailability() {
-
-      const schedule =
-        document.getElementById(
-          "schedule"
-        );
-
-
-      const date =
-        document.getElementById(
-          "date"
-        ).value;
+    }
 
 
+    return "available";
+
+  }
+
+
+  /* =========================================================
+     INTERVAL CHECK
+  ========================================================= */
+
+  function intervalsOverlap(
+    startA,
+    endA,
+    startB,
+    endB
+  ) {
+
+    return (
+      startA < endB &&
+      endA > startB
+    );
+
+  }
+
+
+  /* =========================================================
+     SELECT START SLOT
+  ========================================================= */
+
+  function selectSlot(
+    minutes,
+    element
+  ) {
+
+    document
+      .querySelectorAll(
+        ".slot.selected"
+      )
+      .forEach(
+        slot =>
+          slot.classList.remove(
+            "selected"
+          )
+      );
+
+
+    element.classList.add(
+      "selected"
+    );
+
+
+    selectedStartTime =
+      minutes;
+
+
+    selectedEndTime =
+      null;
+
+
+    const startSelect =
       document.getElementById(
-        "availabilityDate"
-      ).textContent =
-        formatDate(
-          date
-        );
+        "startTime"
+      );
 
 
-      schedule.innerHTML =
-        "";
+    startSelect.value =
+      minutes;
+
+
+    updateDurationOptions();
+
+  }
+
+
+  /* =========================================================
+     UPDATE DURATION OPTIONS
+  ========================================================= */
+
+  function updateDurationOptions() {
+
+    const durationSelect =
+      document.getElementById(
+        "duration"
+      );
+
+    const endInput =
+      document.getElementById(
+        "endTime"
+      );
+
+    const continueBtn =
+      document.getElementById(
+        "continueBtn"
+      );
+
+
+    durationSelect.innerHTML = `
+
+      <option value="">
+        Select duration
+      </option>
+
+    `;
+
+
+    endInput.value =
+      "";
+
+    continueBtn.disabled =
+      true;
+
+
+    const start =
+      parseInt(
+        document.getElementById(
+          "startTime"
+        ).value
+      );
+
+
+    if (
+      isNaN(start)
+    ) {
+
+      selectedStartTime =
+        null;
+
+      selectedEndTime =
+        null;
+
+      return;
+
+    }
+
+
+    selectedStartTime =
+      start;
+
+
+    const closing =
+      timeToMinutes(
+        selectedFacility.closingTime
+      );
+
+
+    /*
+      Maximum duration:
+      4 hours / 240 minutes.
+    */
+
+    const maxDuration =
+      Math.min(
+        240,
+        closing - start
+      );
+
+
+    for (
+      let duration = 30;
+      duration <= maxDuration;
+      duration += 30
+    ) {
+
+      const end =
+        start + duration;
 
 
       if (
-        !selectedFacility
+        isEntireIntervalAvailable(
+          start,
+          end
+        )
       ) {
 
-        schedule.innerHTML = `
-          <div class="empty">
-            Select a facility first.
-          </div>
-        `;
+        const option =
+          document.createElement(
+            "option"
+          );
 
-        return;
+        option.value =
+          duration;
+
+        option.textContent =
+          formatDuration(
+            duration
+          );
+
+        durationSelect.appendChild(
+          option
+        );
 
       }
 
+    }
 
-      const opening =
+  }
+
+
+  /* =========================================================
+     ENTIRE INTERVAL AVAILABILITY
+  ========================================================= */
+
+  function isEntireIntervalAvailable(
+    start,
+    end
+  ) {
+
+    return !bookings.some(
+      booking => {
+
+        if (
+          booking.facility !==
+          selectedFacility.facility
+        ) {
+
+          return false;
+
+        }
+
+
+        if (
+          booking.date !==
+          selectedDate
+        ) {
+
+          return false;
+
+        }
+
+
+        const bookingStart =
+          timeToMinutes(
+            booking.start
+          );
+
+        const bookingEnd =
+          timeToMinutes(
+            booking.end
+          );
+
+
+        return intervalsOverlap(
+          start,
+          end,
+          bookingStart,
+          bookingEnd
+        );
+
+      }
+    );
+
+  }
+
+
+  /* =========================================================
+     UPDATE END TIME
+  ========================================================= */
+
+  function updateEndTime() {
+
+    const duration =
+      parseInt(
+        document.getElementById(
+          "duration"
+        ).value
+      );
+
+
+    const endInput =
+      document.getElementById(
+        "endTime"
+      );
+
+
+    const continueBtn =
+      document.getElementById(
+        "continueBtn"
+      );
+
+
+    if (
+      !selectedStartTime ||
+      isNaN(duration)
+    ) {
+
+      endInput.value =
+        "";
+
+      continueBtn.disabled =
+        true;
+
+      return;
+
+    }
+
+
+    const end =
+      selectedStartTime +
+      duration;
+
+
+    if (
+      !isEntireIntervalAvailable(
+        selectedStartTime,
+        end
+      )
+    ) {
+
+      endInput.value =
+        "";
+
+      continueBtn.disabled =
+        true;
+
+      return;
+
+    }
+
+
+    selectedEndTime =
+      end;
+
+
+    endInput.value =
+      formatMinutes(
+        end
+      );
+
+
+    continueBtn.disabled =
+      false;
+
+  }
+
+
+  /* =========================================================
+     RESET BOOKING CONTROLS
+  ========================================================= */
+
+  function resetBookingControls() {
+
+    document.getElementById(
+      "startTime"
+    ).innerHTML = `
+
+      <option value="">
+        Select start time
+      </option>
+
+    `;
+
+
+    document.getElementById(
+      "duration"
+    ).innerHTML = `
+
+      <option value="">
+        Select duration
+      </option>
+
+    `;
+
+
+    document.getElementById(
+      "endTime"
+    ).value =
+      "";
+
+
+    document.getElementById(
+      "continueBtn"
+    ).disabled =
+      true;
+
+
+    selectedStartTime =
+      null;
+
+    selectedEndTime =
+      null;
+
+
+    /*
+      Populate start times using
+      facility opening/closing hours.
+    */
+
+    if (
+      selectedFacility
+    ) {
+
+      const startSelect =
+        document.getElementById(
+          "startTime"
+        );
+
+
+      const open =
         timeToMinutes(
           selectedFacility.openingTime
         );
 
-
-      const closing =
+      const close =
         timeToMinutes(
           selectedFacility.closingTime
         );
 
 
-      if (
-        !Number.isFinite(
-          opening
-        ) ||
-        !Number.isFinite(
-          closing
-        ) ||
-        closing <= opening
-      ) {
-
-        schedule.innerHTML = `
-          <div class="empty">
-            This facility has invalid operating hours.
-          </div>
-        `;
-
-        return;
-
-      }
-
-
-      let hasSlots =
-        false;
-
-
-      /*
-       * Generate 30-minute slots.
-       */
-
       for (
-        let time = opening;
-
-        time + SLOT_INTERVAL <= closing;
-
-        time += SLOT_INTERVAL
+        let time = open;
+        time < close;
+        time += 30
       ) {
 
-        hasSlots =
-          true;
+        const option =
+          document.createElement(
+            "option"
+          );
 
+        option.value =
+          time;
 
-        const start =
-          minutesToTime(
+        option.textContent =
+          formatMinutes(
             time
           );
 
-
-        const end =
-          minutesToTime(
-            time +
-            SLOT_INTERVAL
-          );
-
-
-        const status =
-          getSlotStatus(
-            start,
-            end
-          );
-
-
-        const slot =
-          document.createElement(
-            "button"
-          );
-
-
-        slot.type =
-          "button";
-
-
-        slot.className =
-          `slot ${status}`;
-
-
-        slot.innerHTML = `
-
-          <div class="slot-time">
-
-            ${formatTime(
-              start
-            )}
-
-          </div>
-
-
-          <div class="slot-status">
-
-            ${statusLabel(
-              status
-            )}
-
-          </div>
-
-        `;
-
-
-        /*
-         * Only available slots
-         * can be selected.
-         */
-
-        if (
-          status ===
-          "available"
-        ) {
-
-          slot.addEventListener(
-            "click",
-            function() {
-
-              selectStartTime(
-                start
-              );
-
-            }
-          );
-
-        } else {
-
-          slot.disabled =
-            true;
-
-        }
-
-
-        schedule.appendChild(
-          slot
+        startSelect.appendChild(
+          option
         );
-
-      }
-
-
-      if (!hasSlots) {
-
-        schedule.innerHTML = `
-          <div class="empty">
-            This facility has no available operating slots.
-          </div>
-        `;
 
       }
 
     }
 
+  }
 
 
-    /* =========================================================
-       SLOT STATUS LABEL
-       ========================================================= */
+  /* =========================================================
+     CONTINUE TO GOOGLE FORM
+  ========================================================= */
 
-    function statusLabel(
-      status
+  function continueToForm() {
+
+    if (
+      !selectedFacility ||
+      !selectedDate ||
+      selectedStartTime === null ||
+      selectedEndTime === null
     ) {
 
-      if (
-        status ===
-        "booked"
-      ) {
+      alert(
+        "Please select a facility, date, start time and duration."
+      );
 
-        return "Booked";
-
-      }
-
-
-      if (
-        status ===
-        "pending"
-      ) {
-
-        return "Pending";
-
-      }
-
-
-      return "Available";
+      return;
 
     }
 
 
+    /*
+      Final availability check
+      before opening the form.
+    */
 
-    /* =========================================================
-       GET SLOT STATUS
-       ========================================================= */
-
-    function getSlotStatus(
-      start,
-      end
+    if (
+      !isEntireIntervalAvailable(
+        selectedStartTime,
+        selectedEndTime
+      )
     ) {
 
-      const startMinutes =
-        timeToMinutes(
-          start
-        );
+      alert(
+        "Sorry, this time is no longer available. Please choose another slot."
+      );
 
+      loadAvailability();
 
-      const endMinutes =
-        timeToMinutes(
-          end
-        );
-
-
-      const overlapping =
-        bookings.filter(
-          booking => {
-
-            const existingStart =
-              timeToMinutes(
-                booking.start
-              );
-
-
-            const existingEnd =
-              timeToMinutes(
-                booking.end
-              );
-
-
-            return (
-              startMinutes <
-                existingEnd &&
-
-              endMinutes >
-                existingStart
-            );
-
-          }
-        );
-
-
-      /*
-       * APPROVED has priority.
-       */
-
-      if (
-        overlapping.some(
-          booking =>
-            booking.status ===
-            "APPROVED"
-        )
-      ) {
-
-        return "booked";
-
-      }
-
-
-      if (
-        overlapping.some(
-          booking =>
-            booking.status ===
-            "PENDING"
-        )
-      ) {
-
-        return "pending";
-
-      }
-
-
-      return "available";
+      return;
 
     }
 
 
+    const start =
+      formatMinutes(
+        selectedStartTime
+      );
 
-    /* =========================================================
-       SELECT START TIME
-       ========================================================= */
+    const end =
+      formatMinutes(
+        selectedEndTime
+      );
 
-    function selectStartTime(
+
+    const params =
+      new URLSearchParams();
+
+
+    params.set(
+      FORM_FIELDS.facility,
+      selectedFacility.facility
+    );
+
+
+    params.set(
+      FORM_FIELDS.date,
+      selectedDate
+    );
+
+
+    params.set(
+      FORM_FIELDS.start,
       start
-    ) {
+    );
 
-      document.getElementById(
-        "startTime"
-      ).value =
-        start;
 
-
-      updateDurationOptions();
-
-
-      const duration =
-        document.getElementById(
-          "duration"
-        );
-
-
-      /*
-       * Default to 60 minutes
-       * if available.
-       */
-
-      if (
-        [...duration.options].some(
-          option =>
-            option.value ===
-            "60"
-        )
-      ) {
-
-        duration.value =
-          "60";
-
-      } else if (
-        duration.options.length >
-        1
-      ) {
-
-        duration.value =
-          duration.options[1].value;
-
-      }
-
-
-      updateBooking();
-
-
-      document.getElementById(
-        "startTime"
-      ).scrollIntoView({
-
-        behavior: "smooth",
-
-        block: "center"
-
-      });
-
-    }
-
-
-
-    /* =========================================================
-       UPDATE DURATION OPTIONS
-       ========================================================= */
-
-    function updateDurationOptions() {
-
-      const start =
-        document.getElementById(
-          "startTime"
-        ).value;
-
-
-      const duration =
-        document.getElementById(
-          "duration"
-        );
-
-
-      duration.innerHTML = `
-        <option value="">
-          Select duration
-        </option>
-      `;
-
-
-      duration.disabled =
-        true;
-
-
-      if (
-        !start ||
-        !selectedFacility
-      ) {
-
-        return;
-
-      }
-
-
-      const startMinutes =
-        timeToMinutes(
-          start
-        );
-
-
-      const closing =
-        timeToMinutes(
-          selectedFacility.closingTime
-        );
-
-
-      /*
-       * Generate 30-minute
-       * duration options.
-       */
-
-      for (
-        let minutes =
-          MIN_DURATION;
-
-        minutes <=
-        MAX_DURATION;
-
-        minutes +=
-          MIN_DURATION
-      ) {
-
-        const endMinutes =
-          startMinutes +
-          minutes;
-
-
-        if (
-          endMinutes >
-          closing
-        ) {
-
-          break;
-
-        }
-
-
-        const end =
-          minutesToTime(
-            endMinutes
-          );
-
-
-        /*
-         * Only show durations
-         * where the entire period
-         * is available.
-         */
-
-        if (
-          isSlotAvailable(
-            start,
-            end
-          )
-        ) {
-
-          const option =
-            document.createElement(
-              "option"
-            );
-
-
-          option.value =
-            minutes;
-
-
-          option.textContent =
-            formatDuration(
-              minutes
-            );
-
-
-          duration.appendChild(
-            option
-          );
-
-        }
-
-      }
-
-
-      if (
-        duration.options.length >
-        1
-      ) {
-
-        duration.disabled =
-          false;
-
-      }
-
-    }
-
-
-
-    /* =========================================================
-       UPDATE BOOKING
-       ========================================================= */
-
-    function updateBooking() {
-
-      const start =
-        document.getElementById(
-          "startTime"
-        ).value;
-
-
-      const duration =
-        Number(
-          document.getElementById(
-            "duration"
-          ).value
-        );
-
-
-      if (
-        !start ||
-        !duration ||
-        !selectedFacility
-      ) {
-
-        hideBookingPreview();
-
-        return;
-
-      }
-
-
-      const end =
-        minutesToTime(
-          timeToMinutes(
-            start
-          ) +
-          duration
-        );
-
-
-      selectedBooking = {
-
-        facility:
-          selectedFacility.name,
-
-        date:
-          document.getElementById(
-            "date"
-          ).value,
-
-        start,
-
-        duration,
-
-        end
-
-      };
-
-
-      renderBookingPreview();
-
-    }
-
-
-
-    /* =========================================================
-       BOOKING PREVIEW
-       ========================================================= */
-
-    function renderBookingPreview() {
-
-      const booking =
-        selectedBooking;
-
-
-      const preview =
-        document.getElementById(
-          "bookingPreview"
-        );
-
-
-      const result =
-        document.getElementById(
-          "availabilityResult"
-        );
-
-
-      const button =
-        document.getElementById(
-          "bookButton"
-        );
-
-
-      document.getElementById(
-        "previewTime"
-      ).textContent =
-        `${formatTime(
-          booking.start
-        )} → ${formatTime(
-          booking.end
-        )}`;
-
-
-      document.getElementById(
-        "previewDetails"
-      ).textContent =
-        `${booking.facility} • ${formatDate(
-          booking.date
-        )} • ${formatDuration(
-          booking.duration
-        )}`;
-
-
-      preview.style.display =
-        "block";
-
-
-      const available =
-        isSlotAvailable(
-          booking.start,
-          booking.end
-        );
-
-
-      result.className =
-        "availability-result " +
-        (
-          available
-            ? "available"
-            : "unavailable"
-        );
-
-
-      result.textContent =
-        available
-          ? "✓ This entire booking slot is available."
-          : "× This booking overlaps with an existing booking.";
-
-
-      button.disabled =
-        !available;
-
-    }
-
-
-
-    /* =========================================================
-       CHECK COMPLETE SLOT
-       ========================================================= */
-
-    function isSlotAvailable(
-      start,
+    params.set(
+      FORM_FIELDS.end,
       end
+    );
+
+
+    const url =
+      GOOGLE_FORM_URL +
+      "?" +
+      params.toString();
+
+
+    window.open(
+      url,
+      "_blank"
+    );
+
+  }
+
+
+  /* =========================================================
+     NORMALIZE TIME
+  ========================================================= */
+
+  function normalizeTime(
+    value
+  ) {
+
+    if (
+      value === null ||
+      value === undefined ||
+      value === ""
     ) {
-
-      if (
-        !selectedFacility
-      ) {
-
-        return false;
-
-      }
-
-
-      const startMinutes =
-        timeToMinutes(
-          start
-        );
-
-
-      const endMinutes =
-        timeToMinutes(
-          end
-        );
-
-
-      const opening =
-        timeToMinutes(
-          selectedFacility.openingTime
-        );
-
-
-      const closing =
-        timeToMinutes(
-          selectedFacility.closingTime
-        );
-
-
-      /*
-       * Check operating hours.
-       */
-
-      if (
-        startMinutes <
-          opening ||
-
-        endMinutes >
-          closing ||
-
-        endMinutes <=
-          startMinutes
-      ) {
-
-        return false;
-
-      }
-
-
-      /*
-       * Check against all
-       * PENDING and APPROVED
-       * public bookings.
-       */
-
-      return !bookings.some(
-        booking => {
-
-          const existingStart =
-            timeToMinutes(
-              booking.start
-            );
-
-
-          const existingEnd =
-            timeToMinutes(
-              booking.end
-            );
-
-
-          return (
-            startMinutes <
-              existingEnd &&
-
-            endMinutes >
-              existingStart
-          );
-
-        }
-      );
-
-    }
-
-
-
-    /* =========================================================
-       CONTINUE TO GOOGLE FORM
-       ========================================================= */
-
-    function continueToForm() {
-
-      const booking =
-        selectedBooking;
-
-
-      if (
-        !booking.facility ||
-        !booking.date ||
-        !booking.start ||
-        !booking.end
-      ) {
-
-        return;
-
-      }
-
-
-      /*
-       * Final frontend availability check.
-       */
-
-      if (
-        !isSlotAvailable(
-          booking.start,
-          booking.end
-        )
-      ) {
-
-        renderBookingPreview();
-
-        return;
-
-      }
-
-
-      const params =
-        new URLSearchParams();
-
-
-      params.set(
-        "usp",
-        "pp_url"
-      );
-
-
-      params.set(
-        FORM_FIELDS.facility,
-        booking.facility
-      );
-
-
-      params.set(
-        FORM_FIELDS.date,
-        booking.date
-      );
-
-
-      params.set(
-        FORM_FIELDS.start,
-        booking.start
-      );
-
-
-      params.set(
-        FORM_FIELDS.end,
-        booking.end
-      );
-
-
-      const url =
-        `${FORM_URL}?${params.toString()}`;
-
-
-      window.open(
-        url,
-        "_blank"
-      );
-
-    }
-
-
-
-    /* =========================================================
-       RESET BOOKING
-       ========================================================= */
-
-    function resetBooking() {
-
-      selectedBooking = {
-
-        facility: "",
-
-        date:
-          document.getElementById(
-            "date"
-          ).value,
-
-        start: "",
-
-        duration: 0,
-
-        end: ""
-
-      };
-
-
-      document.getElementById(
-        "startTime"
-      ).innerHTML = `
-        <option value="">
-          Select start time
-        </option>
-      `;
-
-
-      document.getElementById(
-        "duration"
-      ).innerHTML = `
-        <option value="">
-          Select duration
-        </option>
-      `;
-
-
-      document.getElementById(
-        "duration"
-      ).disabled =
-        true;
-
-
-      hideBookingPreview();
-
-    }
-
-
-
-    /* =========================================================
-       HIDE BOOKING PREVIEW
-       ========================================================= */
-
-    function hideBookingPreview() {
-
-      document.getElementById(
-        "bookingPreview"
-      ).style.display =
-        "none";
-
-
-      const result =
-        document.getElementById(
-          "availabilityResult"
-        );
-
-
-      result.className =
-        "availability-result";
-
-
-      result.textContent =
-        "";
-
-
-      document.getElementById(
-        "bookButton"
-      ).disabled =
-        true;
-
-    }
-
-
-
-    /* =========================================================
-       STATUS
-       ========================================================= */
-
-    function showStatus(
-      elementId,
-      message,
-      type
-    ) {
-
-      const element =
-        document.getElementById(
-          elementId
-        );
-
-
-      if (!element) {
-
-        return;
-
-      }
-
-
-      element.textContent =
-        message;
-
-
-      element.className =
-        `status show ${type}`;
-
-    }
-
-
-    function hideStatus(
-      elementId
-    ) {
-
-      const element =
-        document.getElementById(
-          elementId
-        );
-
-
-      if (!element) {
-
-        return;
-
-      }
-
-
-      element.className =
-        "status";
-
-    }
-
-
-
-    /* =========================================================
-       DATE NORMALISATION
-       ========================================================= */
-
-    function normalizeDate(
-      value
-    ) {
-
-      if (
-        value === null ||
-        value === undefined ||
-        value === ""
-      ) {
-
-        return "";
-
-      }
-
-
-      const string =
-        String(
-          value
-        ).trim();
-
-
-      /*
-       * Already ISO:
-       * YYYY-MM-DD
-       */
-
-      if (
-        /^\d{4}-\d{2}-\d{2}$/.test(
-          string
-        )
-      ) {
-
-        return string;
-
-      }
-
-
-      /*
-       * Google Sheets Date()
-       */
-
-      const googleDate =
-        string.match(
-          /^Date\((\d+),\s*(\d+),\s*(\d+)(?:,\s*\d+.*)?\)$/
-        );
-
-
-      if (googleDate) {
-
-        const year =
-          Number(
-            googleDate[1]
-          );
-
-
-        const month =
-          Number(
-            googleDate[2]
-          ) + 1;
-
-
-        const day =
-          Number(
-            googleDate[3]
-          );
-
-
-        return (
-          String(
-            year
-          ) +
-          "-" +
-          String(
-            month
-          ).padStart(
-            2,
-            "0"
-          ) +
-          "-" +
-          String(
-            day
-          ).padStart(
-            2,
-            "0"
-          )
-        );
-
-      }
-
-
-      /*
-       * DD/MM/YYYY
-       */
-
-      const slash =
-        string.match(
-          /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/
-        );
-
-
-      if (slash) {
-
-        const first =
-          Number(
-            slash[1]
-          );
-
-
-        const second =
-          Number(
-            slash[2]
-          );
-
-
-        const year =
-          Number(
-            slash[3]
-          );
-
-
-        return (
-          String(
-            year
-          ) +
-          "-" +
-          String(
-            second
-          ).padStart(
-            2,
-            "0"
-          ) +
-          "-" +
-          String(
-            first
-          ).padStart(
-            2,
-            "0"
-          )
-        );
-
-      }
-
-
-      /*
-       * General date.
-       */
-
-      const parsed =
-        new Date(
-          string
-        );
-
-
-      if (
-        !isNaN(
-          parsed.getTime()
-        )
-      ) {
-
-        return (
-          String(
-            parsed.getFullYear()
-          ) +
-          "-" +
-          String(
-            parsed.getMonth() + 1
-          ).padStart(
-            2,
-            "0"
-          ) +
-          "-" +
-          String(
-            parsed.getDate()
-          ).padStart(
-            2,
-            "0"
-          )
-        );
-
-      }
-
 
       return "";
 
     }
 
 
+    let text =
+      String(value)
+      .trim();
 
-    /* =========================================================
-       TIME NORMALISATION
-       ========================================================= */
 
-    function normalizeTime(
-      value
+    /*
+      Google Sheets sometimes returns:
+
+      Date(1899,11,30,8,0,0)
+    */
+
+    const dateMatch =
+      text.match(
+        /Date\(\d+,\s*\d+,\s*\d+,\s*(\d+),\s*(\d+)(?:,\s*(\d+))?/
+      );
+
+
+    if (
+      dateMatch
     ) {
 
-      if (
-        value === null ||
-        value === undefined ||
-        value === ""
-      ) {
+      const hours =
+        parseInt(
+          dateMatch[1]
+        );
 
-        return "";
-
-      }
-
-
-      let string =
-        String(
-          value
-        ).trim();
-
-
-      /*
-       * HH:MM:SS
-       */
-
-      if (
-        /^\d{1,2}:\d{2}:\d{2}$/.test(
-          string
-        )
-      ) {
-
-        string =
-          string.substring(
-            0,
-            5
-          );
-
-      }
-
-
-      /*
-       * HH:MM
-       */
-
-      if (
-        /^\d{1,2}:\d{2}$/.test(
-          string
-        )
-      ) {
-
-        const parts =
-          string.split(
-            ":"
-          );
-
-
-        const hour =
-          Number(
-            parts[0]
-          );
-
-
-        const minute =
-          Number(
-            parts[1]
-          );
-
-
-        if (
-          hour >= 0 &&
-          hour <= 23 &&
-          minute >= 0 &&
-          minute <= 59
-        ) {
-
-          return (
-            String(
-              hour
-            ).padStart(
-              2,
-              "0"
-            ) +
-            ":" +
-            String(
-              minute
-            ).padStart(
-              2,
-              "0"
-            )
-          );
-
-        }
-
-      }
-
-
-      /*
-       * 12-hour format.
-       */
-
-      const match =
-        string.match(
-          /^(\d{1,2}):(\d{2})\s*(AM|PM)$/i
+      const minutes =
+        parseInt(
+          dateMatch[2]
         );
 
 
-      if (match) {
+      return minutesToTime(
+        hours * 60 + minutes
+      );
 
-        let hour =
-          parseInt(
-            match[1],
-            10
-          );
+    }
 
 
-        const minute =
-          parseInt(
-            match[2],
-            10
-          );
+    /*
+      24-hour format:
+
+      08:00
+      08:00:00
+    */
+
+    let match =
+      text.match(
+        /^(\d{1,2}):(\d{2})(?::(\d{2}))?$/
+      );
 
 
-        const period =
-          match[3].toUpperCase();
+    if (
+      match
+    ) {
 
-
-        if (
-          period === "PM" &&
-          hour !== 12
-        ) {
-
-          hour +=
-            12;
-
-        }
-
-
-        if (
-          period === "AM" &&
-          hour === 12
-        ) {
-
-          hour =
-            0;
-
-        }
-
-
-        return (
-          String(
-            hour
-          ).padStart(
-            2,
-            "0"
-          ) +
-          ":" +
-          String(
-            minute
-          ).padStart(
-            2,
-            "0"
-          )
+      const hours =
+        parseInt(
+          match[1]
         );
 
-      }
-
-
-      /*
-       * Numeric fraction of a day.
-       */
-
-      const numeric =
-        Number(
-          string
+      const minutes =
+        parseInt(
+          match[2]
         );
 
 
       if (
-        !isNaN(
-          numeric
-        ) &&
-        numeric >= 0 &&
-        numeric < 1
+        hours >= 0 &&
+        hours <= 23 &&
+        minutes >= 0 &&
+        minutes <= 59
       ) {
 
-        const totalMinutes =
-          Math.round(
-            numeric *
-            24 *
-            60
-          );
+        return minutesToTime(
+          hours * 60 + minutes
+        );
+
+      }
+
+    }
+
+
+    /*
+      12-hour format:
+
+      8:00 AM
+      11:30 PM
+    */
+
+    match =
+      text.match(
+        /^(\d{1,2}):(\d{2})\s*(AM|PM)$/i
+      );
+
+
+    if (
+      match
+    ) {
+
+      let hours =
+        parseInt(
+          match[1]
+        );
+
+      const minutes =
+        parseInt(
+          match[2]
+        );
+
+      const period =
+        match[3].toUpperCase();
+
+
+      if (
+        hours >= 1 &&
+        hours <= 12 &&
+        minutes >= 0 &&
+        minutes <= 59
+      ) {
+
+        if (
+          period === "AM"
+        ) {
+
+          if (
+            hours === 12
+          ) {
+
+            hours = 0;
+
+          }
+
+        }
+        else {
+
+          if (
+            hours !== 12
+          ) {
+
+            hours += 12;
+
+          }
+
+        }
 
 
         return minutesToTime(
-          totalMinutes
+          hours * 60 + minutes
         );
 
       }
 
+    }
+
+
+    /*
+      Google Sheets can return time
+      as a decimal fraction of a day.
+
+      Example:
+
+      0.333333 = 08:00
+    */
+
+    const numeric =
+      Number(text);
+
+
+    if (
+      !isNaN(numeric) &&
+      numeric >= 0 &&
+      numeric < 1
+    ) {
+
+      const totalMinutes =
+        Math.round(
+          numeric * 24 * 60
+        );
+
+
+      return minutesToTime(
+        totalMinutes
+      );
+
+    }
+
+
+    console.warn(
+      "Could not normalize time:",
+      value
+    );
+
+
+    return "";
+
+  }
+
+
+  /* =========================================================
+     NORMALIZE DATE
+  ========================================================= */
+
+  function normalizeDate(
+    value
+  ) {
+
+    if (
+      value === null ||
+      value === undefined ||
+      value === ""
+    ) {
 
       return "";
 
     }
 
 
+    let text =
+      String(value)
+      .trim();
 
-    /* =========================================================
-       TIME UTILITIES
-       ========================================================= */
 
-    function timeToMinutes(
-      time
+    /*
+      Google Sheets Date():
+
+      Date(2026,9,8)
+    */
+
+    const dateMatch =
+      text.match(
+        /Date\((\d+),\s*(\d+),\s*(\d+)/
+      );
+
+
+    if (
+      dateMatch
     ) {
 
-      if (!time) {
-
-        return NaN;
-
-      }
-
-
-      const parts =
-        String(
-          time
-        ).split(
-          ":"
+      const year =
+        parseInt(
+          dateMatch[1]
         );
 
+      const month =
+        parseInt(
+          dateMatch[2]
+        ) + 1;
 
-      if (
-        parts.length < 2
-      ) {
-
-        return NaN;
-
-      }
-
-
-      const hour =
-        Number(
-          parts[0]
+      const day =
+        parseInt(
+          dateMatch[3]
         );
-
-
-      const minute =
-        Number(
-          parts[1]
-        );
-
-
-      if (
-        !Number.isFinite(
-          hour
-        ) ||
-        !Number.isFinite(
-          minute
-        )
-      ) {
-
-        return NaN;
-
-      }
 
 
       return (
-        hour *
-          60 +
-        minute
+        year +
+        "-" +
+        String(month)
+          .padStart(2, "0") +
+        "-" +
+        String(day)
+          .padStart(2, "0")
       );
 
     }
 
 
-
-    function minutesToTime(
-      minutes
-    ) {
-
-      const hour =
-        Math.floor(
-          minutes /
-          60
-        );
-
-
-      const minute =
-        minutes %
-        60;
-
-
-      return (
-        String(
-          hour
-        ).padStart(
-          2,
-          "0"
-        ) +
-        ":" +
-        String(
-          minute
-        ).padStart(
-          2,
-          "0"
-        )
-      );
-
-    }
-
-
-
-    /* =========================================================
-       DISPLAY UTILITIES
-       ========================================================= */
-
-    function formatTime(
-      time
-    ) {
-
-      if (!time) {
-
-        return "—";
-
-      }
-
-
-      const parts =
-        time.split(
-          ":"
-        );
-
-
-      let hour =
-        Number(
-          parts[0]
-        );
-
-
-      const minute =
-        parts[1];
-
-
-      const period =
-        hour >= 12
-          ? "PM"
-          : "AM";
-
-
-      hour =
-        hour %
-        12;
-
-
-      if (
-        hour === 0
-      ) {
-
-        hour =
-          12;
-
-      }
-
-
-      return (
-        `${hour}:${minute} ${period}`
-      );
-
-    }
-
-
-
-    function formatDuration(
-      minutes
-    ) {
-
-      if (
-        minutes < 60
-      ) {
-
-        return (
-          `${minutes} minutes`
-        );
-
-      }
-
-
-      const hours =
-        Math.floor(
-          minutes /
-          60
-        );
-
-
-      const remaining =
-        minutes %
-        60;
-
-
-      if (!remaining) {
-
-        return (
-          hours === 1
-            ? "1 hour"
-            : `${hours} hours`
-        );
-
-      }
-
-
-      return (
-        `${hours} hr ${remaining} min`
-      );
-
-    }
-
-
-
-    function formatDate(
-      date
-    ) {
-
-      if (!date) {
-
-        return "—";
-
-      }
-
-
-      const parts =
-        date.split(
-          "-"
-        );
-
-
-      if (
-        parts.length !== 3
-      ) {
-
-        return date;
-
-      }
-
-
-      const d =
-        new Date(
-          Number(
-            parts[0]
-          ),
-          Number(
-            parts[1]
-          ) - 1,
-          Number(
-            parts[2]
-          )
-        );
-
-
-      return d.toLocaleDateString(
-        "en-MY",
-        {
-
-          weekday:
-            "long",
-
-          day:
-            "numeric",
-
-          month:
-            "long",
-
-          year:
-            "numeric"
-
-        }
-      );
-
-    }
-
-
-
-    /* =========================================================
-       HTML ESCAPE
-       ========================================================= */
-
-    function escapeHtml(
-      value
-    ) {
-
-      return String(
-        value
+    /*
+      Already YYYY-MM-DD
+    */
+
+    if (
+      /^\d{4}-\d{2}-\d{2}$/.test(
+        text
       )
-        .replace(
-          /&/g,
-          "&amp;"
-        )
-        .replace(
-          /</g,
-          "&lt;"
-        )
-        .replace(
-          />/g,
-          "&gt;"
-        )
-        .replace(
-          /"/g,
-          "&quot;"
-        )
-        .replace(
-          /'/g,
-          "&#039;"
-        );
+    ) {
+
+      return text;
 
     }
 
 
-  </script>
+    /*
+      DD/MM/YYYY
+    */
 
+    let match =
+      text.match(
+        /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/
+      );
+
+
+    if (
+      match
+    ) {
+
+      const day =
+        parseInt(
+          match[1]
+        );
+
+      const month =
+        parseInt(
+          match[2]
+        );
+
+      const year =
+        parseInt(
+          match[3]
+        );
+
+
+      return (
+        year +
+        "-" +
+        String(month)
+          .padStart(2, "0") +
+        "-" +
+        String(day)
+          .padStart(2, "0")
+      );
+
+    }
+
+
+    /*
+      Try normal JS date parsing
+      as a final fallback.
+    */
+
+    const parsed =
+      new Date(text);
+
+
+    if (
+      !isNaN(
+        parsed.getTime()
+      )
+    ) {
+
+      return formatDateForInput(
+        parsed
+      );
+
+    }
+
+
+    return "";
+
+  }
+
+
+  /* =========================================================
+     TIME UTILITIES
+  ========================================================= */
+
+  function timeToMinutes(
+    time
+  ) {
+
+    if (
+      !time
+    ) {
+
+      return NaN;
+
+    }
+
+
+    const parts =
+      time.split(":");
+
+
+    return (
+      parseInt(parts[0]) * 60 +
+      parseInt(parts[1])
+    );
+
+  }
+
+
+  function minutesToTime(
+    minutes
+  ) {
+
+    const hours =
+      Math.floor(
+        minutes / 60
+      );
+
+    const mins =
+      minutes % 60;
+
+
+    return (
+      String(hours)
+        .padStart(2, "0") +
+      ":" +
+      String(mins)
+        .padStart(2, "0")
+    );
+
+  }
+
+
+  function formatMinutes(
+    minutes
+  ) {
+
+    let hours =
+      Math.floor(
+        minutes / 60
+      );
+
+    const mins =
+      minutes % 60;
+
+
+    const period =
+      hours >= 12
+        ? "PM"
+        : "AM";
+
+
+    if (
+      hours === 0
+    ) {
+
+      hours = 12;
+
+    }
+    else if (
+      hours > 12
+    ) {
+
+      hours -= 12;
+
+    }
+
+
+    return (
+      hours +
+      ":" +
+      String(mins)
+        .padStart(2, "0") +
+      " " +
+      period
+    );
+
+  }
+
+
+  function formatTime(
+    time
+  ) {
+
+    const minutes =
+      timeToMinutes(
+        time
+      );
+
+
+    if (
+      isNaN(minutes)
+    ) {
+
+      return "Invalid time";
+
+    }
+
+
+    return formatMinutes(
+      minutes
+    );
+
+  }
+
+
+  function formatDuration(
+    minutes
+  ) {
+
+    if (
+      minutes < 60
+    ) {
+
+      return minutes +
+        " minutes";
+
+    }
+
+
+    const hours =
+      Math.floor(
+        minutes / 60
+      );
+
+    const remainder =
+      minutes % 60;
+
+
+    if (
+      remainder === 0
+    ) {
+
+      return (
+        hours +
+        (
+          hours === 1
+            ? " hour"
+            : " hours"
+        )
+      );
+
+    }
+
+
+    return (
+      hours +
+      (
+        hours === 1
+          ? " hour "
+          : " hours "
+      ) +
+      remainder +
+      " minutes"
+    );
+
+  }
+
+
+  /* =========================================================
+     HTML ESCAPE
+  ========================================================= */
+
+  function escapeHtml(
+    value
+  ) {
+
+    return String(value)
+      .replace(
+        /&/g,
+        "&amp;"
+      )
+      .replace(
+        /</g,
+        "&lt;"
+      )
+      .replace(
+        />/g,
+        "&gt;"
+      )
+      .replace(
+        /"/g,
+        "&quot;"
+      )
+      .replace(
+        /'/g,
+        "&#039;"
+      );
+
+  }
+
+</script>
 
 </body>
-
 </html>
