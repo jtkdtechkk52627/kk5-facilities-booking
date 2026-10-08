@@ -46,10 +46,6 @@
       display: block;
     }
 
-    /* =========================
-       FACILITY CARDS
-    ========================= */
-
     .facility-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -82,10 +78,6 @@
       font-size: 14px;
     }
 
-    /* =========================
-       BUTTONS
-    ========================= */
-
     button {
       border: none;
       border-radius: 9px;
@@ -117,10 +109,6 @@
       margin-bottom: 20px;
     }
 
-    /* =========================
-       FACILITY INFO
-    ========================= */
-
     .facility-header {
       background: white;
       border-radius: 14px;
@@ -137,10 +125,6 @@
       margin: 5px 0;
       color: #6b7280;
     }
-
-    /* =========================
-       DATE
-    ========================= */
 
     .date-section {
       background: white;
@@ -167,9 +151,10 @@
       background: white;
     }
 
-    /* =========================
-       AVAILABILITY
-    ========================= */
+    input[readonly] {
+      background: #f9fafb;
+      color: #6b7280;
+    }
 
     .availability-section {
       background: white;
@@ -239,10 +224,6 @@
       outline: 3px solid #111827;
     }
 
-    /* =========================
-       BOOKING CONTROLS
-    ========================= */
-
     .booking-controls {
       margin-top: 25px;
       padding-top: 20px;
@@ -302,12 +283,7 @@
       background: #fca5a5;
     }
 
-    /* =========================
-       MOBILE
-    ========================= */
-
     @media (max-width: 600px) {
-
       .container {
         padding: 20px 15px 40px;
       }
@@ -323,52 +299,34 @@
       .slot-grid {
         grid-template-columns: repeat(2, 1fr);
       }
-
     }
-
   </style>
 </head>
-
 
 <body>
 
 <div class="container">
 
-
-  <!-- =====================================================
-       HOMEPAGE
-  ====================================================== -->
+  <!-- =========================
+       HOME PAGE
+  ========================== -->
 
   <div id="homePage" class="page active">
 
     <header>
-
-      <h1>
-        KK5 Facility Booking
-      </h1>
-
-      <p>
-        Select a facility to view its availability.
-      </p>
-
+      <h1>KK5 Facility Booking</h1>
+      <p>Select a facility to view its availability.</p>
     </header>
 
-
-    <div
-      id="facilityLoading"
-      class="loading">
-
+    <div id="facilityLoading" class="loading">
       Loading facilities...
-
     </div>
-
 
     <div
       id="facilityError"
       class="error"
       style="display:none;">
     </div>
-
 
     <div
       id="facilityGrid"
@@ -378,22 +336,17 @@
   </div>
 
 
-
-  <!-- =====================================================
-       FACILITY AVAILABILITY PAGE
-  ====================================================== -->
+  <!-- =========================
+       FACILITY PAGE
+  ========================== -->
 
   <div id="facilityPage" class="page">
-
 
     <button
       class="secondary-btn back-btn"
       onclick="goHome()">
-
       ← Back to Facilities
-
     </button>
-
 
     <div class="facility-header">
 
@@ -406,7 +359,6 @@
       </p>
 
     </div>
-
 
 
     <!-- DATE -->
@@ -425,7 +377,6 @@
     </div>
 
 
-
     <!-- AVAILABILITY -->
 
     <div class="availability-section">
@@ -434,15 +385,11 @@
         Availability
       </h3>
 
-
       <div
         id="availabilityLoading"
         class="loading">
-
         Select a date to view availability.
-
       </div>
-
 
       <div
         id="availabilityError"
@@ -450,12 +397,10 @@
         style="display:none;">
       </div>
 
-
       <div
         id="slotGrid"
         class="slot-grid">
       </div>
-
 
 
       <!-- LEGEND -->
@@ -463,41 +408,26 @@
       <div class="legend">
 
         <div class="legend-item">
-
           <div class="legend-box legend-available"></div>
-
           Available
-
         </div>
 
-
         <div class="legend-item">
-
           <div class="legend-box legend-pending"></div>
-
           Pending
-
         </div>
 
-
         <div class="legend-item">
-
           <div class="legend-box legend-booked"></div>
-
           Booked
-
         </div>
 
       </div>
 
 
-
       <!-- BOOKING CONTROLS -->
 
       <div class="booking-controls">
-
-
-        <!-- START TIME -->
 
         <div class="control-group">
 
@@ -518,9 +448,6 @@
         </div>
 
 
-
-        <!-- DURATION -->
-
         <div class="control-group">
 
           <label for="duration">
@@ -540,9 +467,6 @@
         </div>
 
 
-
-        <!-- END TIME -->
-
         <div class="control-group">
 
           <label for="endTime">
@@ -557,9 +481,6 @@
 
         </div>
 
-
-
-        <!-- CONTINUE -->
 
         <button
           id="continueBtn"
@@ -580,7 +501,6 @@
 </div>
 
 
-
 <script>
 
 
@@ -591,18 +511,19 @@
 const PUBLIC_SHEET_ID =
   "1PGb7g244LFMqlqJdJWDGaeGsZzJsel9WTUakDcNatiQ";
 
-
 const FACILITIES_SHEET =
   "Facilities";
-
 
 const BOOKINGS_SHEET =
   "Bookings";
 
-
 const GOOGLE_FORM_URL =
   "https://docs.google.com/forms/d/e/1FAIpQLSdja_U2aFCea0GAL6qZdaUxG5viyi4AlC-zROude_yzXAFIWg/viewform";
 
+
+/*
+  Google Form prefilled field IDs
+*/
 
 const FORM_FIELDS = {
 
@@ -621,9 +542,8 @@ const FORM_FIELDS = {
 };
 
 
-
 /* =========================================================
-   STATE
+   GLOBAL VARIABLES
 ========================================================= */
 
 let facilities = [];
@@ -639,9 +559,8 @@ let selectedStartTime = null;
 let selectedEndTime = null;
 
 
-
 /* =========================================================
-   INITIAL LOAD
+   PAGE INITIALIZATION
 ========================================================= */
 
 document.addEventListener(
@@ -656,9 +575,8 @@ document.addEventListener(
 );
 
 
-
 /* =========================================================
-   DATE SETUP
+   DATE FUNCTIONS
 ========================================================= */
 
 function setMinimumDate() {
@@ -668,10 +586,8 @@ function setMinimumDate() {
       "bookingDate"
     );
 
-
   const today =
     new Date();
-
 
   input.min =
     formatDateForInput(
@@ -681,13 +597,10 @@ function setMinimumDate() {
 }
 
 
-function formatDateForInput(
-  date
-) {
+function formatDateForInput(date) {
 
   const year =
     date.getFullYear();
-
 
   const month =
     String(
@@ -697,7 +610,6 @@ function formatDateForInput(
       "0"
     );
 
-
   const day =
     String(
       date.getDate()
@@ -705,7 +617,6 @@ function formatDateForInput(
       2,
       "0"
     );
-
 
   return (
     year +
@@ -718,93 +629,105 @@ function formatDateForInput(
 }
 
 
-
 /* =========================================================
-   GVIZ FETCH
+   GOOGLE SHEETS GVIZ FETCH
 ========================================================= */
 
-async function fetchGviz(
-  sheetName
-) {
+async function fetchGviz(sheetName) {
 
   const url =
     "https://docs.google.com/spreadsheets/d/" +
     PUBLIC_SHEET_ID +
-    "/gviz/tq?sheet=" +
-    encodeURIComponent(
-      sheetName
-    ) +
+    "/gviz/tq" +
+    "?sheet=" +
+    encodeURIComponent(sheetName) +
     "&tqx=out:json";
 
+  try {
 
-  const response =
-    await fetch(
-      url
+    const response =
+      await fetch(
+        url,
+        {
+          method: "GET",
+          redirect: "follow",
+          cache: "no-store"
+        }
+      );
+
+    const text =
+      await response.text();
+
+    console.log(
+      "GViz response:",
+      response.status,
+      text.substring(
+        0,
+        300
+      )
     );
 
+    if (!response.ok) {
 
-  if (
-    !response.ok
-  ) {
+      throw new Error(
+        "Google Sheet returned HTTP " +
+        response.status
+      );
 
-    throw new Error(
-      "Google Sheet could not be accessed."
+    }
+
+    const start =
+      text.indexOf("(");
+
+    const end =
+      text.lastIndexOf(")");
+
+    if (
+      start === -1 ||
+      end === -1
+    ) {
+
+      throw new Error(
+        "Google Sheet returned an invalid Gviz response."
+      );
+
+    }
+
+    const jsonText =
+      text.substring(
+        start + 1,
+        end
+      );
+
+    return JSON.parse(
+      jsonText
     );
 
   }
 
+  catch (error) {
 
-  const text =
-    await response.text();
-
-
-  const start =
-    text.indexOf("(");
-
-
-  const end =
-    text.lastIndexOf(")");
-
-
-  if (
-    start === -1 ||
-    end === -1
-  ) {
-
-    throw new Error(
-      "Invalid Google Sheet response."
+    console.error(
+      "GViz fetch failed:",
+      error
     );
+
+    throw error;
 
   }
-
-
-  const jsonText =
-    text.substring(
-      start + 1,
-      end
-    );
-
-
-  return JSON.parse(
-    jsonText
-  );
 
 }
 
 
-
 /* =========================================================
-   GVIZ CELL VALUE
+   GOOGLE SHEET CELL HELPER
 ========================================================= */
 
-function getCellValue(
-  cell
-) {
+function getCellValue(cell) {
 
   if (!cell) {
     return "";
   }
-
 
   if (
     cell.f !== undefined &&
@@ -817,7 +740,6 @@ function getCellValue(
 
   }
 
-
   if (
     cell.v !== undefined &&
     cell.v !== null
@@ -829,11 +751,9 @@ function getCellValue(
 
   }
 
-
   return "";
 
 }
-
 
 
 /* =========================================================
@@ -847,30 +767,24 @@ async function loadFacilities() {
       "facilityLoading"
     );
 
-
   const error =
     document.getElementById(
       "facilityError"
     );
-
 
   const grid =
     document.getElementById(
       "facilityGrid"
     );
 
-
   loading.style.display =
     "block";
-
 
   error.style.display =
     "none";
 
-
   grid.innerHTML =
     "";
-
 
   try {
 
@@ -879,12 +793,10 @@ async function loadFacilities() {
         FACILITIES_SHEET
       );
 
-
     facilities =
       parseFacilities(
         data.table
       );
-
 
     if (
       facilities.length === 0
@@ -896,9 +808,7 @@ async function loadFacilities() {
 
     }
 
-
     renderFacilities();
-
 
     loading.style.display =
       "none";
@@ -912,15 +822,12 @@ async function loadFacilities() {
       err
     );
 
-
     loading.style.display =
       "none";
-
 
     error.textContent =
       "Failed to load facilities. " +
       err.message;
-
 
     error.style.display =
       "block";
@@ -930,17 +837,13 @@ async function loadFacilities() {
 }
 
 
-
 /* =========================================================
    PARSE FACILITIES
 ========================================================= */
 
-function parseFacilities(
-  table
-) {
+function parseFacilities(table) {
 
   const result = [];
-
 
   if (
     !table ||
@@ -950,7 +853,6 @@ function parseFacilities(
     return result;
 
   }
-
 
   table.rows.forEach(
     row => {
@@ -964,24 +866,33 @@ function parseFacilities(
 
       }
 
+      /*
+        Public Facilities structure:
+
+        Column A = Facility
+        Column B = Opening Time
+        Column C = Closing Time
+      */
 
       const facility =
         getCellValue(
           row.c[0]
         );
 
-
       const openingRaw =
         getCellValue(
           row.c[1]
         );
-
 
       const closingRaw =
         getCellValue(
           row.c[2]
         );
 
+
+      /*
+        Ignore header
+      */
 
       if (
         !facility ||
@@ -998,7 +909,6 @@ function parseFacilities(
         normalizeTime(
           openingRaw
         );
-
 
       const closingTime =
         normalizeTime(
@@ -1039,11 +949,9 @@ function parseFacilities(
     }
   );
 
-
   return result;
 
 }
-
 
 
 /* =========================================================
@@ -1057,10 +965,8 @@ function renderFacilities() {
       "facilityGrid"
     );
 
-
   grid.innerHTML =
     "";
-
 
   facilities.forEach(
     facility => {
@@ -1070,10 +976,8 @@ function renderFacilities() {
           "div"
         );
 
-
       card.className =
         "facility-card";
-
 
       card.innerHTML = `
 
@@ -1084,8 +988,7 @@ function renderFacilities() {
         </h3>
 
         <p>
-          🕐
-          ${formatTime(
+          🕐 ${formatTime(
             facility.openingTime
           )}
           –
@@ -1100,12 +1003,10 @@ function renderFacilities() {
 
       `;
 
-
       card.onclick =
         () => openFacility(
           facility
         );
-
 
       grid.appendChild(
         card
@@ -1117,26 +1018,20 @@ function renderFacilities() {
 }
 
 
-
 /* =========================================================
    OPEN FACILITY
 ========================================================= */
 
-function openFacility(
-  facility
-) {
+function openFacility(facility) {
 
   selectedFacility =
     facility;
 
-
   selectedDate =
     null;
 
-
   selectedStartTime =
     null;
-
 
   selectedEndTime =
     null;
@@ -1175,21 +1070,20 @@ function openFacility(
       "selectedFacilityHours"
     )
     .textContent =
-    "Opening hours: " +
-    formatTime(
-      facility.openingTime
-    ) +
-    " – " +
-    formatTime(
-      facility.closingTime
-    );
+      "Opening hours: " +
+      formatTime(
+        facility.openingTime
+      ) +
+      " – " +
+      formatTime(
+        facility.closingTime
+      );
 
 
   const dateInput =
     document.getElementById(
       "bookingDate"
     );
-
 
   dateInput.value =
     "";
@@ -1232,9 +1126,8 @@ function openFacility(
 }
 
 
-
 /* =========================================================
-   BACK TO HOME
+   GO HOME
 ========================================================= */
 
 function goHome() {
@@ -1242,14 +1135,11 @@ function goHome() {
   selectedFacility =
     null;
 
-
   selectedDate =
     null;
 
-
   selectedStartTime =
     null;
-
 
   selectedEndTime =
     null;
@@ -1277,7 +1167,6 @@ function goHome() {
 }
 
 
-
 /* =========================================================
    LOAD AVAILABILITY
 ========================================================= */
@@ -1297,7 +1186,6 @@ async function loadAvailability() {
     document.getElementById(
       "bookingDate"
     );
-
 
   const date =
     dateInput.value;
@@ -1319,12 +1207,10 @@ async function loadAvailability() {
       "availabilityLoading"
     );
 
-
   const error =
     document.getElementById(
       "availabilityError"
     );
-
 
   const slotGrid =
     document.getElementById(
@@ -1334,7 +1220,6 @@ async function loadAvailability() {
 
   loading.style.display =
     "block";
-
 
   loading.textContent =
     "Loading availability...";
@@ -1358,15 +1243,12 @@ async function loadAvailability() {
         BOOKINGS_SHEET
       );
 
-
     bookings =
       parseBookings(
         data.table
       );
 
-
     renderAvailability();
-
 
     loading.style.display =
       "none";
@@ -1380,15 +1262,12 @@ async function loadAvailability() {
       err
     );
 
-
     loading.style.display =
       "none";
-
 
     error.textContent =
       "Failed to load availability. " +
       err.message;
-
 
     error.style.display =
       "block";
@@ -1398,17 +1277,13 @@ async function loadAvailability() {
 }
 
 
-
 /* =========================================================
    PARSE BOOKINGS
 ========================================================= */
 
-function parseBookings(
-  table
-) {
+function parseBookings(table) {
 
   const result = [];
-
 
   if (
     !table ||
@@ -1433,35 +1308,45 @@ function parseBookings(
       }
 
 
+      /*
+        Public Bookings structure:
+
+        Column A = Facility
+        Column B = Date
+        Column C = Start
+        Column D = End
+        Column E = Status
+      */
+
       const facility =
         getCellValue(
           row.c[0]
         );
-
 
       const dateRaw =
         getCellValue(
           row.c[1]
         );
 
-
       const startRaw =
         getCellValue(
           row.c[2]
         );
-
 
       const endRaw =
         getCellValue(
           row.c[3]
         );
 
-
       const status =
         getCellValue(
           row.c[4]
         ).toUpperCase();
 
+
+      /*
+        Ignore header
+      */
 
       if (
         !facility ||
@@ -1473,6 +1358,11 @@ function parseBookings(
 
       }
 
+
+      /*
+        Only PENDING and APPROVED
+        affect availability.
+      */
 
       if (
         status !== "PENDING" &&
@@ -1489,12 +1379,10 @@ function parseBookings(
           dateRaw
         );
 
-
       const start =
         normalizeTime(
           startRaw
         );
-
 
       const end =
         normalizeTime(
@@ -1550,7 +1438,6 @@ function parseBookings(
 }
 
 
-
 /* =========================================================
    RENDER AVAILABILITY
 ========================================================= */
@@ -1562,7 +1449,6 @@ function renderAvailability() {
       "slotGrid"
     );
 
-
   slotGrid.innerHTML =
     "";
 
@@ -1572,12 +1458,15 @@ function renderAvailability() {
       selectedFacility.openingTime
     );
 
-
   const closeMinutes =
     timeToMinutes(
       selectedFacility.closingTime
     );
 
+
+  /*
+    Create 30-minute slots.
+  */
 
   for (
     let minutes = openMinutes;
@@ -1587,7 +1476,6 @@ function renderAvailability() {
 
     const slotStart =
       minutes;
-
 
     const slotEnd =
       minutes + 30;
@@ -1615,7 +1503,6 @@ function renderAvailability() {
       document.createElement(
         "div"
       );
-
 
     slot.className =
       "slot " +
@@ -1652,9 +1539,8 @@ function renderAvailability() {
 }
 
 
-
 /* =========================================================
-   GET SLOT STATUS
+   SLOT STATUS
 ========================================================= */
 
 function getSlotStatus(
@@ -1685,6 +1571,7 @@ function getSlotStatus(
             timeToMinutes(
               booking.end
             )
+
           )
 
         );
@@ -1692,6 +1579,10 @@ function getSlotStatus(
       }
     );
 
+
+  /*
+    Approved takes priority.
+  */
 
   if (
     matchingBookings.some(
@@ -1724,9 +1615,8 @@ function getSlotStatus(
 }
 
 
-
 /* =========================================================
-   INTERVAL CHECK
+   INTERVAL OVERLAP
 ========================================================= */
 
 function intervalsOverlap(
@@ -1737,16 +1627,17 @@ function intervalsOverlap(
 ) {
 
   return (
+
     startA < endB &&
     endA > startB
+
   );
 
 }
 
 
-
 /* =========================================================
-   SELECT START SLOT
+   SELECT SLOT
 ========================================================= */
 
 function selectSlot(
@@ -1774,7 +1665,6 @@ function selectSlot(
   selectedStartTime =
     minutes;
 
-
   selectedEndTime =
     null;
 
@@ -1794,7 +1684,6 @@ function selectSlot(
 }
 
 
-
 /* =========================================================
    UPDATE DURATION OPTIONS
 ========================================================= */
@@ -1806,12 +1695,10 @@ function updateDurationOptions() {
       "duration"
     );
 
-
   const endInput =
     document.getElementById(
       "endTime"
     );
-
 
   const continueBtn =
     document.getElementById(
@@ -1851,10 +1738,8 @@ function updateDurationOptions() {
     selectedStartTime =
       null;
 
-
     selectedEndTime =
       null;
-
 
     return;
 
@@ -1871,6 +1756,10 @@ function updateDurationOptions() {
     );
 
 
+  /*
+    Maximum duration is 4 hours.
+  */
+
   const maxDuration =
     Math.min(
       240,
@@ -1885,7 +1774,8 @@ function updateDurationOptions() {
   ) {
 
     const end =
-      start + duration;
+      start +
+      duration;
 
 
     if (
@@ -1922,9 +1812,8 @@ function updateDurationOptions() {
 }
 
 
-
 /* =========================================================
-   ENTIRE INTERVAL AVAILABILITY
+   CHECK WHOLE INTERVAL
 ========================================================= */
 
 function isEntireIntervalAvailable(
@@ -1960,7 +1849,6 @@ function isEntireIntervalAvailable(
           booking.start
         );
 
-
       const bookingEnd =
         timeToMinutes(
           booking.end
@@ -1978,7 +1866,6 @@ function isEntireIntervalAvailable(
   );
 
 }
-
 
 
 /* =========================================================
@@ -2008,10 +1895,14 @@ function updateEndTime() {
 
 
   /*
-    Use === null rather than !selectedStartTime.
+    IMPORTANT:
 
-    This also correctly supports a facility
-    that opens at 00:00.
+    Do not use !selectedStartTime here.
+
+    Midnight = 0,
+    and 0 is considered false in JavaScript.
+
+    So we specifically check for null.
   */
 
   if (
@@ -2022,10 +1913,8 @@ function updateEndTime() {
     endInput.value =
       "";
 
-
     continueBtn.disabled =
       true;
-
 
     return;
 
@@ -2047,10 +1936,8 @@ function updateEndTime() {
     endInput.value =
       "";
 
-
     continueBtn.disabled =
       true;
-
 
     return;
 
@@ -2071,7 +1958,6 @@ function updateEndTime() {
     false;
 
 }
-
 
 
 /* =========================================================
@@ -2117,7 +2003,6 @@ function resetBookingControls() {
   selectedStartTime =
     null;
 
-
   selectedEndTime =
     null;
 
@@ -2143,6 +2028,10 @@ function resetBookingControls() {
         selectedFacility.closingTime
       );
 
+
+    /*
+      Generate start times every 30 minutes.
+    */
 
     for (
       let time = open;
@@ -2177,6 +2066,54 @@ function resetBookingControls() {
 }
 
 
+/* =========================================================
+   CONVERT MINUTES TO GOOGLE FORM TIME
+========================================================= */
+
+/*
+  IMPORTANT:
+
+  Website display:
+      8:00 AM
+
+  Google Form Time field:
+      08:00
+
+  Therefore we use this function ONLY
+  when sending the value to Google Forms.
+*/
+
+function minutesToFormTime(minutes) {
+
+  const hours =
+    Math.floor(
+      minutes / 60
+    );
+
+  const mins =
+    minutes % 60;
+
+
+  return (
+
+    String(hours)
+      .padStart(
+        2,
+        "0"
+      ) +
+
+    ":" +
+
+    String(mins)
+      .padStart(
+        2,
+        "0"
+      )
+
+  );
+
+}
+
 
 /* =========================================================
    CONTINUE TO GOOGLE FORM
@@ -2195,15 +2132,14 @@ function continueToForm() {
       "Please select a facility, date, start time and duration."
     );
 
-
     return;
 
   }
 
 
   /*
-    Final availability check
-    before opening the form.
+    Final availability check before
+    opening the form.
   */
 
   if (
@@ -2220,63 +2156,50 @@ function continueToForm() {
 
     loadAvailability();
 
-
     return;
 
   }
 
 
   /*
-    =====================================================
-    GOOGLE FORM TIME PREFILL
-    =====================================================
+    IMPORTANT:
 
-    Google Forms Time questions use separate
-    hour and minute values for prefilled URLs.
+    Convert the selected times to
+    24-hour HH:MM format.
 
     Example:
 
-    14:30
-
-    becomes:
-
-    entry.1117912077_hour=14
-    entry.1117912077_minute=30
+    8:00 AM  → 08:00
+    2:30 PM  → 14:30
   */
 
-
-  const startHours =
-    Math.floor(
-      selectedStartTime / 60
+  const start =
+    minutesToFormTime(
+      selectedStartTime
     );
 
 
-  const startMinutes =
-    selectedStartTime % 60;
-
-
-  const endHours =
-    Math.floor(
-      selectedEndTime / 60
+  const end =
+    minutesToFormTime(
+      selectedEndTime
     );
 
 
-  const endMinutes =
-    selectedEndTime % 60;
+  /*
+    Date input already gives:
 
+    YYYY-MM-DD
 
+    so we keep it exactly as it is.
+  */
 
-  /* =====================================================
-     BUILD FORM PARAMETERS
-  ===================================================== */
+  const formDate =
+    selectedDate;
+
 
   const params =
     new URLSearchParams();
 
-
-  /*
-    FACILITY
-  */
 
   params.set(
     FORM_FIELDS.facility,
@@ -2284,68 +2207,23 @@ function continueToForm() {
   );
 
 
-  /*
-    DATE
-
-    Keep this as YYYY-MM-DD.
-  */
-
   params.set(
     FORM_FIELDS.date,
-    selectedDate
-  );
-
-
-  /*
-    START TIME
-  */
-
-  params.set(
-    FORM_FIELDS.start + "_hour",
-    String(
-      startHours
-    )
+    formDate
   );
 
 
   params.set(
-    FORM_FIELDS.start + "_minute",
-    String(
-      startMinutes
-    ).padStart(
-      2,
-      "0"
-    )
-  );
-
-
-  /*
-    END TIME
-  */
-
-  params.set(
-    FORM_FIELDS.end + "_hour",
-    String(
-      endHours
-    )
+    FORM_FIELDS.start,
+    start
   );
 
 
   params.set(
-    FORM_FIELDS.end + "_minute",
-    String(
-      endMinutes
-    ).padStart(
-      2,
-      "0"
-    )
+    FORM_FIELDS.end,
+    end
   );
 
-
-
-  /* =====================================================
-     BUILD FINAL URL
-  ===================================================== */
 
   const url =
     GOOGLE_FORM_URL +
@@ -2353,52 +2231,11 @@ function continueToForm() {
     params.toString();
 
 
-
-  /* =====================================================
-     DEBUG
-  ===================================================== */
-
   console.log(
-    "Google Form prefill data:",
-    {
-      facility:
-        selectedFacility.facility,
-
-      date:
-        selectedDate,
-
-      start:
-        String(startHours).padStart(
-          2,
-          "0"
-        ) +
-        ":" +
-        String(startMinutes).padStart(
-          2,
-          "0"
-        ),
-
-      end:
-        String(endHours).padStart(
-          2,
-          "0"
-        ) +
-        ":" +
-        String(endMinutes).padStart(
-          2,
-          "0"
-        ),
-
-      url:
-        url
-    }
+    "Opening Google Form:",
+    url
   );
 
-
-
-  /* =====================================================
-     OPEN GOOGLE FORM
-  ===================================================== */
 
   window.open(
     url,
@@ -2408,14 +2245,11 @@ function continueToForm() {
 }
 
 
-
 /* =========================================================
    NORMALIZE TIME
 ========================================================= */
 
-function normalizeTime(
-  value
-) {
+function normalizeTime(value) {
 
   if (
     value === null ||
@@ -2434,9 +2268,7 @@ function normalizeTime(
 
 
   /*
-    Google Sheets:
-
-    Date(1899,11,30,8,0,0)
+    Google Sheets date/time object
   */
 
   const dateMatch =
@@ -2473,7 +2305,7 @@ function normalizeTime(
     24-hour format:
 
     08:00
-    08:00:00
+    14:30
   */
 
   let match =
@@ -2519,7 +2351,7 @@ function normalizeTime(
     12-hour format:
 
     8:00 AM
-    11:30 PM
+    2:30 PM
   */
 
   match =
@@ -2568,6 +2400,7 @@ function normalizeTime(
         }
 
       }
+
       else {
 
         if (
@@ -2592,11 +2425,12 @@ function normalizeTime(
 
 
   /*
-    Google Sheets decimal time.
+    Google Sheets sometimes returns
+    time as a decimal fraction.
 
     Example:
 
-    0.333333 = 08:00
+    0.5 = 12:00 PM
   */
 
   const numeric =
@@ -2611,7 +2445,9 @@ function normalizeTime(
 
     const totalMinutes =
       Math.round(
-        numeric * 24 * 60
+        numeric *
+        24 *
+        60
       );
 
 
@@ -2633,14 +2469,11 @@ function normalizeTime(
 }
 
 
-
 /* =========================================================
    NORMALIZE DATE
 ========================================================= */
 
-function normalizeDate(
-  value
-) {
+function normalizeDate(value) {
 
   if (
     value === null ||
@@ -2659,9 +2492,7 @@ function normalizeDate(
 
 
   /*
-    Google Sheets:
-
-    Date(2026,9,8)
+    Google Sheets Date object
   */
 
   const dateMatch =
@@ -2693,6 +2524,7 @@ function normalizeDate(
 
 
     return (
+
       year +
       "-" +
       String(month)
@@ -2706,6 +2538,7 @@ function normalizeDate(
           2,
           "0"
         )
+
     );
 
   }
@@ -2759,6 +2592,7 @@ function normalizeDate(
 
 
     return (
+
       year +
       "-" +
       String(month)
@@ -2772,19 +2606,18 @@ function normalizeDate(
           2,
           "0"
         )
+
     );
 
   }
 
 
   /*
-    Final fallback.
+    Try normal JavaScript date parsing.
   */
 
   const parsed =
-    new Date(
-      text
-    );
+    new Date(text);
 
 
   if (
@@ -2805,14 +2638,11 @@ function normalizeDate(
 }
 
 
-
 /* =========================================================
-   TIME UTILITIES
+   TIME → MINUTES
 ========================================================= */
 
-function timeToMinutes(
-  time
-) {
+function timeToMinutes(time) {
 
   if (
     !time
@@ -2828,21 +2658,26 @@ function timeToMinutes(
 
 
   return (
+
     parseInt(
       parts[0]
-    ) * 60 +
+    ) *
+    60 +
+
     parseInt(
       parts[1]
     )
+
   );
 
 }
 
 
+/* =========================================================
+   MINUTES → 24-HOUR TIME
+========================================================= */
 
-function minutesToTime(
-  minutes
-) {
+function minutesToTime(minutes) {
 
   const hours =
     Math.floor(
@@ -2855,30 +2690,31 @@ function minutesToTime(
 
 
   return (
+
     String(hours)
       .padStart(
         2,
         "0"
       ) +
+
     ":" +
+
     String(mins)
       .padStart(
         2,
         "0"
       )
+
   );
 
 }
 
 
-
 /* =========================================================
-   WEBSITE TIME DISPLAY
+   MINUTES → DISPLAY TIME
 ========================================================= */
 
-function formatMinutes(
-  minutes
-) {
+function formatMinutes(minutes) {
 
   let hours =
     Math.floor(
@@ -2903,6 +2739,7 @@ function formatMinutes(
     hours = 12;
 
   }
+
   else if (
     hours > 12
   ) {
@@ -2913,6 +2750,7 @@ function formatMinutes(
 
 
   return (
+
     hours +
     ":" +
     String(mins)
@@ -2922,15 +2760,17 @@ function formatMinutes(
       ) +
     " " +
     period
+
   );
 
 }
 
 
+/* =========================================================
+   FORMAT TIME
+========================================================= */
 
-function formatTime(
-  time
-) {
+function formatTime(time) {
 
   const minutes =
     timeToMinutes(
@@ -2954,14 +2794,11 @@ function formatTime(
 }
 
 
-
 /* =========================================================
    FORMAT DURATION
 ========================================================= */
 
-function formatDuration(
-  minutes
-) {
+function formatDuration(minutes) {
 
   if (
     minutes < 60
@@ -2990,39 +2827,44 @@ function formatDuration(
   ) {
 
     return (
+
       hours +
+
       (
         hours === 1
           ? " hour"
           : " hours"
       )
+
     );
 
   }
 
 
   return (
+
     hours +
+
     (
       hours === 1
         ? " hour "
         : " hours "
     ) +
+
     remainder +
+
     " minutes"
+
   );
 
 }
 
 
-
 /* =========================================================
-   HTML ESCAPE
+   ESCAPE HTML
 ========================================================= */
 
-function escapeHtml(
-  value
-) {
+function escapeHtml(value) {
 
   return String(value)
 
