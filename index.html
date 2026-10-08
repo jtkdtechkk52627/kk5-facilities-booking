@@ -46,10 +46,6 @@
       padding: 38px 0 60px;
     }
 
-    /* =========================
-       HEADER
-       ========================= */
-
     .header {
       margin-bottom: 30px;
     }
@@ -77,10 +73,6 @@
       line-height: 1.6;
     }
 
-    /* =========================
-       PAGES
-       ========================= */
-
     .page {
       display: none;
     }
@@ -88,10 +80,6 @@
     .page.active {
       display: block;
     }
-
-    /* =========================
-       FACILITY CARDS
-       ========================= */
 
     .facility-grid {
       display: grid;
@@ -133,10 +121,6 @@
       font-size: 12px;
     }
 
-    /* =========================
-       BACK BUTTON
-       ========================= */
-
     .back-button {
       display: inline-flex;
       align-items: center;
@@ -156,10 +140,6 @@
       color: var(--black);
     }
 
-    /* =========================
-       FACILITY HEADER
-       ========================= */
-
     .facility-header {
       margin-bottom: 24px;
     }
@@ -174,10 +154,6 @@
       color: var(--grey);
       font-size: 14px;
     }
-
-    /* =========================
-       CARD
-       ========================= */
 
     .card {
       background: white;
@@ -197,10 +173,6 @@
       color: var(--grey);
       font-size: 13px;
     }
-
-    /* =========================
-       DATE
-       ========================= */
 
     .date-field label {
       display: block;
@@ -230,10 +202,6 @@
       box-shadow:
         0 0 0 3px rgba(17,17,17,0.07);
     }
-
-    /* =========================
-       AVAILABILITY
-       ========================= */
 
     .availability-header {
       display: flex;
@@ -334,10 +302,6 @@
       background: #d14b42;
     }
 
-    /* =========================
-       BOOKING
-       ========================= */
-
     .booking-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -380,10 +344,6 @@
       font-size: 13px;
     }
 
-    /* =========================
-       AVAILABILITY RESULT
-       ========================= */
-
     .availability-result {
       display: none;
       margin-top: 14px;
@@ -404,10 +364,6 @@
       background: var(--red-bg);
       color: var(--red);
     }
-
-    /* =========================
-       BUTTON
-       ========================= */
 
     .primary-button {
       width: 100%;
@@ -433,10 +389,6 @@
       cursor: not-allowed;
     }
 
-    /* =========================
-       STATUS
-       ========================= */
-
     .status {
       display: none;
       margin-bottom: 16px;
@@ -460,6 +412,7 @@
     }
 
     .empty {
+      width: 100%;
       padding: 25px;
       background: var(--light);
       border-radius: 10px;
@@ -467,10 +420,6 @@
       color: var(--grey);
       font-size: 13px;
     }
-
-    /* =========================
-       MOBILE
-       ========================= */
 
     @media (max-width: 650px) {
 
@@ -595,8 +544,6 @@
     ></div>
 
 
-    <!-- DATE -->
-
     <div class="card">
 
       <div class="date-field">
@@ -614,8 +561,6 @@
 
     </div>
 
-
-    <!-- AVAILABILITY -->
 
     <div class="card">
 
@@ -676,8 +621,6 @@
 
     </div>
 
-
-    <!-- BOOKING -->
 
     <div class="card">
 
@@ -765,8 +708,7 @@
       <div
         id="availabilityResult"
         class="availability-result"
-      >
-      </div>
+      ></div>
 
 
       <button
@@ -796,39 +738,29 @@ const PUBLIC_SHEET_ID =
 
 
 const FACILITIES_URL =
-  `https://docs.google.com/spreadsheets/d/${PUBLIC_SHEET_ID}/gviz/tq?tqx=out:json&sheet=Facilities`;
+  `https://docs.google.com/spreadsheets/d/${PUBLIC_SHEET_ID}/gviz/tq?sheet=Facilities&tqx=out:json`;
 
 
 const BOOKINGS_URL =
-  `https://docs.google.com/spreadsheets/d/${PUBLIC_SHEET_ID}/gviz/tq?tqx=out:json&sheet=Bookings`;
+  `https://docs.google.com/spreadsheets/d/${PUBLIC_SHEET_ID}/gviz/tq?sheet=Bookings&tqx=out:json`;
 
-
-/* Google Form */
 
 const FORM_URL =
   "https://docs.google.com/forms/d/e/1FAIpQLSdja_U2aFCea0GAL6qZdaUxG5viyi4AlC-zROude_yzXAFIWg/viewform";
 
 
-/* Google Form prefill IDs */
-
 const FORM_FIELDS = {
 
-  facility:
-    "entry.1139525746",
+  facility: "entry.1139525746",
 
-  date:
-    "entry.482205338",
+  date: "entry.482205338",
 
-  start:
-    "entry.1117912077",
+  start: "entry.1117912077",
 
-  end:
-    "entry.866972168"
+  end: "entry.866972168"
 
 };
 
-
-/* Booking rules */
 
 const MIN_DURATION = 30;
 
@@ -911,9 +843,7 @@ function setDefaultDate() {
     "change",
     function() {
 
-      if (
-        selectedFacility
-      ) {
+      if (selectedFacility) {
 
         resetBooking();
 
@@ -933,16 +863,32 @@ function setDefaultDate() {
 
 async function fetchGviz(url) {
 
+  const finalUrl =
+    url +
+    "&t=" +
+    Date.now();
+
+
+  console.log(
+    "Fetching Google Sheet:",
+    finalUrl
+  );
+
+
   const response =
     await fetch(
-      url + "&t=" + Date.now()
+      finalUrl,
+      {
+        method: "GET",
+        cache: "no-store"
+      }
     );
 
 
   if (!response.ok) {
 
     throw new Error(
-      "Unable to access availability data."
+      `Google Sheets returned HTTP ${response.status}`
     );
 
   }
@@ -952,24 +898,120 @@ async function fetchGviz(url) {
     await response.text();
 
 
+  console.log(
+    "Google Sheets response:",
+    text.substring(0, 300)
+  );
+
+
+  /*
+    Google GViz normally returns:
+
+    google.visualization.Query.setResponse({...});
+  */
+
   const match =
     text.match(
-      /google\.visualization\.Query\.setResponse\(([\s\S]*)\);?\s*$/
+      /google\.visualization\.Query\.setResponse\(([\s\S]*?)\);?\s*$/
     );
 
 
   if (!match) {
 
+    console.error(
+      "Unexpected Google Sheets response:",
+      text
+    );
+
+
     throw new Error(
-      "Invalid Google Sheets response."
+      "Google Sheets returned an unexpected response."
     );
 
   }
 
 
-  return JSON.parse(
-    match[1]
-  );
+  let data;
+
+  try {
+
+    data =
+      JSON.parse(
+        match[1]
+      );
+
+  } catch (error) {
+
+    console.error(
+      "JSON parsing failed:",
+      error
+    );
+
+    throw new Error(
+      "Could not read Google Sheets data."
+    );
+
+  }
+
+
+  if (
+    data.status &&
+    data.status !== "ok"
+  ) {
+
+    throw new Error(
+      data.errors?.[0]?.detailed_message ||
+      data.errors?.[0]?.message ||
+      "Google Sheets query failed."
+    );
+
+  }
+
+
+  return data;
+
+}
+
+
+/* =========================================================
+   GVIZ CELL VALUE
+   ========================================================= */
+
+function getGvizCellValue(
+  cell
+) {
+
+  if (!cell) {
+    return "";
+  }
+
+
+  /*
+    Prefer formatted value where it exists.
+  */
+
+  if (
+    cell.f !== undefined &&
+    cell.f !== null &&
+    cell.f !== ""
+  ) {
+
+    return cell.f;
+
+  }
+
+
+  if (
+    cell.v !== undefined &&
+    cell.v !== null
+  ) {
+
+    return cell.v;
+
+  }
+
+
+  return "";
 
 }
 
@@ -983,7 +1025,9 @@ function gvizRows(data) {
   if (
     !data ||
     !data.table ||
-    !data.table.rows
+    !Array.isArray(
+      data.table.rows
+    )
   ) {
 
     return [];
@@ -994,20 +1038,17 @@ function gvizRows(data) {
   return data.table.rows.map(
     row => {
 
-      return row.c.map(
-        cell => {
+      const cells =
+        Array.isArray(row.c)
+          ? row.c
+          : [];
 
-          if (!cell) {
-            return "";
-          }
 
-          return (
-            cell.f !== undefined
-              ? cell.f
-              : cell.v
-          );
-
-        }
+      return cells.map(
+        cell =>
+          getGvizCellValue(
+            cell
+          )
       );
 
     }
@@ -1040,17 +1081,26 @@ async function loadFacilities() {
       gvizRows(data);
 
 
+    console.log(
+      "Facilities rows:",
+      rows
+    );
+
+
     facilities =
       rows
         .map(
           row => {
 
+            const name =
+              String(
+                row[0] ?? ""
+              ).trim();
+
+
             return {
 
-              name:
-                String(
-                  row[0] || ""
-                ).trim(),
+              name,
 
               openingTime:
                 normalizeTime(
@@ -1067,8 +1117,22 @@ async function loadFacilities() {
           }
         )
         .filter(
-          facility =>
-            facility.name
+          facility => {
+
+            /*
+              Ignore blank rows
+              and accidental header/data rows.
+            */
+
+            return (
+              facility.name &&
+              facility.name.toLowerCase() !==
+                "facility" &&
+              facility.name.toLowerCase() !==
+                "opening time"
+            );
+
+          }
         );
 
 
@@ -1077,11 +1141,21 @@ async function loadFacilities() {
 
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      "FACILITIES ERROR:",
+      error
+    );
+
+
+    grid.innerHTML =
+      `<div class="empty">
+        Failed to load facilities.
+      </div>`;
+
 
     showStatus(
       "facilityStatus",
-      "Failed to load facilities. Please try again.",
+      `Failed to load facilities: ${error.message}`,
       "error"
     );
 
@@ -1137,13 +1211,19 @@ function renderFacilityCards() {
       card.innerHTML = `
 
         <div class="facility-card-name">
-          ${escapeHtml(facility.name)}
+          ${escapeHtml(
+            facility.name
+          )}
         </div>
 
         <div class="facility-card-hours">
-          ${formatTime(facility.openingTime)}
+          ${formatTime(
+            facility.openingTime
+          )}
           –
-          ${formatTime(facility.closingTime)}
+          ${formatTime(
+            facility.closingTime
+          )}
         </div>
 
       `;
@@ -1182,7 +1262,8 @@ async function selectFacility(
   selectedFacility =
     facilities.find(
       facility =>
-        facility.name === facilityName
+        facility.name ===
+        facilityName
     );
 
 
@@ -1214,12 +1295,23 @@ async function selectFacility(
   document.getElementById(
     "selectedFacilityHours"
   ).textContent =
-    `${formatTime(selectedFacility.openingTime)} – ${formatTime(selectedFacility.closingTime)}`;
+    `${formatTime(
+      selectedFacility.openingTime
+    )} – ${formatTime(
+      selectedFacility.closingTime
+    )}`;
 
 
   resetBooking();
 
+
   await loadAvailability();
+
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
 
 }
 
@@ -1235,6 +1327,11 @@ function goBackToFacilities() {
 
 
   resetBooking();
+
+
+  hideStatus(
+    "pageStatus"
+  );
 
 
   document.getElementById(
@@ -1284,6 +1381,18 @@ async function loadAvailability() {
   }
 
 
+  const schedule =
+    document.getElementById(
+      "schedule"
+    );
+
+
+  schedule.innerHTML =
+    `<div class="empty">
+      Loading availability...
+    </div>`;
+
+
   showStatus(
     "pageStatus",
     "Loading availability...",
@@ -1303,6 +1412,12 @@ async function loadAvailability() {
       gvizRows(data);
 
 
+    console.log(
+      "Bookings rows:",
+      rows
+    );
+
+
     bookings =
       rows
         .map(
@@ -1312,7 +1427,7 @@ async function loadAvailability() {
 
               facility:
                 String(
-                  row[0] || ""
+                  row[0] ?? ""
                 ).trim(),
 
               date:
@@ -1332,7 +1447,7 @@ async function loadAvailability() {
 
               status:
                 String(
-                  row[4] || ""
+                  row[4] ?? ""
                 )
                 .trim()
                 .toUpperCase()
@@ -1344,16 +1459,19 @@ async function loadAvailability() {
         .filter(
           booking => {
 
+            /*
+              Ignore completely blank /
+              malformed rows.
+            */
+
             return (
-              booking.facility ===
-                selectedFacility.name &&
-
-              booking.date === date &&
-
+              booking.facility &&
+              booking.date &&
+              booking.start &&
+              booking.end &&
               (
                 booking.status ===
                   "APPROVED" ||
-
                 booking.status ===
                   "PENDING"
               )
@@ -1361,6 +1479,42 @@ async function loadAvailability() {
 
           }
         );
+
+
+    console.log(
+      "Valid bookings:",
+      bookings
+    );
+
+
+    /*
+      Filter only the selected
+      facility and selected date.
+    */
+
+    const relevantBookings =
+      bookings.filter(
+        booking =>
+          booking.facility ===
+            selectedFacility.name &&
+          booking.date ===
+            date
+      );
+
+
+    console.log(
+      "Relevant bookings:",
+      relevantBookings
+    );
+
+
+    /*
+      Keep only bookings relevant
+      to the current facility/date.
+    */
+
+    bookings =
+      relevantBookings;
 
 
     renderAvailability();
@@ -1373,11 +1527,21 @@ async function loadAvailability() {
 
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      "AVAILABILITY ERROR:",
+      error
+    );
+
+
+    schedule.innerHTML =
+      `<div class="empty">
+        Unable to load availability data.
+      </div>`;
+
 
     showStatus(
       "pageStatus",
-      "Failed to load availability. Please try again.",
+      `Failed to load availability: ${error.message}`,
       "error"
     );
 
@@ -1413,6 +1577,18 @@ function renderAvailability() {
   schedule.innerHTML = "";
 
 
+  if (!selectedFacility) {
+
+    schedule.innerHTML =
+      `<div class="empty">
+        Select a facility first.
+      </div>`;
+
+    return;
+
+  }
+
+
   const opening =
     timeToMinutes(
       selectedFacility.openingTime
@@ -1425,7 +1601,24 @@ function renderAvailability() {
     );
 
 
-  let hasSlots = false;
+  if (
+    !Number.isFinite(opening) ||
+    !Number.isFinite(closing) ||
+    closing <= opening
+  ) {
+
+    schedule.innerHTML =
+      `<div class="empty">
+        This facility has invalid operating hours.
+      </div>`;
+
+    return;
+
+  }
+
+
+  let hasSlots =
+    false;
 
 
   for (
@@ -1440,12 +1633,15 @@ function renderAvailability() {
 
 
     const start =
-      minutesToTime(time);
+      minutesToTime(
+        time
+      );
 
 
     const end =
       minutesToTime(
-        time + SLOT_INTERVAL
+        time +
+        SLOT_INTERVAL
       );
 
 
@@ -1484,7 +1680,8 @@ function renderAvailability() {
 
 
     if (
-      status === "available"
+      status ===
+      "available"
     ) {
 
       slot.addEventListener(
@@ -1526,6 +1723,37 @@ function renderAvailability() {
 
 
 /* =========================================================
+   SLOT LABEL
+   ========================================================= */
+
+function statusLabel(
+  status
+) {
+
+  if (
+    status === "booked"
+  ) {
+
+    return "Booked";
+
+  }
+
+
+  if (
+    status === "pending"
+  ) {
+
+    return "Pending";
+
+  }
+
+
+  return "Available";
+
+}
+
+
+/* =========================================================
    GET SLOT STATUS
    ========================================================= */
 
@@ -1535,11 +1763,15 @@ function getSlotStatus(
 ) {
 
   const startMinutes =
-    timeToMinutes(start);
+    timeToMinutes(
+      start
+    );
 
 
   const endMinutes =
-    timeToMinutes(end);
+    timeToMinutes(
+      end
+    );
 
 
   const overlapping =
@@ -1561,7 +1793,6 @@ function getSlotStatus(
         return (
           startMinutes <
             existingEnd &&
-
           endMinutes >
             existingStart
         );
@@ -1624,16 +1855,12 @@ function selectStartTime(
     );
 
 
-  /*
-    Default to 1 hour where possible.
-  */
-
   if (
-    [...duration.options]
-      .some(
-        option =>
-          option.value === "60"
-      )
+    [...duration.options].some(
+      option =>
+        option.value ===
+        "60"
+    )
   ) {
 
     duration.value =
@@ -1655,8 +1882,11 @@ function selectStartTime(
   document.getElementById(
     "startTime"
   ).scrollIntoView({
+
     behavior: "smooth",
+
     block: "center"
+
   });
 
 }
@@ -1690,13 +1920,20 @@ function updateDurationOptions() {
     true;
 
 
-  if (!start) {
+  if (
+    !start ||
+    !selectedFacility
+  ) {
+
     return;
+
   }
 
 
   const startMinutes =
-    timeToMinutes(start);
+    timeToMinutes(
+      start
+    );
 
 
   const closing =
@@ -1706,15 +1943,19 @@ function updateDurationOptions() {
 
 
   for (
-    let minutes = MIN_DURATION;
+    let minutes =
+      MIN_DURATION;
 
-    minutes <= MAX_DURATION;
+    minutes <=
+      MAX_DURATION;
 
-    minutes += MIN_DURATION
+    minutes +=
+      MIN_DURATION
   ) {
 
     const endMinutes =
-      startMinutes + minutes;
+      startMinutes +
+      minutes;
 
 
     if (
@@ -1766,7 +2007,8 @@ function updateDurationOptions() {
 
 
   if (
-    duration.options.length > 1
+    duration.options.length >
+    1
   ) {
 
     duration.disabled =
@@ -1872,13 +2114,21 @@ function renderBookingPreview() {
   document.getElementById(
     "previewTime"
   ).textContent =
-    `${formatTime(booking.start)} → ${formatTime(booking.end)}`;
+    `${formatTime(
+      booking.start
+    )} → ${formatTime(
+      booking.end
+    )}`;
 
 
   document.getElementById(
     "previewDetails"
   ).textContent =
-    `${booking.facility} • ${formatDate(booking.date)} • ${formatDuration(booking.duration)}`;
+    `${booking.facility} • ${formatDate(
+      booking.date
+    )} • ${formatDuration(
+      booking.duration
+    )}`;
 
 
   preview.style.display =
@@ -1922,6 +2172,11 @@ function isSlotAvailable(
   end
 ) {
 
+  if (!selectedFacility) {
+    return false;
+  }
+
+
   const startMinutes =
     timeToMinutes(start);
 
@@ -1945,9 +2200,10 @@ function isSlotAvailable(
   if (
     startMinutes <
       opening ||
-
     endMinutes >
-      closing
+      closing ||
+    endMinutes <=
+      startMinutes
   ) {
 
     return false;
@@ -1973,7 +2229,6 @@ function isSlotAvailable(
       return (
         startMinutes <
           existingEnd &&
-
         endMinutes >
           existingStart
       );
@@ -2005,10 +2260,6 @@ function continueToForm() {
 
   }
 
-
-  /*
-    Final frontend check.
-  */
 
   if (
     !isSlotAvailable(
@@ -2205,14 +2456,24 @@ function normalizeDate(
   value
 ) {
 
-  if (!value) {
+  if (
+    value === null ||
+    value === undefined ||
+    value === ""
+  ) {
+
     return "";
+
   }
 
 
   const string =
     String(value).trim();
 
+
+  /*
+    Already ISO.
+  */
 
   if (
     /^\d{4}-\d{2}-\d{2}$/.test(
@@ -2225,6 +2486,61 @@ function normalizeDate(
   }
 
 
+  /*
+    Google GViz can sometimes
+    return Date(2026,9,8)
+    where month is ZERO based.
+  */
+
+  const googleDate =
+    string.match(
+      /^Date\((\d+),\s*(\d+),\s*(\d+)(?:,\s*\d+.*)?\)$/
+    );
+
+
+  if (googleDate) {
+
+    const year =
+      Number(
+        googleDate[1]
+      );
+
+
+    const month =
+      Number(
+        googleDate[2]
+      ) + 1;
+
+
+    const day =
+      Number(
+        googleDate[3]
+      );
+
+
+    return (
+      String(year) +
+      "-" +
+      String(month).padStart(
+        2,
+        "0"
+      ) +
+      "-" +
+      String(day).padStart(
+        2,
+        "0"
+      )
+    );
+
+  }
+
+
+  /*
+    dd/mm/yyyy
+    Used by Malaysian Google
+    Sheets formatting.
+  */
+
   const slash =
     string.match(
       /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/
@@ -2233,47 +2549,85 @@ function normalizeDate(
 
   if (slash) {
 
-    return (
-      slash[3] +
-      "-" +
-      String(
-        slash[2]
-      ).padStart(2, "0") +
-      "-" +
-      String(
+    const first =
+      Number(
         slash[1]
-      ).padStart(2, "0")
-    );
-
-  }
+      );
 
 
-  const googleDate =
-    string.match(
-      /^Date\((\d+),(\d+),(\d+)\)$/
-    );
+    const second =
+      Number(
+        slash[2]
+      );
 
 
-  if (googleDate) {
+    const year =
+      Number(
+        slash[3]
+      );
+
+
+    /*
+      Malaysia uses DD/MM/YYYY.
+    */
 
     return (
-      googleDate[1] +
+      String(year) +
       "-" +
-      String(
-        Number(
-          googleDate[2]
-        ) + 1
-      ).padStart(2, "0") +
+      String(second).padStart(
+        2,
+        "0"
+      ) +
       "-" +
-      String(
-        googleDate[3]
-      ).padStart(2, "0")
+      String(first).padStart(
+        2,
+        "0"
+      )
     );
 
   }
 
 
-  return string;
+  /*
+    Handle Date strings such as:
+
+    Thu Oct 08 2026 ...
+  */
+
+  const parsed =
+    new Date(string);
+
+
+  if (
+    !isNaN(
+      parsed.getTime()
+    )
+  ) {
+
+    return (
+      String(
+        parsed.getFullYear()
+      ) +
+      "-" +
+      String(
+        parsed.getMonth() + 1
+      ).padStart(
+        2,
+        "0"
+      ) +
+      "-" +
+      String(
+        parsed.getDate()
+      ).padStart(
+        2,
+        "0"
+      )
+    );
+
+  }
+
+
+  return "";
 
 }
 
@@ -2286,14 +2640,26 @@ function normalizeTime(
   value
 ) {
 
-  if (!value) {
+  if (
+    value === null ||
+    value === undefined ||
+    value === ""
+  ) {
+
     return "";
+
   }
 
 
   let string =
     String(value).trim();
 
+
+  /*
+    Google Sheets can return:
+
+    HH:MM:SS
+  */
 
   if (
     /^\d{1,2}:\d{2}:\d{2}$/.test(
@@ -2310,6 +2676,10 @@ function normalizeTime(
   }
 
 
+  /*
+    HH:MM
+  */
+
   if (
     /^\d{1,2}:\d{2}$/.test(
       string
@@ -2320,16 +2690,48 @@ function normalizeTime(
       string.split(":");
 
 
-    return (
-      String(
+    const hour =
+      Number(
         parts[0]
-      ).padStart(2, "0") +
-      ":" +
-      parts[1]
-    );
+      );
+
+
+    const minute =
+      Number(
+        parts[1]
+      );
+
+
+    if (
+      hour >= 0 &&
+      hour <= 23 &&
+      minute >= 0 &&
+      minute <= 59
+    ) {
+
+      return (
+        String(hour).padStart(
+          2,
+          "0"
+        ) +
+        ":" +
+        String(minute).padStart(
+          2,
+          "0"
+        )
+      );
+
+    }
 
   }
 
+
+  /*
+    12-hour format:
+
+    8:00 AM
+    8:00 PM
+  */
 
   const match =
     string.match(
@@ -2347,7 +2749,10 @@ function normalizeTime(
 
 
     const minute =
-      match[2];
+      parseInt(
+        match[2],
+        10
+      );
 
 
     const period =
@@ -2380,13 +2785,48 @@ function normalizeTime(
         "0"
       ) +
       ":" +
-      minute
+      String(minute).padStart(
+        2,
+        "0"
+      )
     );
 
   }
 
 
-  return string;
+  /*
+    Google GViz may return a
+    numeric fraction of a day.
+
+    Example:
+
+    0.5 = 12:00 PM
+  */
+
+  const numeric =
+    Number(string);
+
+
+  if (
+    !isNaN(numeric) &&
+    numeric >= 0 &&
+    numeric < 1
+  ) {
+
+    const totalMinutes =
+      Math.round(
+        numeric * 24 * 60
+      );
+
+
+    return minutesToTime(
+      totalMinutes
+    );
+
+  }
+
+
+  return "";
 
 }
 
@@ -2400,17 +2840,44 @@ function timeToMinutes(
 ) {
 
   if (!time) {
-    return 0;
+    return NaN;
   }
 
 
   const parts =
-    time.split(":");
+    String(time).split(":");
+
+
+  if (
+    parts.length < 2
+  ) {
+
+    return NaN;
+
+  }
+
+
+  const hour =
+    Number(parts[0]);
+
+
+  const minute =
+    Number(parts[1]);
+
+
+  if (
+    !Number.isFinite(hour) ||
+    !Number.isFinite(minute)
+  ) {
+
+    return NaN;
+
+  }
 
 
   return (
-    Number(parts[0]) * 60 +
-    Number(parts[1])
+    hour * 60 +
+    minute
   );
 
 }
@@ -2480,8 +2947,12 @@ function formatTime(
     hour % 12;
 
 
-  if (hour === 0) {
+  if (
+    hour === 0
+  ) {
+
     hour = 12;
+
   }
 
 
