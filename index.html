@@ -12,6 +12,7 @@
 
   <title>KK5 Facility Booking</title>
 
+
   <style>
 
     /* =========================================================
@@ -409,7 +410,7 @@
 
 
     /* =========================================================
-       DATE
+       CONTROL CARD
        ========================================================= */
 
     .control-card {
@@ -584,8 +585,7 @@
     }
 
 
-    .slot.available
-    .slot-status {
+    .slot.available .slot-status {
       color: #15803d;
     }
 
@@ -599,8 +599,7 @@
     }
 
 
-    .slot.booked
-    .slot-status {
+    .slot.booked .slot-status {
       color: #b91c1c;
     }
 
@@ -614,8 +613,7 @@
     }
 
 
-    .slot.pending
-    .slot-status {
+    .slot.pending .slot-status {
       color: #a16207;
     }
 
@@ -823,9 +821,7 @@
        MOBILE
        ========================================================= */
 
-    @media (
-      max-width: 700px
-    ) {
+    @media (max-width: 700px) {
 
       header {
         padding: 16px 18px;
@@ -879,9 +875,7 @@
     }
 
 
-    @media (
-      max-width: 420px
-    ) {
+    @media (max-width: 420px) {
 
       .schedule {
         grid-template-columns:
@@ -917,11 +911,13 @@
           KK5
         </div>
 
+
         <div class="brand-text">
 
           <h1>
             KK5 Facility Booking
           </h1>
+
 
           <p>
             Kolej Kediaman Dayasari
@@ -934,6 +930,7 @@
     </div>
 
   </header>
+
 
 
   <!-- =======================================================
@@ -952,11 +949,13 @@
       class="page active"
     >
 
+
       <div class="page-heading">
 
         <h2>
           Choose a facility
         </h2>
+
 
         <p>
           Select the facility you want to check.
@@ -1023,6 +1022,7 @@
           Facility
         </div>
 
+
         <div
           id="selectedFacilityHours"
           class="selected-facility-hours"
@@ -1034,7 +1034,7 @@
 
 
 
-      <!-- PAGE STATUS -->
+      <!-- STATUS -->
 
       <div
         id="pageStatus"
@@ -1054,6 +1054,7 @@
           Select date
         </label>
 
+
         <input
           type="date"
           id="date"
@@ -1072,6 +1073,7 @@
           <h3>
             Availability
           </h3>
+
 
           <div
             id="availabilityDate"
@@ -1151,9 +1153,13 @@
             Start time
           </label>
 
+
           <select
             id="startTime"
-            onchange="updateDurationOptions(); updateBooking();"
+            onchange="
+              updateDurationOptions();
+              updateBooking();
+            "
           >
 
             <option value="">
@@ -1175,6 +1181,7 @@
             Duration
           </label>
 
+
           <select
             id="duration"
             disabled
@@ -1188,7 +1195,6 @@
           </select>
 
         </div>
-
 
       </div>
 
@@ -1272,13 +1278,43 @@
        CONFIGURATION
        ========================================================= */
 
-    const APPS_SCRIPT_URL =
-      "https://script.google.com/macros/s/AKfycbw3n23Sg5vLufUPGZp9S6tRvbVwTbp1FvS9Fj5DYBIsXH2hriNJznl9EJEC_a9145s7/exec";
 
+    /*
+     * PUBLIC GOOGLE SHEET
+     *
+     * This is NOT your private database.
+     *
+     * The GitHub website only reads this
+     * public spreadsheet.
+     */
+
+    const PUBLIC_SHEET_ID =
+      "1PGb7g244LFMQlqJdJWDGaeGsZzJsel9WTUakDcNatiQ";
+
+
+    /*
+     * Public sheet names.
+     */
+
+    const FACILITIES_SHEET =
+      "Facilities";
+
+
+    const BOOKINGS_SHEET =
+      "Bookings";
+
+
+    /*
+     * Google Form.
+     */
 
     const FORM_URL =
       "https://docs.google.com/forms/d/e/1FAIpQLSdja_U2aFCea0GAL6qZdaUxG5viyi4AlC-zROude_yzXAFIWg/viewform";
 
+
+    /*
+     * Google Form prefill fields.
+     */
 
     const FORM_FIELDS = {
 
@@ -1297,6 +1333,10 @@
     };
 
 
+    /*
+     * Booking rules.
+     */
+
     const MIN_DURATION =
       30;
 
@@ -1307,6 +1347,24 @@
 
     const SLOT_INTERVAL =
       30;
+
+
+
+    /* =========================================================
+       PUBLIC SHEET URLS
+       ========================================================= */
+
+
+    const FACILITIES_URL =
+      `https://docs.google.com/spreadsheets/d/${PUBLIC_SHEET_ID}/gviz/tq` +
+      `?sheet=${encodeURIComponent(FACILITIES_SHEET)}` +
+      `&tqx=out:json`;
+
+
+    const BOOKINGS_URL =
+      `https://docs.google.com/spreadsheets/d/${PUBLIC_SHEET_ID}/gviz/tq` +
+      `?sheet=${encodeURIComponent(BOOKINGS_SHEET)}` +
+      `&tqx=out:json`;
 
 
 
@@ -1418,6 +1476,132 @@
 
 
     /* =========================================================
+       GVIZ FETCH
+       ========================================================= */
+
+    async function fetchGviz(
+      url
+    ) {
+
+      const response =
+        await fetch(
+          `${url}&t=${Date.now()}`,
+          {
+            method: "GET",
+
+            cache: "no-store"
+          }
+        );
+
+
+      if (
+        !response.ok
+      ) {
+
+        throw new Error(
+          `Google Sheets returned HTTP ${response.status}`
+        );
+
+      }
+
+
+      const text =
+        await response.text();
+
+
+      /*
+       * Google GViz returns something like:
+       *
+       * google.visualization.Query.setResponse({...});
+       *
+       * We need to extract the JSON object.
+       */
+
+      const match =
+        text.match(
+          /google\.visualization\.Query\.setResponse\(([\s\S]*)\);?\s*$/
+        );
+
+
+      if (!match) {
+
+        console.error(
+          "Unexpected GViz response:",
+          text
+        );
+
+
+        throw new Error(
+          "Google Sheets returned an unexpected response."
+        );
+
+      }
+
+
+      return JSON.parse(
+        match[1]
+      );
+
+    }
+
+
+
+    /* =========================================================
+       GVIZ VALUE HELPER
+       ========================================================= */
+
+    function getGvizCellValue(
+      cell
+    ) {
+
+      if (
+        !cell
+      ) {
+
+        return "";
+
+      }
+
+
+      /*
+       * Prefer formatted value.
+       */
+
+      if (
+        cell.f !== undefined &&
+        cell.f !== null
+      ) {
+
+        return String(
+          cell.f
+        ).trim();
+
+      }
+
+
+      /*
+       * Otherwise use raw value.
+       */
+
+      if (
+        cell.v !== undefined &&
+        cell.v !== null
+      ) {
+
+        return String(
+          cell.v
+        ).trim();
+
+      }
+
+
+      return "";
+
+    }
+
+
+
+    /* =========================================================
        LOAD FACILITIES
        ========================================================= */
 
@@ -1429,208 +1613,73 @@
         );
 
 
-      /*
-       * First try cached facilities.
-       * This makes the page feel faster.
-       */
-
-      const cached =
-        localStorage.getItem(
-          "kk5_facilities_cache"
-        );
+      container.innerHTML = `
+        <div class="empty">
+          Loading facilities...
+        </div>
+      `;
 
 
-      if (cached) {
-
-        try {
-
-          const cachedFacilities =
-            JSON.parse(
-              cached
-            );
-
-
-          if (
-            Array.isArray(
-              cachedFacilities
-            ) &&
-            cachedFacilities.length
-          ) {
-
-            facilities =
-              cachedFacilities;
-
-
-            renderFacilities();
-
-          }
-
-        } catch (error) {
-
-          console.warn(
-            "Invalid facility cache:",
-            error
-          );
-
-
-          localStorage.removeItem(
-            "kk5_facilities_cache"
-          );
-
-        }
-
-      }
-
-
-      /*
-       * Show loading state if
-       * there is no cached data.
-       */
-
-      if (
-        !facilities.length
-      ) {
-
-        container.innerHTML = `
-          <div class="empty">
-            Loading facilities...
-          </div>
-        `;
-
-      }
+      showStatus(
+        "facilityStatus",
+        "Loading facilities...",
+        "loading"
+      );
 
 
       try {
 
-        const url =
-          `${APPS_SCRIPT_URL}` +
-          `?action=facilities` +
-          `&t=${Date.now()}`;
-
-
         console.log(
-          "Loading facilities from:",
-          url
+          "Facilities URL:",
+          FACILITIES_URL
         );
-
-
-        const response =
-          await fetch(
-            url,
-            {
-              method: "GET",
-
-              cache: "no-store"
-            }
-          );
-
-
-        if (
-          !response.ok
-        ) {
-
-          throw new Error(
-            `Apps Script returned HTTP ${response.status}`
-          );
-
-        }
 
 
         const data =
-          await response.json();
+          await fetchGviz(
+            FACILITIES_URL
+          );
 
 
         console.log(
-          "Facilities API response:",
+          "Facilities GViz response:",
           data
         );
 
 
         if (
-          !Array.isArray(
-            data
-          )
+          !data ||
+          !data.table
         ) {
 
           throw new Error(
-            "Apps Script returned an invalid facilities response."
+            "Invalid Facilities sheet response."
           );
 
         }
 
 
-        /*
-         * Convert Apps Script response
-         * into frontend structure.
-         */
-
         facilities =
-          data
-            .map(
-              item => ({
-
-                name:
-                  String(
-                    item.facility ||
-                    ""
-                  ).trim(),
-
-                openingTime:
-                  normalizeTime(
-                    item.openingTime
-                  ),
-
-                closingTime:
-                  normalizeTime(
-                    item.closingTime
-                  ),
-
-                type:
-                  String(
-                    item.type ||
-                    ""
-                  ).trim(),
-
-                location:
-                  String(
-                    item.location ||
-                    ""
-                  ).trim(),
-
-                capacity:
-                  item.capacity ||
-                  ""
-
-              })
-            )
-            .filter(
-              facility =>
-                facility.name
-            );
-
-
-        /*
-         * Remove accidental header rows.
-         */
-
-        facilities =
-          facilities.filter(
-            facility =>
-              facility.name.toLowerCase() !==
-              "facility"
+          parseFacilities(
+            data.table
           );
 
 
-        /*
-         * Save clean data locally.
-         */
-
-        localStorage.setItem(
-          "kk5_facilities_cache",
-          JSON.stringify(
-            facilities
-          )
+        console.log(
+          "Parsed facilities:",
+          facilities
         );
+
+
+        if (
+          !facilities.length
+        ) {
+
+          throw new Error(
+            "No active facilities were found."
+          );
+
+        }
 
 
         renderFacilities();
@@ -1644,34 +1693,14 @@
       } catch (error) {
 
         console.error(
-          "Failed to load facilities:",
+          "FACILITIES ERROR:",
           error
         );
 
 
-        /*
-         * If cache exists,
-         * keep using it.
-         */
-
-        if (
-          facilities.length
-        ) {
-
-          showStatus(
-            "facilityStatus",
-            "Showing previously loaded facilities. Unable to refresh.",
-            "error"
-          );
-
-          return;
-
-        }
-
-
         container.innerHTML = `
           <div class="empty">
-            Failed to load facilities.
+            Unable to load facilities.
             Please refresh the page.
           </div>
         `;
@@ -1684,6 +1713,153 @@
         );
 
       }
+
+    }
+
+
+
+    /* =========================================================
+       PARSE FACILITIES
+       ========================================================= */
+
+    function parseFacilities(
+      table
+    ) {
+
+      const rows =
+        table.rows || [];
+
+
+      const result = [];
+
+
+      rows.forEach(
+        row => {
+
+          const cells =
+            row.c || [];
+
+
+          const facility =
+            getGvizCellValue(
+              cells[0]
+            );
+
+
+          const type =
+            getGvizCellValue(
+              cells[1]
+            );
+
+
+          const location =
+            getGvizCellValue(
+              cells[2]
+            );
+
+
+          const capacity =
+            getGvizCellValue(
+              cells[3]
+            );
+
+
+          const openingTime =
+            normalizeTime(
+              getGvizCellValue(
+                cells[4]
+              )
+            );
+
+
+          const closingTime =
+            normalizeTime(
+              getGvizCellValue(
+                cells[5]
+              )
+            );
+
+
+          const status =
+            getGvizCellValue(
+              cells[6]
+            )
+            .trim()
+            .toUpperCase();
+
+
+          /*
+           * Ignore blank rows.
+           */
+
+          if (
+            !facility
+          ) {
+
+            return;
+
+          }
+
+
+          /*
+           * Ignore accidental header row.
+           */
+
+          if (
+            facility.toLowerCase() ===
+            "facility"
+          ) {
+
+            return;
+
+          }
+
+
+          /*
+           * Only ACTIVE facilities.
+           *
+           * If the public sheet does not have
+           * a Status column, we still allow
+           * the facility through.
+           */
+
+          if (
+            status &&
+            status !== "ACTIVE"
+          ) {
+
+            return;
+
+          }
+
+
+          result.push({
+
+            name:
+              facility,
+
+            type:
+              type,
+
+            location:
+              location,
+
+            capacity:
+              capacity,
+
+            openingTime:
+              openingTime,
+
+            closingTime:
+              closingTime
+
+          });
+
+        }
+      );
+
+
+      return result;
 
     }
 
@@ -1706,9 +1882,6 @@
 
 
       if (
-        !Array.isArray(
-          facilities
-        ) ||
         !facilities.length
       ) {
 
@@ -1749,6 +1922,7 @@
               )}
 
             </div>
+
 
             <div class="facility-card-hours">
 
@@ -1816,7 +1990,7 @@
 
 
       /*
-       * Switch page.
+       * Switch to availability page.
        */
 
       document.getElementById(
@@ -1834,7 +2008,7 @@
 
 
       /*
-       * Show facility information.
+       * Show selected facility.
        */
 
       document.getElementById(
@@ -1854,14 +2028,14 @@
 
 
       /*
-       * Reset previous booking.
+       * Reset old selection.
        */
 
       resetBooking();
 
 
       /*
-       * Load today's availability.
+       * Load availability.
        */
 
       await loadAvailability();
@@ -1977,179 +2151,81 @@
 
       try {
 
-        const url =
-          `${APPS_SCRIPT_URL}` +
-          `?action=availability` +
-          `&facility=${encodeURIComponent(
-            selectedFacility.name
-          )}` +
-          `&date=${encodeURIComponent(
-            date
-          )}` +
-          `&t=${Date.now()}`;
-
-
         console.log(
-          "Loading availability:",
-          url
+          "Loading public bookings..."
         );
 
 
-        const response =
-          await fetch(
-            url,
-            {
-              method: "GET",
-
-              cache: "no-store"
-            }
-          );
-
-
-        if (
-          !response.ok
-        ) {
-
-          throw new Error(
-            `Apps Script returned HTTP ${response.status}`
-          );
-
-        }
-
-
         const data =
-          await response.json();
+          await fetchGviz(
+            BOOKINGS_URL
+          );
 
 
         console.log(
-          "Availability API response:",
+          "Bookings GViz response:",
           data
         );
 
 
         if (
           !data ||
-          data.success !== true
+          !data.table
         ) {
 
           throw new Error(
-            data?.message ||
-            "Unable to load availability."
+            "Invalid Bookings sheet response."
           );
 
         }
 
 
-        /*
-         * Update opening hours
-         * from backend.
-         */
-
-        if (
-          data.openingTime &&
-          data.closingTime
-        ) {
-
-          selectedFacility.openingTime =
-            normalizeTime(
-              data.openingTime
-            );
-
-
-          selectedFacility.closingTime =
-            normalizeTime(
-              data.closingTime
-            );
-
-
-          document.getElementById(
-            "selectedFacilityHours"
-          ).textContent =
-            `${formatTime(
-              selectedFacility.openingTime
-            )} – ${formatTime(
-              selectedFacility.closingTime
-            )}`;
-
-        }
-
-
-        /*
-         * Process bookings.
-         */
-
-        if (
-          Array.isArray(
-            data.bookings
-          )
-        ) {
-
-          bookings =
-            data.bookings
-              .map(
-                booking => ({
-
-                  bookingId:
-                    String(
-                      booking.bookingId ||
-                      ""
-                    ),
-
-                  facility:
-                    selectedFacility.name,
-
-                  date:
-                    date,
-
-                  start:
-                    normalizeTime(
-                      booking.start
-                    ),
-
-                  end:
-                    normalizeTime(
-                      booking.end
-                    ),
-
-                  status:
-                    String(
-                      booking.status ||
-                      ""
-                    )
-                    .trim()
-                    .toUpperCase()
-
-                })
-              )
-              .filter(
-                booking =>
-                  booking.start &&
-                  booking.end &&
-                  (
-                    booking.status ===
-                      "APPROVED" ||
-                    booking.status ===
-                      "PENDING"
-                  )
-              );
-
-        } else {
-
-          bookings =
-            [];
-
-        }
+        bookings =
+          parseBookings(
+            data.table
+          );
 
 
         console.log(
-          "Valid bookings:",
+          "All public bookings:",
           bookings
         );
 
 
         /*
-         * Render timetable.
+         * Filter to selected facility
+         * and selected date.
          */
+
+        bookings =
+          bookings.filter(
+            booking => {
+
+              return (
+                booking.facility ===
+                  selectedFacility.name &&
+
+                booking.date ===
+                  date &&
+
+                (
+                  booking.status ===
+                    "APPROVED" ||
+
+                  booking.status ===
+                    "PENDING"
+                )
+              );
+
+            }
+          );
+
+
+        console.log(
+          "Filtered bookings:",
+          bookings
+        );
+
 
         renderAvailability();
 
@@ -2173,7 +2249,8 @@
 
         schedule.innerHTML = `
           <div class="empty">
-            Unable to load availability data.
+            Unable to load availability.
+            Please try again.
           </div>
         `;
 
@@ -2185,6 +2262,154 @@
         );
 
       }
+
+    }
+
+
+
+    /* =========================================================
+       PARSE BOOKINGS
+       ========================================================= */
+
+    function parseBookings(
+      table
+    ) {
+
+      const rows =
+        table.rows || [];
+
+
+      const result = [];
+
+
+      rows.forEach(
+        row => {
+
+          const cells =
+            row.c || [];
+
+
+          /*
+           * Public Bookings structure:
+           *
+           * A Facility
+           * B Date
+           * C Start Time
+           * D End Time
+           * E Status
+           */
+
+
+          const facility =
+            getGvizCellValue(
+              cells[0]
+            );
+
+
+          const date =
+            normalizeDate(
+              getGvizCellValue(
+                cells[1]
+              )
+            );
+
+
+          const start =
+            normalizeTime(
+              getGvizCellValue(
+                cells[2]
+              )
+            );
+
+
+          const end =
+            normalizeTime(
+              getGvizCellValue(
+                cells[3]
+              )
+            );
+
+
+          const status =
+            getGvizCellValue(
+              cells[4]
+            )
+            .trim()
+            .toUpperCase();
+
+
+          /*
+           * Ignore blank rows.
+           */
+
+          if (
+            !facility
+          ) {
+
+            return;
+
+          }
+
+
+          /*
+           * Ignore header row.
+           */
+
+          if (
+            facility.toLowerCase() ===
+            "facility"
+          ) {
+
+            return;
+
+          }
+
+
+          /*
+           * Only PENDING / APPROVED
+           * should appear publicly.
+           */
+
+          if (
+            status !== "APPROVED" &&
+            status !== "PENDING"
+          ) {
+
+            return;
+
+          }
+
+
+          if (
+            !date ||
+            !start ||
+            !end
+          ) {
+
+            return;
+
+          }
+
+
+          result.push({
+
+            facility,
+
+            date,
+
+            start,
+
+            end,
+
+            status
+
+          });
+
+        }
+      );
+
+
+      return result;
 
     }
 
@@ -2332,6 +2557,7 @@
 
           </div>
 
+
           <div class="slot-status">
 
             ${statusLabel(
@@ -2344,8 +2570,8 @@
 
 
         /*
-         * Available slots can
-         * be selected.
+         * Only available slots
+         * can be selected.
          */
 
         if (
@@ -2394,7 +2620,7 @@
 
 
     /* =========================================================
-       SLOT LABEL
+       SLOT STATUS LABEL
        ========================================================= */
 
     function statusLabel(
@@ -2467,6 +2693,7 @@
             return (
               startMinutes <
                 existingEnd &&
+
               endMinutes >
                 existingStart
             );
@@ -2476,7 +2703,7 @@
 
 
       /*
-       * APPROVED takes priority.
+       * APPROVED has priority.
        */
 
       if (
@@ -2535,7 +2762,8 @@
 
 
       /*
-       * Default to 60 minutes.
+       * Default to 60 minutes
+       * if available.
        */
 
       if (
@@ -2629,8 +2857,8 @@
 
 
       /*
-       * Generate durations from
-       * 30 minutes to 4 hours.
+       * Generate 30-minute
+       * duration options.
        */
 
       for (
@@ -2666,8 +2894,9 @@
 
 
         /*
-         * Entire requested period
-         * must be available.
+         * Only show durations
+         * where the entire period
+         * is available.
          */
 
         if (
@@ -2913,8 +3142,10 @@
       if (
         startMinutes <
           opening ||
+
         endMinutes >
           closing ||
+
         endMinutes <=
           startMinutes
       ) {
@@ -2925,7 +3156,9 @@
 
 
       /*
-       * Check PENDING and APPROVED.
+       * Check against all
+       * PENDING and APPROVED
+       * public bookings.
        */
 
       return !bookings.some(
@@ -2946,6 +3179,7 @@
           return (
             startMinutes <
               existingEnd &&
+
             endMinutes >
               existingStart
           );
@@ -2980,7 +3214,7 @@
 
 
       /*
-       * Final availability check.
+       * Final frontend availability check.
        */
 
       if (
@@ -3191,6 +3425,198 @@
 
 
     /* =========================================================
+       DATE NORMALISATION
+       ========================================================= */
+
+    function normalizeDate(
+      value
+    ) {
+
+      if (
+        value === null ||
+        value === undefined ||
+        value === ""
+      ) {
+
+        return "";
+
+      }
+
+
+      const string =
+        String(
+          value
+        ).trim();
+
+
+      /*
+       * Already ISO:
+       * YYYY-MM-DD
+       */
+
+      if (
+        /^\d{4}-\d{2}-\d{2}$/.test(
+          string
+        )
+      ) {
+
+        return string;
+
+      }
+
+
+      /*
+       * Google Sheets Date()
+       */
+
+      const googleDate =
+        string.match(
+          /^Date\((\d+),\s*(\d+),\s*(\d+)(?:,\s*\d+.*)?\)$/
+        );
+
+
+      if (googleDate) {
+
+        const year =
+          Number(
+            googleDate[1]
+          );
+
+
+        const month =
+          Number(
+            googleDate[2]
+          ) + 1;
+
+
+        const day =
+          Number(
+            googleDate[3]
+          );
+
+
+        return (
+          String(
+            year
+          ) +
+          "-" +
+          String(
+            month
+          ).padStart(
+            2,
+            "0"
+          ) +
+          "-" +
+          String(
+            day
+          ).padStart(
+            2,
+            "0"
+          )
+        );
+
+      }
+
+
+      /*
+       * DD/MM/YYYY
+       */
+
+      const slash =
+        string.match(
+          /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/
+        );
+
+
+      if (slash) {
+
+        const first =
+          Number(
+            slash[1]
+          );
+
+
+        const second =
+          Number(
+            slash[2]
+          );
+
+
+        const year =
+          Number(
+            slash[3]
+          );
+
+
+        return (
+          String(
+            year
+          ) +
+          "-" +
+          String(
+            second
+          ).padStart(
+            2,
+            "0"
+          ) +
+          "-" +
+          String(
+            first
+          ).padStart(
+            2,
+            "0"
+          )
+        );
+
+      }
+
+
+      /*
+       * General date.
+       */
+
+      const parsed =
+        new Date(
+          string
+        );
+
+
+      if (
+        !isNaN(
+          parsed.getTime()
+        )
+      ) {
+
+        return (
+          String(
+            parsed.getFullYear()
+          ) +
+          "-" +
+          String(
+            parsed.getMonth() + 1
+          ).padStart(
+            2,
+            "0"
+          ) +
+          "-" +
+          String(
+            parsed.getDate()
+          ).padStart(
+            2,
+            "0"
+          )
+        );
+
+      }
+
+
+      return "";
+
+    }
+
+
+
+    /* =========================================================
        TIME NORMALISATION
        ========================================================= */
 
@@ -3363,8 +3789,6 @@
 
       /*
        * Numeric fraction of a day.
-       * Google Sheets sometimes returns
-       * times in this form.
        */
 
       const numeric =
