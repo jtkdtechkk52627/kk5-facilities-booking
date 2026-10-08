@@ -1,546 +1,545 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>KK5 Facility Availability</title>
 
   <style>
-
     * {
       box-sizing: border-box;
     }
 
     body {
-
       margin: 0;
-
-      font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
-
+      font-family: Arial, Helvetica, sans-serif;
       background: #f5f5f5;
-
-      color: #222;
-
+      color: #111;
     }
 
     .container {
-
       max-width: 900px;
-
       margin: 0 auto;
-
-      padding: 25px;
-
+      padding: 30px 20px 50px;
     }
 
-    .header {
-
-      background: #111;
-
-      color: white;
-
-      padding: 25px;
-
-      border-radius: 14px;
-
-      margin-bottom: 20px;
-
-    }
-
-    .header h1 {
-
+    h1 {
       margin: 0 0 8px;
-
-      font-size: 28px;
-
+      font-size: 30px;
     }
 
-    .header p {
-
-      margin: 0;
-
-      opacity: 0.8;
-
+    .subtitle {
+      margin: 0 0 30px;
+      color: #666;
     }
 
     .card {
-
       background: white;
-
-      border-radius: 14px;
-
+      border: 1px solid #ddd;
+      border-radius: 12px;
       padding: 20px;
-
       margin-bottom: 20px;
-
-      box-shadow:
-        0 2px 10px
-        rgba(0,0,0,0.08);
-
     }
 
     label {
-
       display: block;
-
       font-weight: bold;
-
-      margin-bottom: 8px;
-
+      margin-bottom: 7px;
     }
 
     select,
-    input {
-
+    input,
+    button {
       width: 100%;
-
       padding: 12px;
+      border-radius: 7px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+    }
 
-      border: 1px solid #ddd;
+    select:focus,
+    input:focus {
+      outline: none;
+      border-color: #111;
+    }
 
-      border-radius: 8px;
+    button {
+      background: #111;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
 
-      font-size: 16px;
+    button:hover {
+      opacity: 0.85;
+    }
 
-      background: white;
+    button:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+    }
 
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
     }
 
     .field {
-
       margin-bottom: 18px;
-
     }
 
-    .booking-period {
-
-      background: #f5f5f5;
-
-      padding: 15px;
-
-      border-radius: 10px;
-
-      margin-top: 10px;
-
-      margin-bottom: 15px;
-
-    }
-
-    .booking-period-label {
-
-      font-size: 13px;
-
-      color: #777;
-
-      margin-bottom: 5px;
-
-    }
-
-    .booking-period-time {
-
-      font-size: 20px;
-
-      font-weight: bold;
-
-    }
-
-    .availability-message {
-
-      padding: 14px;
-
-      border-radius: 9px;
-
-      margin-bottom: 15px;
-
-      font-weight: bold;
-
-    }
-
-    .availability-message.available {
-
-      background: #eefaf0;
-
-      border: 1px solid #b9dfbd;
-
-      color: #218838;
-
-    }
-
-    .availability-message.unavailable {
-
-      background: #fff0f0;
-
-      border: 1px solid #e4bcbc;
-
-      color: #c82333;
-
-    }
-
-    .book-button {
-
-      width: 100%;
-
-      padding: 13px;
-
-      border: none;
-
-      border-radius: 8px;
-
-      background: #111;
-
-      color: white;
-
-      cursor: pointer;
-
-      font-size: 16px;
-
-      font-weight: bold;
-
-    }
-
-    .book-button:hover {
-
-      opacity: 0.8;
-
-    }
-
-    .book-button:disabled {
-
-      background: #ccc;
-
-      color: #777;
-
-      cursor: not-allowed;
-
-    }
-
-    .loading {
-
-      text-align: center;
-
-      padding: 30px;
-
-      color: #777;
-
-    }
-
-    .legend {
-
+    .availability-header {
       display: flex;
-
-      gap: 15px;
-
-      flex-wrap: wrap;
-
-      margin-top: 15px;
-
-      margin-bottom: 20px;
-
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
     }
 
-    .legend span {
+    .availability-header h2 {
+      margin: 0;
+      font-size: 20px;
+    }
 
-      font-size: 14px;
+    .status {
+      padding: 12px;
+      border-radius: 7px;
+      background: #f0f0f0;
+      margin-bottom: 15px;
+      display: none;
+    }
 
+    .status.error {
+      display: block;
+      background: #ffe5e5;
+      color: #a00000;
+    }
+
+    .status.loading {
+      display: block;
+      background: #eeeeee;
+      color: #555;
     }
 
     .schedule {
-
-      margin-top: 20px;
-
-    }
-
-    .schedule-title {
-
-      font-weight: bold;
-
-      margin-bottom: 10px;
-
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
 
     .slot {
-
-      display: flex;
-
-      justify-content: space-between;
-
+      display: grid;
+      grid-template-columns: 100px 1fr;
       align-items: center;
-
+      gap: 15px;
       padding: 12px;
-
       border-radius: 8px;
-
-      margin-bottom: 7px;
-
       border: 1px solid #ddd;
-
-    }
-
-    .slot.available {
-
-      background: #eefaf0;
-
-      border-color: #b9dfbd;
-
-    }
-
-    .slot.booked {
-
-      background: #fff0f0;
-
-      border-color: #e4bcbc;
-
-    }
-
-    .slot.pending {
-
-      background: #fff8e6;
-
-      border-color: #ead59b;
-
     }
 
     .slot-time {
-
       font-weight: bold;
-
+      font-size: 14px;
     }
 
     .slot-status {
-
-      font-size: 13px;
-
+      font-size: 14px;
       font-weight: bold;
+    }
 
+    .available {
+      background: #e9f7ed;
+      border-color: #b8dfc2;
+    }
+
+    .available .slot-status {
+      color: #187333;
+    }
+
+    .booked {
+      background: #ffeaea;
+      border-color: #edbaba;
+    }
+
+    .booked .slot-status {
+      color: #b00000;
+    }
+
+    .pending {
+      background: #fff7dc;
+      border-color: #ead58a;
+    }
+
+    .pending .slot-status {
+      color: #8a6800;
+    }
+
+    .booking-panel {
+      display: none;
+    }
+
+    .booking-panel.show {
+      display: block;
+    }
+
+    .selected-info {
+      padding: 15px;
+      background: #f3f3f3;
+      border-radius: 8px;
+      margin-bottom: 18px;
+      line-height: 1.6;
+    }
+
+    .message {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 7px;
+      display: none;
+    }
+
+    .message.error {
+      display: block;
+      background: #ffe5e5;
+      color: #a00000;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 15px;
+      font-size: 13px;
+      color: #555;
+    }
+
+    .legend span {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot.green {
+      background: #2e9b4b;
+    }
+
+    .dot.red {
+      background: #c62828;
+    }
+
+    .dot.yellow {
+      background: #d6ad00;
     }
 
     .empty {
-
+      padding: 25px;
       text-align: center;
-
-      padding: 30px;
-
-      color: #777;
-
+      color: #666;
+      background: #f5f5f5;
+      border-radius: 8px;
     }
 
-    @media (
-      max-width: 600px
-    ) {
-
+    @media (max-width: 600px) {
       .container {
-        padding: 12px;
+        padding: 20px 12px 40px;
       }
 
+      h1 {
+        font-size: 25px;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+
+      .slot {
+        grid-template-columns: 80px 1fr;
+      }
+
+      .availability-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
     }
-
   </style>
-
 </head>
-
 
 <body>
 
-
 <div class="container">
 
+  <h1>KK5 Facility Availability</h1>
+  <p class="subtitle">
+    Check facility availability and make a booking request.
+  </p>
 
-  <div class="header">
+  <!-- SEARCH -->
+  <div class="card">
 
-    <h1>
-      KK5 Facility Availability
-    </h1>
+    <div class="form-row">
 
-    <p>
-      Check facility availability before making a booking.
-    </p>
+      <div class="field">
+        <label for="facility">
+          Facility
+        </label>
+
+        <select id="facility">
+          <option value="">
+            Loading facilities...
+          </option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="date">
+          Date
+        </label>
+
+        <input
+          type="date"
+          id="date"
+        >
+      </div>
+
+    </div>
+
+    <button
+      id="checkButton"
+      onclick="loadAvailability()"
+    >
+      Check Availability
+    </button>
+
+    <div
+      id="status"
+      class="status"
+    ></div>
 
   </div>
 
 
-  <div class="card">
+  <!-- AVAILABILITY -->
+  <div
+    class="card"
+    id="availabilityCard"
+    style="display:none;"
+  >
 
+    <div class="availability-header">
 
-    <div class="field">
+      <h2>
+        Availability
+      </h2>
 
-      <label>
-        Facility
-      </label>
-
-      <select
-        id="facility"
-        onchange="loadAvailability()">
-
-        <option value="">
-          Loading...
-        </option>
-
-      </select>
+      <div id="selectedDateText"></div>
 
     </div>
-
-
-    <div class="field">
-
-      <label>
-        Date
-      </label>
-
-      <input
-        type="date"
-        id="date"
-        onchange="loadAvailability">
-
-    </div>
-
-
-    <div class="field">
-
-      <label>
-        Start Time
-      </label>
-
-      <select
-        id="startTime"
-        onchange="updateBooking()">
-
-        <option value="">
-          Select start time
-        </option>
-
-      </select>
-
-    </div>
-
-
-    <div class="field">
-
-      <label>
-        Duration
-      </label>
-
-      <select
-        id="duration"
-        onchange="updateBooking()">
-
-        <option value="30">
-          30 minutes
-        </option>
-
-        <option value="60">
-          1 hour
-        </option>
-
-        <option value="90">
-          1 hour 30 minutes
-        </option>
-
-        <option value="120">
-          2 hours
-        </option>
-
-        <option value="150">
-          2 hours 30 minutes
-        </option>
-
-        <option value="180">
-          3 hours
-        </option>
-
-        <option value="210">
-          3 hours 30 minutes
-        </option>
-
-        <option value="240">
-          4 hours
-        </option>
-
-      </select>
-
-    </div>
-
-
-    <div class="booking-period">
-
-      <div class="booking-period-label">
-        Booking period
-      </div>
-
-      <div
-        id="bookingPeriod"
-        class="booking-period-time">
-
-        Select a start time
-
-      </div>
-
-    </div>
-
 
     <div
-      id="availabilityMessage"
-      class="availability-message"
-      style="display:none;">
+      id="schedule"
+      class="schedule"
+    ></div>
+
+    <div class="legend">
+
+      <span>
+        <span class="dot green"></span>
+        Available
+      </span>
+
+      <span>
+        <span class="dot red"></span>
+        Booked
+      </span>
+
+      <span>
+        <span class="dot yellow"></span>
+        Pending
+      </span>
 
     </div>
 
+  </div>
+
+
+  <!-- BOOKING -->
+  <div
+    class="card booking-panel"
+    id="bookingPanel"
+  >
+
+    <h2>
+      Book a Slot
+    </h2>
+
+    <div
+      class="selected-info"
+      id="selectedInfo"
+    ></div>
+
+    <div class="form-row">
+
+      <div class="field">
+
+        <label for="startTime">
+          Start Time
+        </label>
+
+        <select
+          id="startTime"
+          onchange="updateBooking()"
+        >
+          <option value="">
+            Select start time
+          </option>
+        </select>
+
+      </div>
+
+      <div class="field">
+
+        <label for="duration">
+          Duration
+        </label>
+
+        <select
+          id="duration"
+          onchange="updateBooking()"
+        >
+
+          <option value="30">
+            30 minutes
+          </option>
+
+          <option value="60">
+            1 hour
+          </option>
+
+          <option value="90">
+            1 hour 30 minutes
+          </option>
+
+          <option value="120">
+            2 hours
+          </option>
+
+          <option value="150">
+            2 hours 30 minutes
+          </option>
+
+          <option value="180">
+            3 hours
+          </option>
+
+          <option value="210">
+            3 hours 30 minutes
+          </option>
+
+          <option value="240">
+            4 hours
+          </option>
+
+        </select>
+
+      </div>
+
+    </div>
+
+    <div
+      id="bookingMessage"
+      class="message"
+    ></div>
 
     <button
       id="bookButton"
-      class="book-button"
+      onclick="bookSelectedSlot()"
       disabled
-      onclick="bookSelectedSlot()">
-
-      BOOK THIS SLOT
-
+    >
+      Continue to Booking Form
     </button>
 
-
   </div>
-
-
-  <div
-    id="results"
-    class="card">
-
-    <div class="loading">
-
-      Loading availability...
-
-    </div>
-
-  </div>
-
 
 </div>
 
 
 <script>
 
+/* ==================================================
+   CONFIGURATION
+   ================================================== */
 
-/* =========================================================
-   APPS SCRIPT API
-   ========================================================= */
+/*
+  IMPORTANT:
+  Replace this with the ID of your EXISTING
+  public Google Sheet.
+*/
 
-const APPS_SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbw3n23Sg5vLufUpGZp9S6tRvbVwTbp1FvS9Fj5DYBIsXH2hriNJznl9EJEC_a9145s7/exec";
+const PUBLIC_SHEET_ID =
+  "1PGb7g244LFMQlqJdJWDGaeGsZzJsel9WTUakDcNatiQ";
 
+
+const FACILITIES_URL =
+  `https://docs.google.com/spreadsheets/d/${PUBLIC_SHEET_ID}/gviz/tq?tqx=out:json&sheet=Facilities`;
+
+
+const BOOKINGS_URL =
+  `https://docs.google.com/spreadsheets/d/${PUBLIC_SHEET_ID}/gviz/tq?tqx=out:json&sheet=Bookings`;
+
+
+/*
+  Google Form
+*/
+
+const FORM_URL =
+  "https://docs.google.com/forms/d/e/1FAIpQLSdja_U2aFCea0GAL6qZdaUxG5viyi4AlC-zROude_yzXAFIWg/viewform";
+
+
+/*
+  Google Form prefill IDs
+*/
+
+const FORM_FIELDS = {
+
+  facility:
+    "entry.1139525746",
+
+  date:
+    "entry.482205338",
+
+  start:
+    "entry.1117912077",
+
+  end:
+    "entry.866972168"
+
+};
+
+
+/* ==================================================
+   GLOBAL VARIABLES
+   ================================================== */
+
+let facilities = [];
+
+let bookings = [];
 
 let availabilityData = null;
 
 
-/* =========================================================
+/* ==================================================
    INITIALISE
-   ========================================================= */
+   ================================================== */
 
 document.addEventListener(
   "DOMContentLoaded",
@@ -554,11 +553,14 @@ document.addEventListener(
 );
 
 
-/* =========================================================
+/* ==================================================
    DEFAULT DATE
-   ========================================================= */
+   ================================================== */
 
 function setDefaultDate() {
+
+  const input =
+    document.getElementById("date");
 
   const today =
     new Date();
@@ -569,38 +571,126 @@ function setDefaultDate() {
   const month =
     String(
       today.getMonth() + 1
-    ).padStart(
-      2,
-      "0"
-    );
+    ).padStart(2, "0");
 
   const day =
     String(
       today.getDate()
-    ).padStart(
-      2,
-      "0"
-    );
+    ).padStart(2, "0");
 
-  document
-    .getElementById("date")
-    .value =
-      `${year}-${month}-${day}`;
+  input.value =
+    `${year}-${month}-${day}`;
 
 }
 
 
-/* =========================================================
-   LOAD FACILITIES
-   ========================================================= */
+/* ==================================================
+   GOOGLE GVIZ FETCH
+   ================================================== */
 
-function loadFacilities() {
+async function fetchGviz(url) {
+
+  const response =
+    await fetch(url);
+
+  if (!response.ok) {
+
+    throw new Error(
+      "Unable to access the public availability data."
+    );
+
+  }
+
+  const text =
+    await response.text();
+
+
+  /*
+    Google returns:
+
+    google.visualization.Query.setResponse({...});
+  */
+
+  const match =
+    text.match(
+      /google\.visualization\.Query\.setResponse\(([\s\S]*)\);?\s*$/
+    );
+
+
+  if (!match) {
+
+    throw new Error(
+      "Invalid Google Sheets response."
+    );
+
+  }
+
+
+  return JSON.parse(
+    match[1]
+  );
+
+}
+
+
+/* ==================================================
+   GVIZ ROW CONVERSION
+   ================================================== */
+
+function gvizRows(data) {
+
+  if (
+    !data ||
+    !data.table ||
+    !data.table.rows
+  ) {
+
+    return [];
+
+  }
+
+
+  return data.table.rows.map(
+    row => {
+
+      return row.c.map(
+        cell => {
+
+          if (!cell) {
+            return "";
+          }
+
+          /*
+            Prefer formatted value.
+            This prevents Google date objects
+            from causing problems.
+          */
+
+          return (
+            cell.f !== undefined
+              ? cell.f
+              : cell.v
+          );
+
+        }
+      );
+
+    }
+  );
+
+}
+
+
+/* ==================================================
+   LOAD FACILITIES
+   ================================================== */
+
+async function loadFacilities() {
 
   const select =
     document.getElementById(
       "facility"
     );
-
 
   select.innerHTML =
     `<option value="">
@@ -608,291 +698,500 @@ function loadFacilities() {
     </option>`;
 
 
-  fetch(
-    APPS_SCRIPT_URL +
-    "?action=facilities"
-  )
+  try {
 
-    .then(
-      function(response) {
+    const data =
+      await fetchGviz(
+        FACILITIES_URL
+      );
 
-        if (!response.ok) {
 
-          throw new Error(
-            "Failed to load facilities."
+    const rows =
+      gvizRows(data);
+
+
+    facilities =
+      rows.map(
+        row => {
+
+          return {
+
+            name:
+              String(
+                row[0] || ""
+              ).trim(),
+
+            openingTime:
+              String(
+                row[1] || ""
+              ).trim(),
+
+            closingTime:
+              String(
+                row[2] || ""
+              ).trim()
+
+          };
+
+        }
+      )
+      .filter(
+        facility =>
+          facility.name
+      );
+
+
+    select.innerHTML =
+      `<option value="">
+        Select a facility
+      </option>`;
+
+
+    facilities.forEach(
+      facility => {
+
+        const option =
+          document.createElement(
+            "option"
           );
 
-        }
+        option.value =
+          facility.name;
 
-        return response.json();
+        option.textContent =
+          facility.name;
 
-      }
-    )
-
-    .then(
-      function(facilities) {
-
-        select.innerHTML =
-          "";
-
-
-        if (
-          !facilities ||
-          facilities.length === 0
-        ) {
-
-          select.innerHTML =
-            `<option value="">
-              No facilities available
-            </option>`;
-
-          return;
-
-        }
-
-
-        facilities.forEach(
-          function(facility) {
-
-            const option =
-              document.createElement(
-                "option"
-              );
-
-
-            option.value =
-              facility.name;
-
-
-            option.textContent =
-              facility.name;
-
-
-            select.appendChild(
-              option
-            );
-
-          }
+        select.appendChild(
+          option
         );
-
-
-        loadAvailability();
-
-      }
-    )
-
-    .catch(
-      function(error) {
-
-        select.innerHTML =
-          `<option value="">
-            Failed to load facilities
-          </option>`;
-
-
-        document
-          .getElementById(
-            "results"
-          )
-          .innerHTML = `
-
-            <div class="empty">
-
-              Unable to load facilities.
-
-              <br><br>
-
-              ${escapeHtml(
-                error.message
-              )}
-
-            </div>
-
-          `;
 
       }
     );
 
+
+  } catch (error) {
+
+    console.error(error);
+
+    select.innerHTML =
+      `<option value="">
+        Failed to load facilities
+      </option>`;
+
+    showStatus(
+      "Failed to load facilities. Please try again later.",
+      "error"
+    );
+
+  }
+
 }
 
 
-/* =========================================================
+/* ==================================================
    LOAD AVAILABILITY
-   ========================================================= */
+   ================================================== */
 
-function loadAvailability() {
+async function loadAvailability() {
 
   const facility =
-    document
-      .getElementById(
-        "facility"
-      )
-      .value;
+    document.getElementById(
+      "facility"
+    ).value;
 
 
   const date =
-    document
-      .getElementById(
-        "date"
-      )
-      .value;
+    document.getElementById(
+      "date"
+    ).value;
 
 
-  if (
-    !facility ||
-    !date
-  ) {
+  if (!facility) {
+
+    showStatus(
+      "Please select a facility.",
+      "error"
+    );
 
     return;
 
   }
 
 
-  const results =
-    document.getElementById(
-      "results"
+  if (!date) {
+
+    showStatus(
+      "Please select a date.",
+      "error"
     );
 
+    return;
 
-  results.innerHTML = `
-
-    <div class="loading">
-
-      Checking availability...
-
-    </div>
-
-  `;
+  }
 
 
-  resetBookingControls();
+  showStatus(
+    "Loading availability...",
+    "loading"
+  );
 
 
-  fetch(
-    APPS_SCRIPT_URL +
-    "?action=availability" +
-    "&facility=" +
-      encodeURIComponent(facility) +
-    "&date=" +
-      encodeURIComponent(date)
-  )
+  document.getElementById(
+    "availabilityCard"
+  ).style.display =
+    "none";
 
-    .then(
-      function(response) {
 
-        if (!response.ok) {
+  document.getElementById(
+    "bookingPanel"
+  ).classList.remove(
+    "show"
+  );
 
-          throw new Error(
-            "Failed to load availability."
-          );
 
-        }
+  try {
 
-        return response.json();
+    const url =
+      BOOKINGS_URL +
+      `&tqx=reqId:${Date.now()}`;
 
-      }
-    )
 
-    .then(
-      function(data) {
+    const data =
+      await fetchGviz(
+        url
+      );
 
-        if (data.error) {
 
-          throw new Error(
-            data.error
-          );
+    const rows =
+      gvizRows(data);
 
-        }
 
-        renderAvailability(
-          data
+    bookings =
+      rows
+        .map(
+          row => {
+
+            return {
+
+              facility:
+                String(
+                  row[0] || ""
+                ).trim(),
+
+              date:
+                normalizeDate(
+                  row[1]
+                ),
+
+              start:
+                normalizeTime(
+                  row[2]
+                ),
+
+              end:
+                normalizeTime(
+                  row[3]
+                ),
+
+              status:
+                String(
+                  row[4] || ""
+                )
+                .trim()
+                .toUpperCase()
+
+            };
+
+          }
+        )
+        .filter(
+          booking =>
+            booking.facility === facility &&
+            booking.date === date &&
+            (
+              booking.status === "APPROVED" ||
+              booking.status === "PENDING"
+            )
         );
 
-      }
-    )
 
-    .catch(
-      function(error) {
+    const facilityInfo =
+      facilities.find(
+        item =>
+          item.name === facility
+      );
 
-        results.innerHTML = `
 
-          <div class="empty">
+    if (!facilityInfo) {
 
-            Unable to load availability.
+      throw new Error(
+        "Facility information could not be found."
+      );
 
-            <br><br>
+    }
 
-            ${escapeHtml(
-              error.message
-            )}
 
-          </div>
+    availabilityData = {
 
-        `;
+      facility:
+        facility,
 
-      }
+      date:
+        date,
+
+      openingTime:
+        normalizeTime(
+          facilityInfo.openingTime
+        ),
+
+      closingTime:
+        normalizeTime(
+          facilityInfo.closingTime
+        ),
+
+      bookings:
+        bookings
+
+    };
+
+
+    renderAvailability(
+      availabilityData
     );
+
+
+    hideStatus();
+
+
+  } catch (error) {
+
+    console.error(error);
+
+    showStatus(
+      "Failed to load availability. Please try again.",
+      "error"
+    );
+
+  }
 
 }
 
 
-/* =========================================================
-   RENDER AVAILABILITY
-   ========================================================= */
+/* ==================================================
+   NORMALISE DATE
+   ================================================== */
 
-function renderAvailability(
-  data
-) {
+function normalizeDate(value) {
 
-  availabilityData =
-    data;
+  if (!value) {
+    return "";
+  }
 
 
-  const results =
-    document.getElementById(
-      "results"
+  const string =
+    String(value).trim();
+
+
+  /*
+    Already yyyy-MM-dd
+  */
+
+  if (
+    /^\d{4}-\d{2}-\d{2}$/.test(
+      string
+    )
+  ) {
+
+    return string;
+
+  }
+
+
+  /*
+    Handle dd/MM/yyyy
+  */
+
+  const slash =
+    string.match(
+      /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/
     );
 
 
-  let html = `
+  if (slash) {
 
-    <h2>
-      ${escapeHtml(
-        data.facility
-      )}
-    </h2>
+    return (
+      slash[3] +
+      "-" +
+      String(
+        slash[2]
+      ).padStart(2, "0") +
+      "-" +
+      String(
+        slash[1]
+      ).padStart(2, "0")
+    );
 
-    <p>
-      ${escapeHtml(
-        data.date
-      )}
-    </p>
+  }
 
-    <div class="legend">
 
-      <span>
-        🟢 Available
-      </span>
+  return string;
 
-      <span>
-        🔴 Booked
-      </span>
+}
 
-      <span>
-        🟡 Pending
-      </span>
 
-    </div>
+/* ==================================================
+   NORMALISE TIME
+   ================================================== */
 
-    <div class="schedule">
+function normalizeTime(value) {
 
-      <div class="schedule-title">
+  if (!value) {
+    return "";
+  }
 
-        Daily Schedule
 
-      </div>
+  let string =
+    String(value)
+      .trim();
 
-  `;
+
+  /*
+    Handle HH:mm:ss
+  */
+
+  if (
+    /^\d{1,2}:\d{2}:\d{2}$/.test(
+      string
+    )
+  ) {
+
+    string =
+      string.substring(
+        0,
+        5
+      );
+
+  }
+
+
+  /*
+    Handle HH:mm
+  */
+
+  if (
+    /^\d{1,2}:\d{2}$/.test(
+      string
+    )
+  ) {
+
+    const parts =
+      string.split(":");
+
+    return (
+      String(
+        parts[0]
+      ).padStart(2, "0") +
+      ":" +
+      parts[1]
+    );
+
+  }
+
+
+  /*
+    Handle 12-hour time
+  */
+
+  const match =
+    string.match(
+      /^(\d{1,2}):(\d{2})\s*(AM|PM)$/i
+    );
+
+
+  if (match) {
+
+    let hour =
+      parseInt(
+        match[1],
+        10
+      );
+
+    const minute =
+      match[2];
+
+    const period =
+      match[3].toUpperCase();
+
+
+    if (
+      period === "PM" &&
+      hour !== 12
+    ) {
+
+      hour += 12;
+
+    }
+
+
+    if (
+      period === "AM" &&
+      hour === 12
+    ) {
+
+      hour = 0;
+
+    }
+
+
+    return (
+      String(hour).padStart(
+        2,
+        "0"
+      ) +
+      ":" +
+      minute
+    );
+
+  }
+
+
+  return string;
+
+}
+
+
+/* ==================================================
+   RENDER AVAILABILITY
+   ================================================== */
+
+function renderAvailability(data) {
+
+  const card =
+    document.getElementById(
+      "availabilityCard"
+    );
+
+
+  const schedule =
+    document.getElementById(
+      "schedule"
+    );
+
+
+  const dateText =
+    document.getElementById(
+      "selectedDateText"
+    );
+
+
+  schedule.innerHTML =
+    "";
+
+
+  dateText.textContent =
+    formatDisplayDate(
+      data.date
+    );
 
 
   const opening =
@@ -907,124 +1206,139 @@ function renderAvailability(
     );
 
 
+  if (
+    opening === null ||
+    closing === null ||
+    closing <= opening
+  ) {
+
+    schedule.innerHTML =
+      `<div class="empty">
+        Invalid facility operating hours.
+      </div>`;
+
+    card.style.display =
+      "block";
+
+    return;
+
+  }
+
+
   let current =
     opening;
 
 
   while (
-    current <
-    closing
+    current < closing
   ) {
 
-    const next =
-      Math.min(
-        current + 30,
-        closing
-      );
-
-
-    const start =
-      minutesToTime(
-        current
-      );
-
-
     const end =
-      minutesToTime(
-        next
-      );
-
-
-    const booking =
-      findBooking(
-        start,
-        end,
-        data.bookings
-      );
-
-
-    let status =
-      "available";
-
-
-    let statusText =
-      "🟢 AVAILABLE";
+      current + 30;
 
 
     if (
-      booking
+      end > closing
     ) {
 
-      if (
-        booking.status ===
-        "APPROVED"
-      ) {
-
-        status =
-          "booked";
-
-
-        statusText =
-          "🔴 BOOKED";
-
-      }
-
-      else if (
-        booking.status ===
-        "PENDING"
-      ) {
-
-        status =
-          "pending";
-
-
-        statusText =
-          "🟡 PENDING";
-
-      }
+      break;
 
     }
 
 
-    html += `
+    const startTime =
+      minutesToTime(
+        current
+      );
 
-      <div
-        class="slot ${status}">
+    const endTime =
+      minutesToTime(
+        end
+      );
 
+
+    const booking =
+      findBookingForSlot(
+        startTime,
+        endTime
+      );
+
+
+    const slot =
+      document.createElement(
+        "div"
+      );
+
+
+    slot.className =
+      "slot";
+
+
+    if (!booking) {
+
+      slot.classList.add(
+        "available"
+      );
+
+      slot.innerHTML = `
         <div class="slot-time">
-
-          ${start}
-          –
-          ${end}
-
+          ${startTime} – ${endTime}
         </div>
 
         <div class="slot-status">
+          🟢 AVAILABLE
+        </div>
+      `;
 
-          ${statusText}
+    } else if (
+      booking.status === "PENDING"
+    ) {
 
+      slot.classList.add(
+        "pending"
+      );
+
+      slot.innerHTML = `
+        <div class="slot-time">
+          ${startTime} – ${endTime}
         </div>
 
-      </div>
+        <div class="slot-status">
+          🟡 PENDING
+        </div>
+      `;
 
-    `;
+    } else {
+
+      slot.classList.add(
+        "booked"
+      );
+
+      slot.innerHTML = `
+        <div class="slot-time">
+          ${startTime} – ${endTime}
+        </div>
+
+        <div class="slot-status">
+          🔴 BOOKED
+        </div>
+      `;
+
+    }
 
 
-    current =
-      next;
+    schedule.appendChild(
+      slot
+    );
+
+
+    current += 30;
 
   }
 
 
-  html += `
-
-    </div>
-
-  `;
-
-
-  results.innerHTML =
-    html;
+  card.style.display =
+    "block";
 
 
   populateStartTimes();
@@ -1032,9 +1346,56 @@ function renderAvailability(
 }
 
 
-/* =========================================================
+/* ==================================================
+   FIND BOOKING
+   ================================================== */
+
+function findBookingForSlot(
+  start,
+  end
+) {
+
+  const startMinutes =
+    timeToMinutes(
+      start
+    );
+
+  const endMinutes =
+    timeToMinutes(
+      end
+    );
+
+
+  return bookings.find(
+    booking => {
+
+      const bookingStart =
+        timeToMinutes(
+          booking.start
+        );
+
+      const bookingEnd =
+        timeToMinutes(
+          booking.end
+        );
+
+
+      return (
+        startMinutes <
+          bookingEnd &&
+        endMinutes >
+          bookingStart
+      );
+
+    }
+  );
+
+}
+
+
+/* ==================================================
    POPULATE START TIMES
-   ========================================================= */
+   ================================================== */
 
 function populateStartTimes() {
 
@@ -1050,12 +1411,8 @@ function populateStartTimes() {
     </option>`;
 
 
-  if (
-    !availabilityData
-  ) {
-
+  if (!availabilityData) {
     return;
-
   }
 
 
@@ -1063,7 +1420,6 @@ function populateStartTimes() {
     timeToMinutes(
       availabilityData.openingTime
     );
-
 
   const closing =
     timeToMinutes(
@@ -1077,6 +1433,12 @@ function populateStartTimes() {
     time += 30
   ) {
 
+    const value =
+      minutesToTime(
+        time
+      );
+
+
     const option =
       document.createElement(
         "option"
@@ -1084,15 +1446,33 @@ function populateStartTimes() {
 
 
     option.value =
-      minutesToTime(
-        time
-      );
-
+      value;
 
     option.textContent =
-      minutesToTime(
-        time
-      );
+      value;
+
+
+    /*
+      Don't allow starting a booking
+      in an already occupied slot.
+    */
+
+    if (
+      findBookingForSlot(
+        value,
+        minutesToTime(
+          time + 30
+        )
+      )
+    ) {
+
+      option.disabled =
+        true;
+
+      option.textContent =
+        `${value} — unavailable`;
+
+    }
 
 
     select.appendChild(
@@ -1101,42 +1481,36 @@ function populateStartTimes() {
 
   }
 
+
+  resetBookingControls();
+
 }
 
 
-/* =========================================================
+/* ==================================================
    UPDATE BOOKING
-   ========================================================= */
+   ================================================== */
 
 function updateBooking() {
 
   const start =
-    document
-      .getElementById(
-        "startTime"
-      )
-      .value;
+    document.getElementById(
+      "startTime"
+    ).value;
 
 
   const duration =
-    Number(
-      document
-        .getElementById(
-          "duration"
-        )
-        .value
-    );
-
-
-  const period =
-    document.getElementById(
-      "bookingPeriod"
+    parseInt(
+      document.getElementById(
+        "duration"
+      ).value,
+      10
     );
 
 
   const message =
     document.getElementById(
-      "availabilityMessage"
+      "bookingMessage"
     );
 
 
@@ -1146,20 +1520,18 @@ function updateBooking() {
     );
 
 
+  message.className =
+    "message";
+
+  message.textContent =
+    "";
+
+
   button.disabled =
     true;
 
 
-  message.style.display =
-    "none";
-
-
-  if (
-    !start
-  ) {
-
-    period.textContent =
-      "Select a start time";
+  if (!start) {
 
     return;
 
@@ -1183,21 +1555,6 @@ function updateBooking() {
     );
 
 
-  period.textContent =
-    start +
-    " → " +
-    end;
-
-
-  if (
-    !availabilityData
-  ) {
-
-    return;
-
-  }
-
-
   const closing =
     timeToMinutes(
       availabilityData.closingTime
@@ -1209,63 +1566,65 @@ function updateBooking() {
     closing
   ) {
 
-    message.style.display =
-      "block";
-
-
-    message.className =
-      "availability-message unavailable";
-
-
-    message.textContent =
-      "🔴 This booking extends beyond the facility's operating hours.";
-
+    showBookingError(
+      "The selected duration exceeds the facility's closing time."
+    );
 
     return;
 
   }
-
-
-  const conflict =
-    checkBookingConflict(
-      startMinutes,
-      endMinutes
-    );
 
 
   if (
-    conflict
+    checkBookingConflict(
+      start,
+      end
+    )
   ) {
 
-    message.style.display =
-      "block";
-
-
-    message.className =
-      "availability-message unavailable";
-
-
-    message.textContent =
-      "🔴 Not available. This period overlaps an existing " +
-      conflict.status.toLowerCase() +
-      " booking.";
-
+    showBookingError(
+      "This time overlaps with an existing booking. Please choose another time."
+    );
 
     return;
 
   }
 
 
-  message.style.display =
-    "block";
+  document.getElementById(
+    "selectedInfo"
+  ).innerHTML = `
+
+    <strong>Facility:</strong>
+    ${escapeHtml(
+      availabilityData.facility
+    )}
+
+    <br>
+
+    <strong>Date:</strong>
+    ${formatDisplayDate(
+      availabilityData.date
+    )}
+
+    <br>
+
+    <strong>Time:</strong>
+    ${start} – ${end}
+
+    <br>
+
+    <strong>Duration:</strong>
+    ${duration} minutes
+
+  `;
 
 
-  message.className =
-    "availability-message available";
-
-
-  message.textContent =
-    "🟢 This time is available.";
+  document.getElementById(
+    "bookingPanel"
+  ).classList.add(
+    "show"
+  );
 
 
   button.disabled =
@@ -1274,115 +1633,84 @@ function updateBooking() {
 }
 
 
-/* =========================================================
-   CHECK BOOKING CONFLICT
-   ========================================================= */
+/* ==================================================
+   CHECK CONFLICT
+   ================================================== */
 
 function checkBookingConflict(
-  startMinutes,
-  endMinutes
+  start,
+  end
 ) {
 
-  if (
-    !availabilityData
-  ) {
+  const startMinutes =
+    timeToMinutes(
+      start
+    );
 
-    return null;
-
-  }
-
-
-  const bookings =
-    availabilityData.bookings;
+  const endMinutes =
+    timeToMinutes(
+      end
+    );
 
 
-  for (
-    let i = 0;
-    i < bookings.length;
-    i++
-  ) {
+  return bookings.some(
+    booking => {
 
-    const booking =
-      bookings[i];
+      const bookingStart =
+        timeToMinutes(
+          booking.start
+        );
+
+      const bookingEnd =
+        timeToMinutes(
+          booking.end
+        );
 
 
-    const bookingStart =
-      timeToMinutes(
-        booking.start
+      return (
+        startMinutes <
+          bookingEnd &&
+        endMinutes >
+          bookingStart
       );
-
-
-    const bookingEnd =
-      timeToMinutes(
-        booking.end
-      );
-
-
-    if (
-      startMinutes <
-        bookingEnd &&
-      endMinutes >
-        bookingStart
-    ) {
-
-      return booking;
 
     }
-
-  }
-
-
-  return null;
+  );
 
 }
 
 
-/* =========================================================
+/* ==================================================
    BOOK SELECTED SLOT
-   ========================================================= */
+   ================================================== */
 
 function bookSelectedSlot() {
 
-  const facility =
-    document
-      .getElementById(
-        "facility"
-      )
-      .value;
-
-
-  const date =
-    document
-      .getElementById(
-        "date"
-      )
-      .value;
+  if (!availabilityData) {
+    return;
+  }
 
 
   const start =
-    document
-      .getElementById(
-        "startTime"
-      )
-      .value;
+    document.getElementById(
+      "startTime"
+    ).value;
 
 
   const duration =
-    Number(
-      document
-        .getElementById(
-          "duration"
-        )
-        .value
+    parseInt(
+      document.getElementById(
+        "duration"
+      ).value,
+      10
     );
 
 
-  if (
-    !facility ||
-    !date ||
-    !start ||
-    !duration
-  ) {
+  if (!start) {
+
+    showBookingError(
+      "Please select a start time."
+    );
 
     return;
 
@@ -1395,57 +1723,64 @@ function bookSelectedSlot() {
     );
 
 
+  const endMinutes =
+    startMinutes +
+    duration;
+
+
   const end =
     minutesToTime(
-      startMinutes +
-      duration
+      endMinutes
     );
 
 
-  bookSlot(
-    facility,
-    date,
-    start,
-    end
-  );
+  if (
+    checkBookingConflict(
+      start,
+      end
+    )
+  ) {
 
-}
+    showBookingError(
+      "This time is no longer available."
+    );
 
+    return;
 
-/* =========================================================
-   OPEN GOOGLE FORM
-   ========================================================= */
-
-function bookSlot(
-  facility,
-  date,
-  start,
-  end
-) {
-
-  const FORM_URL =
-    "https://docs.google.com/forms/d/e/1FAIpQLSdja_U2aFCea0GAL6qZdaUxG5viyi4AlC-zROude_yzXAFIWg/viewform";
+  }
 
 
   const url =
     FORM_URL +
     "?usp=pp_url" +
-    "&entry.1139525746=" +
-      encodeURIComponent(
-        facility
-      ) +
-    "&entry.482205338=" +
-      encodeURIComponent(
-        date
-      ) +
-    "&entry.1117912077=" +
-      encodeURIComponent(
-        start
-      ) +
-    "&entry.866972168=" +
-      encodeURIComponent(
-        end
-      );
+
+    "&" +
+    FORM_FIELDS.facility +
+    "=" +
+    encodeURIComponent(
+      availabilityData.facility
+    ) +
+
+    "&" +
+    FORM_FIELDS.date +
+    "=" +
+    encodeURIComponent(
+      availabilityData.date
+    ) +
+
+    "&" +
+    FORM_FIELDS.start +
+    "=" +
+    encodeURIComponent(
+      start
+    ) +
+
+    "&" +
+    FORM_FIELDS.end +
+    "=" +
+    encodeURIComponent(
+      end
+    );
 
 
   window.open(
@@ -1456,128 +1791,90 @@ function bookSlot(
 }
 
 
-/* =========================================================
-   RESET BOOKING CONTROLS
-   ========================================================= */
+/* ==================================================
+   RESET BOOKING
+   ================================================== */
 
 function resetBookingControls() {
 
-  document
-    .getElementById(
-      "startTime"
-    )
-    .innerHTML =
-      `<option value="">
-        Select start time
-      </option>`;
+  document.getElementById(
+    "startTime"
+  ).value = "";
 
 
-  document
-    .getElementById(
-      "bookingPeriod"
-    )
-    .textContent =
-      "Select a start time";
+  document.getElementById(
+    "duration"
+  ).value = "30";
 
 
-  const message =
-    document.getElementById(
-      "availabilityMessage"
-    );
+  document.getElementById(
+    "bookingPanel"
+  ).classList.remove(
+    "show"
+  );
 
 
-  message.style.display =
-    "none";
-
-
-  document
-    .getElementById(
-      "bookButton"
-    )
-    .disabled =
-      true;
+  document.getElementById(
+    "bookButton"
+  ).disabled =
+    true;
 
 }
 
 
-/* =========================================================
-   FIND BOOKING
-   ========================================================= */
-
-function findBooking(
-  slotStart,
-  slotEnd,
-  bookings
-) {
-
-  const start =
-    timeToMinutes(
-      slotStart
-    );
-
-
-  const end =
-    timeToMinutes(
-      slotEnd
-    );
-
-
-  for (
-    let i = 0;
-    i < bookings.length;
-    i++
-  ) {
-
-    const booking =
-      bookings[i];
-
-
-    const bookingStart =
-      timeToMinutes(
-        booking.start
-      );
-
-
-    const bookingEnd =
-      timeToMinutes(
-        booking.end
-      );
-
-
-    if (
-      start <
-        bookingEnd &&
-      end >
-        bookingStart
-    ) {
-
-      return booking;
-
-    }
-
-  }
-
-
-  return null;
-
-}
-
-
-/* =========================================================
+/* ==================================================
    TIME FUNCTIONS
-   ========================================================= */
+   ================================================== */
 
 function timeToMinutes(
   time
 ) {
 
+  if (!time) {
+    return null;
+  }
+
+
   const parts =
-    time.split(":");
+    String(time).split(":");
+
+
+  if (
+    parts.length < 2
+  ) {
+
+    return null;
+
+  }
+
+
+  const hours =
+    parseInt(
+      parts[0],
+      10
+    );
+
+
+  const minutes =
+    parseInt(
+      parts[1],
+      10
+    );
+
+
+  if (
+    Number.isNaN(hours) ||
+    Number.isNaN(minutes)
+  ) {
+
+    return null;
+
+  }
 
 
   return (
-    Number(parts[0]) * 60 +
-    Number(parts[1])
+    hours * 60 +
+    minutes
   );
 
 }
@@ -1598,52 +1895,177 @@ function minutesToTime(
 
 
   return (
-    String(hours)
-      .padStart(
-        2,
-        "0"
-      ) +
+    String(hours).padStart(
+      2,
+      "0"
+    ) +
     ":" +
-    String(mins)
-      .padStart(
-        2,
-        "0"
-      )
+    String(mins).padStart(
+      2,
+      "0"
+    )
   );
 
 }
 
 
-/* =========================================================
-   HTML SAFETY
-   ========================================================= */
+/* ==================================================
+   DISPLAY DATE
+   ================================================== */
 
-function escapeHtml(
-  text
+function formatDisplayDate(
+  date
 ) {
 
-  return String(text)
+  if (!date) {
+    return "";
+  }
 
+
+  const parts =
+    date.split("-");
+
+
+  if (
+    parts.length !== 3
+  ) {
+
+    return date;
+
+  }
+
+
+  const year =
+    parseInt(
+      parts[0],
+      10
+    );
+
+  const month =
+    parseInt(
+      parts[1],
+      10
+    ) - 1;
+
+  const day =
+    parseInt(
+      parts[2],
+      10
+    );
+
+
+  const dateObject =
+    new Date(
+      year,
+      month,
+      day
+    );
+
+
+  return dateObject.toLocaleDateString(
+    "en-MY",
+    {
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    }
+  );
+
+}
+
+
+/* ==================================================
+   STATUS MESSAGE
+   ================================================== */
+
+function showStatus(
+  message,
+  type
+) {
+
+  const status =
+    document.getElementById(
+      "status"
+    );
+
+
+  status.textContent =
+    message;
+
+
+  status.className =
+    "status " +
+    type;
+
+}
+
+
+function hideStatus() {
+
+  const status =
+    document.getElementById(
+      "status"
+    );
+
+
+  status.textContent =
+    "";
+
+  status.className =
+    "status";
+
+}
+
+
+/* ==================================================
+   BOOKING ERROR
+   ================================================== */
+
+function showBookingError(
+  message
+) {
+
+  const element =
+    document.getElementById(
+      "bookingMessage"
+    );
+
+
+  element.textContent =
+    message;
+
+
+  element.className =
+    "message error";
+
+}
+
+
+/* ==================================================
+   HTML ESCAPE
+   ================================================== */
+
+function escapeHtml(
+  value
+) {
+
+  return String(value)
     .replace(
       /&/g,
       "&amp;"
     )
-
     .replace(
       /</g,
       "&lt;"
     )
-
     .replace(
       />/g,
       "&gt;"
     )
-
     .replace(
       /"/g,
       "&quot;"
     )
-
     .replace(
       /'/g,
       "&#039;"
@@ -1651,10 +2073,7 @@ function escapeHtml(
 
 }
 
-
 </script>
 
-
 </body>
-
 </html>
