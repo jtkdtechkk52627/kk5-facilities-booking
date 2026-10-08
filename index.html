@@ -1,40 +1,1660 @@
 <!DOCTYPE html>
 <html>
+
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KK5 Facilities Booking</title>
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1">
+
+  <title>KK5 Facility Availability</title>
 
   <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      background: #f3f3f3;
+
       margin: 0;
-      padding: 40px 20px;
-      text-align: center;
+
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+      background: #f5f5f5;
+
+      color: #222;
+
+    }
+
+    .container {
+
+      max-width: 900px;
+
+      margin: 0 auto;
+
+      padding: 25px;
+
+    }
+
+    .header {
+
+      background: #111;
+
+      color: white;
+
+      padding: 25px;
+
+      border-radius: 14px;
+
+      margin-bottom: 20px;
+
+    }
+
+    .header h1 {
+
+      margin: 0 0 8px;
+
+      font-size: 28px;
+
+    }
+
+    .header p {
+
+      margin: 0;
+
+      opacity: 0.8;
+
     }
 
     .card {
-      max-width: 600px;
-      margin: auto;
+
       background: white;
-      padding: 40px;
-      border-radius: 12px;
+
+      border-radius: 14px;
+
+      padding: 20px;
+
+      margin-bottom: 20px;
+
+      box-shadow:
+        0 2px 10px
+        rgba(0,0,0,0.08);
+
     }
 
-    h1 {
-      margin-top: 0;
+    label {
+
+      display: block;
+
+      font-weight: bold;
+
+      margin-bottom: 8px;
+
     }
+
+    select,
+    input {
+
+      width: 100%;
+
+      padding: 12px;
+
+      border: 1px solid #ddd;
+
+      border-radius: 8px;
+
+      font-size: 16px;
+
+      background: white;
+
+    }
+
+    .field {
+
+      margin-bottom: 18px;
+
+    }
+
+    .booking-period {
+
+      background: #f5f5f5;
+
+      padding: 15px;
+
+      border-radius: 10px;
+
+      margin-top: 10px;
+
+      margin-bottom: 15px;
+
+    }
+
+    .booking-period-label {
+
+      font-size: 13px;
+
+      color: #777;
+
+      margin-bottom: 5px;
+
+    }
+
+    .booking-period-time {
+
+      font-size: 20px;
+
+      font-weight: bold;
+
+    }
+
+    .availability-message {
+
+      padding: 14px;
+
+      border-radius: 9px;
+
+      margin-bottom: 15px;
+
+      font-weight: bold;
+
+    }
+
+    .availability-message.available {
+
+      background: #eefaf0;
+
+      border: 1px solid #b9dfbd;
+
+      color: #218838;
+
+    }
+
+    .availability-message.unavailable {
+
+      background: #fff0f0;
+
+      border: 1px solid #e4bcbc;
+
+      color: #c82333;
+
+    }
+
+    .book-button {
+
+      width: 100%;
+
+      padding: 13px;
+
+      border: none;
+
+      border-radius: 8px;
+
+      background: #111;
+
+      color: white;
+
+      cursor: pointer;
+
+      font-size: 16px;
+
+      font-weight: bold;
+
+    }
+
+    .book-button:hover {
+
+      opacity: 0.8;
+
+    }
+
+    .book-button:disabled {
+
+      background: #ccc;
+
+      color: #777;
+
+      cursor: not-allowed;
+
+    }
+
+    .loading {
+
+      text-align: center;
+
+      padding: 30px;
+
+      color: #777;
+
+    }
+
+    .legend {
+
+      display: flex;
+
+      gap: 15px;
+
+      flex-wrap: wrap;
+
+      margin-top: 15px;
+
+      margin-bottom: 20px;
+
+    }
+
+    .legend span {
+
+      font-size: 14px;
+
+    }
+
+    .schedule {
+
+      margin-top: 20px;
+
+    }
+
+    .schedule-title {
+
+      font-weight: bold;
+
+      margin-bottom: 10px;
+
+    }
+
+    .slot {
+
+      display: flex;
+
+      justify-content: space-between;
+
+      align-items: center;
+
+      padding: 12px;
+
+      border-radius: 8px;
+
+      margin-bottom: 7px;
+
+      border: 1px solid #ddd;
+
+    }
+
+    .slot.available {
+
+      background: #eefaf0;
+
+      border-color: #b9dfbd;
+
+    }
+
+    .slot.booked {
+
+      background: #fff0f0;
+
+      border-color: #e4bcbc;
+
+    }
+
+    .slot.pending {
+
+      background: #fff8e6;
+
+      border-color: #ead59b;
+
+    }
+
+    .slot-time {
+
+      font-weight: bold;
+
+    }
+
+    .slot-status {
+
+      font-size: 13px;
+
+      font-weight: bold;
+
+    }
+
+    .empty {
+
+      text-align: center;
+
+      padding: 30px;
+
+      color: #777;
+
+    }
+
+    @media (
+      max-width: 600px
+    ) {
+
+      .container {
+        padding: 12px;
+      }
+
+    }
+
   </style>
+
 </head>
+
 
 <body>
 
-  <div class="card">
-    <h1>KK5 Facilities Booking</h1>
-    <p>Public frontend test successful.</p>
-    <p>Next step: connect the live availability system.</p>
+
+<div class="container">
+
+
+  <div class="header">
+
+    <h1>
+      KK5 Facility Availability
+    </h1>
+
+    <p>
+      Check facility availability before making a booking.
+    </p>
+
   </div>
 
+
+  <div class="card">
+
+
+    <div class="field">
+
+      <label>
+        Facility
+      </label>
+
+      <select
+        id="facility"
+        onchange="loadAvailability()">
+
+        <option value="">
+          Loading...
+        </option>
+
+      </select>
+
+    </div>
+
+
+    <div class="field">
+
+      <label>
+        Date
+      </label>
+
+      <input
+        type="date"
+        id="date"
+        onchange="loadAvailability">
+
+    </div>
+
+
+    <div class="field">
+
+      <label>
+        Start Time
+      </label>
+
+      <select
+        id="startTime"
+        onchange="updateBooking()">
+
+        <option value="">
+          Select start time
+        </option>
+
+      </select>
+
+    </div>
+
+
+    <div class="field">
+
+      <label>
+        Duration
+      </label>
+
+      <select
+        id="duration"
+        onchange="updateBooking()">
+
+        <option value="30">
+          30 minutes
+        </option>
+
+        <option value="60">
+          1 hour
+        </option>
+
+        <option value="90">
+          1 hour 30 minutes
+        </option>
+
+        <option value="120">
+          2 hours
+        </option>
+
+        <option value="150">
+          2 hours 30 minutes
+        </option>
+
+        <option value="180">
+          3 hours
+        </option>
+
+        <option value="210">
+          3 hours 30 minutes
+        </option>
+
+        <option value="240">
+          4 hours
+        </option>
+
+      </select>
+
+    </div>
+
+
+    <div class="booking-period">
+
+      <div class="booking-period-label">
+        Booking period
+      </div>
+
+      <div
+        id="bookingPeriod"
+        class="booking-period-time">
+
+        Select a start time
+
+      </div>
+
+    </div>
+
+
+    <div
+      id="availabilityMessage"
+      class="availability-message"
+      style="display:none;">
+
+    </div>
+
+
+    <button
+      id="bookButton"
+      class="book-button"
+      disabled
+      onclick="bookSelectedSlot()">
+
+      BOOK THIS SLOT
+
+    </button>
+
+
+  </div>
+
+
+  <div
+    id="results"
+    class="card">
+
+    <div class="loading">
+
+      Loading availability...
+
+    </div>
+
+  </div>
+
+
+</div>
+
+
+<script>
+
+
+/* =========================================================
+   APPS SCRIPT API
+   ========================================================= */
+
+const APPS_SCRIPT_URL =
+  "PASTE_YOUR_APPS_SCRIPT_EXEC_URL_HERE";
+
+
+let availabilityData = null;
+
+
+/* =========================================================
+   INITIALISE
+   ========================================================= */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  function() {
+
+    setDefaultDate();
+
+    loadFacilities();
+
+  }
+);
+
+
+/* =========================================================
+   DEFAULT DATE
+   ========================================================= */
+
+function setDefaultDate() {
+
+  const today =
+    new Date();
+
+  const year =
+    today.getFullYear();
+
+  const month =
+    String(
+      today.getMonth() + 1
+    ).padStart(
+      2,
+      "0"
+    );
+
+  const day =
+    String(
+      today.getDate()
+    ).padStart(
+      2,
+      "0"
+    );
+
+  document
+    .getElementById("date")
+    .value =
+      `${year}-${month}-${day}`;
+
+}
+
+
+/* =========================================================
+   LOAD FACILITIES
+   ========================================================= */
+
+function loadFacilities() {
+
+  const select =
+    document.getElementById(
+      "facility"
+    );
+
+
+  select.innerHTML =
+    `<option value="">
+      Loading facilities...
+    </option>`;
+
+
+  fetch(
+    APPS_SCRIPT_URL +
+    "?action=facilities"
+  )
+
+    .then(
+      function(response) {
+
+        if (!response.ok) {
+
+          throw new Error(
+            "Failed to load facilities."
+          );
+
+        }
+
+        return response.json();
+
+      }
+    )
+
+    .then(
+      function(facilities) {
+
+        select.innerHTML =
+          "";
+
+
+        if (
+          !facilities ||
+          facilities.length === 0
+        ) {
+
+          select.innerHTML =
+            `<option value="">
+              No facilities available
+            </option>`;
+
+          return;
+
+        }
+
+
+        facilities.forEach(
+          function(facility) {
+
+            const option =
+              document.createElement(
+                "option"
+              );
+
+
+            option.value =
+              facility.name;
+
+
+            option.textContent =
+              facility.name;
+
+
+            select.appendChild(
+              option
+            );
+
+          }
+        );
+
+
+        loadAvailability();
+
+      }
+    )
+
+    .catch(
+      function(error) {
+
+        select.innerHTML =
+          `<option value="">
+            Failed to load facilities
+          </option>`;
+
+
+        document
+          .getElementById(
+            "results"
+          )
+          .innerHTML = `
+
+            <div class="empty">
+
+              Unable to load facilities.
+
+              <br><br>
+
+              ${escapeHtml(
+                error.message
+              )}
+
+            </div>
+
+          `;
+
+      }
+    );
+
+}
+
+
+/* =========================================================
+   LOAD AVAILABILITY
+   ========================================================= */
+
+function loadAvailability() {
+
+  const facility =
+    document
+      .getElementById(
+        "facility"
+      )
+      .value;
+
+
+  const date =
+    document
+      .getElementById(
+        "date"
+      )
+      .value;
+
+
+  if (
+    !facility ||
+    !date
+  ) {
+
+    return;
+
+  }
+
+
+  const results =
+    document.getElementById(
+      "results"
+    );
+
+
+  results.innerHTML = `
+
+    <div class="loading">
+
+      Checking availability...
+
+    </div>
+
+  `;
+
+
+  resetBookingControls();
+
+
+  fetch(
+    APPS_SCRIPT_URL +
+    "?action=availability" +
+    "&facility=" +
+      encodeURIComponent(facility) +
+    "&date=" +
+      encodeURIComponent(date)
+  )
+
+    .then(
+      function(response) {
+
+        if (!response.ok) {
+
+          throw new Error(
+            "Failed to load availability."
+          );
+
+        }
+
+        return response.json();
+
+      }
+    )
+
+    .then(
+      function(data) {
+
+        if (data.error) {
+
+          throw new Error(
+            data.error
+          );
+
+        }
+
+        renderAvailability(
+          data
+        );
+
+      }
+    )
+
+    .catch(
+      function(error) {
+
+        results.innerHTML = `
+
+          <div class="empty">
+
+            Unable to load availability.
+
+            <br><br>
+
+            ${escapeHtml(
+              error.message
+            )}
+
+          </div>
+
+        `;
+
+      }
+    );
+
+}
+
+
+/* =========================================================
+   RENDER AVAILABILITY
+   ========================================================= */
+
+function renderAvailability(
+  data
+) {
+
+  availabilityData =
+    data;
+
+
+  const results =
+    document.getElementById(
+      "results"
+    );
+
+
+  let html = `
+
+    <h2>
+      ${escapeHtml(
+        data.facility
+      )}
+    </h2>
+
+    <p>
+      ${escapeHtml(
+        data.date
+      )}
+    </p>
+
+    <div class="legend">
+
+      <span>
+        🟢 Available
+      </span>
+
+      <span>
+        🔴 Booked
+      </span>
+
+      <span>
+        🟡 Pending
+      </span>
+
+    </div>
+
+    <div class="schedule">
+
+      <div class="schedule-title">
+
+        Daily Schedule
+
+      </div>
+
+  `;
+
+
+  const opening =
+    timeToMinutes(
+      data.openingTime
+    );
+
+
+  const closing =
+    timeToMinutes(
+      data.closingTime
+    );
+
+
+  let current =
+    opening;
+
+
+  while (
+    current <
+    closing
+  ) {
+
+    const next =
+      Math.min(
+        current + 30,
+        closing
+      );
+
+
+    const start =
+      minutesToTime(
+        current
+      );
+
+
+    const end =
+      minutesToTime(
+        next
+      );
+
+
+    const booking =
+      findBooking(
+        start,
+        end,
+        data.bookings
+      );
+
+
+    let status =
+      "available";
+
+
+    let statusText =
+      "🟢 AVAILABLE";
+
+
+    if (
+      booking
+    ) {
+
+      if (
+        booking.status ===
+        "APPROVED"
+      ) {
+
+        status =
+          "booked";
+
+
+        statusText =
+          "🔴 BOOKED";
+
+      }
+
+      else if (
+        booking.status ===
+        "PENDING"
+      ) {
+
+        status =
+          "pending";
+
+
+        statusText =
+          "🟡 PENDING";
+
+      }
+
+    }
+
+
+    html += `
+
+      <div
+        class="slot ${status}">
+
+        <div class="slot-time">
+
+          ${start}
+          –
+          ${end}
+
+        </div>
+
+        <div class="slot-status">
+
+          ${statusText}
+
+        </div>
+
+      </div>
+
+    `;
+
+
+    current =
+      next;
+
+  }
+
+
+  html += `
+
+    </div>
+
+  `;
+
+
+  results.innerHTML =
+    html;
+
+
+  populateStartTimes();
+
+}
+
+
+/* =========================================================
+   POPULATE START TIMES
+   ========================================================= */
+
+function populateStartTimes() {
+
+  const select =
+    document.getElementById(
+      "startTime"
+    );
+
+
+  select.innerHTML =
+    `<option value="">
+      Select start time
+    </option>`;
+
+
+  if (
+    !availabilityData
+  ) {
+
+    return;
+
+  }
+
+
+  const opening =
+    timeToMinutes(
+      availabilityData.openingTime
+    );
+
+
+  const closing =
+    timeToMinutes(
+      availabilityData.closingTime
+    );
+
+
+  for (
+    let time = opening;
+    time < closing;
+    time += 30
+  ) {
+
+    const option =
+      document.createElement(
+        "option"
+      );
+
+
+    option.value =
+      minutesToTime(
+        time
+      );
+
+
+    option.textContent =
+      minutesToTime(
+        time
+      );
+
+
+    select.appendChild(
+      option
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   UPDATE BOOKING
+   ========================================================= */
+
+function updateBooking() {
+
+  const start =
+    document
+      .getElementById(
+        "startTime"
+      )
+      .value;
+
+
+  const duration =
+    Number(
+      document
+        .getElementById(
+          "duration"
+        )
+        .value
+    );
+
+
+  const period =
+    document.getElementById(
+      "bookingPeriod"
+    );
+
+
+  const message =
+    document.getElementById(
+      "availabilityMessage"
+    );
+
+
+  const button =
+    document.getElementById(
+      "bookButton"
+    );
+
+
+  button.disabled =
+    true;
+
+
+  message.style.display =
+    "none";
+
+
+  if (
+    !start
+  ) {
+
+    period.textContent =
+      "Select a start time";
+
+    return;
+
+  }
+
+
+  const startMinutes =
+    timeToMinutes(
+      start
+    );
+
+
+  const endMinutes =
+    startMinutes +
+    duration;
+
+
+  const end =
+    minutesToTime(
+      endMinutes
+    );
+
+
+  period.textContent =
+    start +
+    " → " +
+    end;
+
+
+  if (
+    !availabilityData
+  ) {
+
+    return;
+
+  }
+
+
+  const closing =
+    timeToMinutes(
+      availabilityData.closingTime
+    );
+
+
+  if (
+    endMinutes >
+    closing
+  ) {
+
+    message.style.display =
+      "block";
+
+
+    message.className =
+      "availability-message unavailable";
+
+
+    message.textContent =
+      "🔴 This booking extends beyond the facility's operating hours.";
+
+
+    return;
+
+  }
+
+
+  const conflict =
+    checkBookingConflict(
+      startMinutes,
+      endMinutes
+    );
+
+
+  if (
+    conflict
+  ) {
+
+    message.style.display =
+      "block";
+
+
+    message.className =
+      "availability-message unavailable";
+
+
+    message.textContent =
+      "🔴 Not available. This period overlaps an existing " +
+      conflict.status.toLowerCase() +
+      " booking.";
+
+
+    return;
+
+  }
+
+
+  message.style.display =
+    "block";
+
+
+  message.className =
+    "availability-message available";
+
+
+  message.textContent =
+    "🟢 This time is available.";
+
+
+  button.disabled =
+    false;
+
+}
+
+
+/* =========================================================
+   CHECK BOOKING CONFLICT
+   ========================================================= */
+
+function checkBookingConflict(
+  startMinutes,
+  endMinutes
+) {
+
+  if (
+    !availabilityData
+  ) {
+
+    return null;
+
+  }
+
+
+  const bookings =
+    availabilityData.bookings;
+
+
+  for (
+    let i = 0;
+    i < bookings.length;
+    i++
+  ) {
+
+    const booking =
+      bookings[i];
+
+
+    const bookingStart =
+      timeToMinutes(
+        booking.start
+      );
+
+
+    const bookingEnd =
+      timeToMinutes(
+        booking.end
+      );
+
+
+    if (
+      startMinutes <
+        bookingEnd &&
+      endMinutes >
+        bookingStart
+    ) {
+
+      return booking;
+
+    }
+
+  }
+
+
+  return null;
+
+}
+
+
+/* =========================================================
+   BOOK SELECTED SLOT
+   ========================================================= */
+
+function bookSelectedSlot() {
+
+  const facility =
+    document
+      .getElementById(
+        "facility"
+      )
+      .value;
+
+
+  const date =
+    document
+      .getElementById(
+        "date"
+      )
+      .value;
+
+
+  const start =
+    document
+      .getElementById(
+        "startTime"
+      )
+      .value;
+
+
+  const duration =
+    Number(
+      document
+        .getElementById(
+          "duration"
+        )
+        .value
+    );
+
+
+  if (
+    !facility ||
+    !date ||
+    !start ||
+    !duration
+  ) {
+
+    return;
+
+  }
+
+
+  const startMinutes =
+    timeToMinutes(
+      start
+    );
+
+
+  const end =
+    minutesToTime(
+      startMinutes +
+      duration
+    );
+
+
+  bookSlot(
+    facility,
+    date,
+    start,
+    end
+  );
+
+}
+
+
+/* =========================================================
+   OPEN GOOGLE FORM
+   ========================================================= */
+
+function bookSlot(
+  facility,
+  date,
+  start,
+  end
+) {
+
+  const FORM_URL =
+    "https://docs.google.com/forms/d/e/1FAIpQLSdja_U2aFCea0GAL6qZdaUxG5viyi4AlC-zROude_yzXAFIWg/viewform";
+
+
+  const url =
+    FORM_URL +
+    "?usp=pp_url" +
+    "&entry.1139525746=" +
+      encodeURIComponent(
+        facility
+      ) +
+    "&entry.482205338=" +
+      encodeURIComponent(
+        date
+      ) +
+    "&entry.1117912077=" +
+      encodeURIComponent(
+        start
+      ) +
+    "&entry.866972168=" +
+      encodeURIComponent(
+        end
+      );
+
+
+  window.open(
+    url,
+    "_blank"
+  );
+
+}
+
+
+/* =========================================================
+   RESET BOOKING CONTROLS
+   ========================================================= */
+
+function resetBookingControls() {
+
+  document
+    .getElementById(
+      "startTime"
+    )
+    .innerHTML =
+      `<option value="">
+        Select start time
+      </option>`;
+
+
+  document
+    .getElementById(
+      "bookingPeriod"
+    )
+    .textContent =
+      "Select a start time";
+
+
+  const message =
+    document.getElementById(
+      "availabilityMessage"
+    );
+
+
+  message.style.display =
+    "none";
+
+
+  document
+    .getElementById(
+      "bookButton"
+    )
+    .disabled =
+      true;
+
+}
+
+
+/* =========================================================
+   FIND BOOKING
+   ========================================================= */
+
+function findBooking(
+  slotStart,
+  slotEnd,
+  bookings
+) {
+
+  const start =
+    timeToMinutes(
+      slotStart
+    );
+
+
+  const end =
+    timeToMinutes(
+      slotEnd
+    );
+
+
+  for (
+    let i = 0;
+    i < bookings.length;
+    i++
+  ) {
+
+    const booking =
+      bookings[i];
+
+
+    const bookingStart =
+      timeToMinutes(
+        booking.start
+      );
+
+
+    const bookingEnd =
+      timeToMinutes(
+        booking.end
+      );
+
+
+    if (
+      start <
+        bookingEnd &&
+      end >
+        bookingStart
+    ) {
+
+      return booking;
+
+    }
+
+  }
+
+
+  return null;
+
+}
+
+
+/* =========================================================
+   TIME FUNCTIONS
+   ========================================================= */
+
+function timeToMinutes(
+  time
+) {
+
+  const parts =
+    time.split(":");
+
+
+  return (
+    Number(parts[0]) * 60 +
+    Number(parts[1])
+  );
+
+}
+
+
+function minutesToTime(
+  minutes
+) {
+
+  const hours =
+    Math.floor(
+      minutes / 60
+    );
+
+
+  const mins =
+    minutes % 60;
+
+
+  return (
+    String(hours)
+      .padStart(
+        2,
+        "0"
+      ) +
+    ":" +
+    String(mins)
+      .padStart(
+        2,
+        "0"
+      )
+  );
+
+}
+
+
+/* =========================================================
+   HTML SAFETY
+   ========================================================= */
+
+function escapeHtml(
+  text
+) {
+
+  return String(text)
+
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+
+    .replace(
+      /</g,
+      "&lt;"
+    )
+
+    .replace(
+      />/g,
+      "&gt;"
+    )
+
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+
+    .replace(
+      /'/g,
+      "&#039;"
+    );
+
+}
+
+
+</script>
+
+
 </body>
+
 </html>
