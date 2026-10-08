@@ -428,17 +428,9 @@ async function loadPublicData() {
       .classList.add("hidden");
 
 
-    /*
-      Facilities sheet
-    */
-
     const facilityUrl =
       `https://docs.google.com/spreadsheets/d/${PUBLIC_SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(FACILITY_SHEET)}`;
 
-
-    /*
-      Bookings sheet
-    */
 
     const bookingUrl =
       `https://docs.google.com/spreadsheets/d/${PUBLIC_SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(BOOKING_SHEET)}`;
@@ -573,15 +565,6 @@ function renderFacilities() {
   grid.innerHTML = "";
 
 
-  /*
-    Public Facilities structure:
-
-    Column A = Facility
-    Column B = Opening Time
-    Column C = Closing Time
-  */
-
-
   facilities.forEach(row => {
 
     if (!row ||
@@ -595,10 +578,6 @@ function renderFacilities() {
     const facility =
       String(row[0]).trim();
 
-
-    /*
-      Ignore accidental header row
-    */
 
     if (
       facility.toLowerCase() === "facility"
@@ -710,10 +689,6 @@ function openFacility(facility) {
     document.getElementById("bookingDate");
 
 
-  /*
-    Minimum date = today
-  */
-
   const today =
     new Date();
 
@@ -723,10 +698,6 @@ function openFacility(facility) {
   dateInput.min =
     todayString;
 
-
-  /*
-    Maximum date = 30 days from today
-  */
 
   const maxDate =
     new Date();
@@ -742,10 +713,6 @@ function openFacility(facility) {
   dateInput.max =
     maxDateString;
 
-
-  /*
-    Clear previous date
-  */
 
   dateInput.value = "";
 
@@ -856,11 +823,6 @@ function renderAvailability() {
       selectedFacility.facility;
 
 
-    /*
-      Find bookings for selected
-      facility + date
-    */
-
     const dateBookings =
       bookings.filter(row => {
 
@@ -902,10 +864,6 @@ function renderAvailability() {
       });
 
 
-    /*
-      Generate 30-minute slots
-    */
-
     const opening =
       timeToMinutes(
         selectedFacility.openingTime
@@ -942,11 +900,6 @@ function renderAvailability() {
       const end =
         minutesToTime(minutes + 30);
 
-
-      /*
-        Don't create a slot that
-        extends past closing time.
-      */
 
       if (
         minutes + 30 > closing
@@ -1068,10 +1021,6 @@ function selectStartTime(
     null;
 
 
-  /*
-    Maximum booking duration = 4 hours
-  */
-
   const maxEnd =
     Math.min(
       startMinutes + 240,
@@ -1124,10 +1073,6 @@ function renderEndTimeOptions(
   );
 
 
-  /*
-    Find existing bookings
-  */
-
   const dateBookings =
     bookings.filter(row => {
 
@@ -1161,21 +1106,11 @@ function renderEndTimeOptions(
     });
 
 
-  /*
-    End times begin at least
-    30 minutes after start.
-  */
-
   for (
     let end = startMinutes + 30;
     end <= maxEnd;
     end += 30
   ) {
-
-    /*
-      Check whether the entire
-      interval is free.
-    */
 
     const blocked =
       dateBookings.some(row => {
@@ -1312,18 +1247,22 @@ function continueToForm() {
 
   /*
     IMPORTANT:
-
-    HTML date input:
+    
+    HTML <input type="date"> already gives:
+    
       YYYY-MM-DD
+    
+    Google Forms Date questions use:
+    
+      YYYY-MM-DD
+    
+    for prefilled URLs.
 
-    Google Form date field:
-      DD/MM/YYYY
+    DO NOT convert this to DD/MM/YYYY.
   */
 
   const formDate =
-    convertDateToGoogleForm(
-      selectedDate
-    );
+    selectedDate;
 
 
   /*
@@ -1400,6 +1339,11 @@ function continueToForm() {
 
 
   console.log(
+    "Selected date:",
+    selectedDate
+  );
+
+  console.log(
     "Google Form date:",
     formDate
   );
@@ -1433,21 +1377,12 @@ function continueToForm() {
 
 
 /* =========================================================
-   DATE CONVERSION
+   FORMAT DATE FOR DISPLAY
 ========================================================= */
 
-function convertDateToGoogleForm(
+function formatDateForDisplay(
   isoDate
 ) {
-
-  /*
-    Input:
-      2026-10-08
-
-    Output:
-      08/10/2026
-  */
-
 
   if (!isoDate) {
     return "";
@@ -1463,37 +1398,12 @@ function convertDateToGoogleForm(
   }
 
 
-  const year =
-    parts[0];
-
-  const month =
-    parts[1];
-
-  const day =
-    parts[2];
-
-
   return (
-    day +
+    parts[2] +
     "/" +
-    month +
+    parts[1] +
     "/" +
-    year
-  );
-
-}
-
-
-/* =========================================================
-   FORMAT DATE FOR DISPLAY
-========================================================= */
-
-function formatDateForDisplay(
-  isoDate
-) {
-
-  return convertDateToGoogleForm(
-    isoDate
+    parts[0]
   );
 
 }
@@ -1649,7 +1559,6 @@ function timeToMinutes(
 
   /*
     Handle 12-hour format
-    just in case Sheets returns it.
   */
 
   match =
