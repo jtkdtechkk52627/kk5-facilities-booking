@@ -1,28 +1,19 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>KK5 Facility Booking</title>
 
-
   <style>
-
     * {
       box-sizing: border-box;
     }
 
-
     body {
-
       margin: 0;
-
       font-family:
         -apple-system,
         BlinkMacSystemFont,
@@ -30,149 +21,84 @@
         Roboto,
         Arial,
         sans-serif;
-
-      background:
-        #f5f7fa;
-
-      color:
-        #1f2937;
-
+      background: #f5f7fa;
+      color: #1f2937;
     }
-
 
     .container {
-
       width: 100%;
-
       max-width: 1000px;
-
       margin: 0 auto;
-
-      padding:
-        32px 20px 60px;
-
+      padding: 32px 20px 60px;
     }
-
 
     /* =====================================================
        HEADER
        ===================================================== */
 
     .header {
-
       margin-bottom: 30px;
-
     }
-
 
     .header h1 {
-
       margin: 0 0 8px;
-
       font-size: 32px;
-
       font-weight: 700;
-
-      color:
-        #111827;
-
+      color: #111827;
     }
-
 
     .header p {
-
       margin: 0;
-
-      color:
-        #6b7280;
-
+      color: #6b7280;
       font-size: 15px;
-
     }
-
 
     /* =====================================================
        PAGE
        ===================================================== */
 
     .page {
-
       display: none;
-
     }
-
 
     .page.active {
-
       display: block;
-
     }
-
 
     /* =====================================================
        FACILITY GRID
        ===================================================== */
 
     .facility-grid {
-
       display: grid;
-
       grid-template-columns:
         repeat(
           auto-fit,
           minmax(240px, 1fr)
         );
-
       gap: 18px;
-
     }
 
-
     .facility-card {
-
-      background:
-        white;
-
-      border:
-        1px solid #e5e7eb;
-
-      border-radius:
-        14px;
-
-      padding:
-        22px;
-
-      min-height:
-        150px;
-
-      cursor:
-        pointer;
-
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 22px;
+      min-height: 150px;
+      cursor: pointer;
       transition:
         transform 0.15s ease,
         box-shadow 0.15s ease,
         border-color 0.15s ease;
 
-      display:
-        flex;
-
-      flex-direction:
-        column;
-
-      justify-content:
-        space-between;
-
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
 
-
     .facility-card:hover {
-
-      transform:
-        translateY(-2px);
-
-      border-color:
-        #cbd5e1;
-
+      transform: translateY(-2px);
+      border-color: #cbd5e1;
       box-shadow:
         0 8px 24px rgba(
           0,
@@ -180,286 +106,131 @@
           0,
           0.07
         );
-
     }
-
 
     .facility-card.inactive {
-
-      cursor:
-        not-allowed;
-
-      background:
-        #f8fafc;
-
-      border-color:
-        #e5e7eb;
-
-      opacity:
-        0.78;
-
+      cursor: not-allowed;
+      background: #f8fafc;
+      border-color: #e5e7eb;
+      opacity: 0.78;
     }
-
 
     .facility-card.inactive:hover {
-
-      transform:
-        none;
-
-      box-shadow:
-        none;
-
-      border-color:
-        #e5e7eb;
-
+      transform: none;
+      box-shadow: none;
+      border-color: #e5e7eb;
     }
-
 
     .facility-name {
-
-      font-size:
-        18px;
-
-      font-weight:
-        650;
-
-      color:
-        #111827;
-
-      line-height:
-        1.35;
-
+      font-size: 18px;
+      font-weight: 650;
+      color: #111827;
+      line-height: 1.35;
     }
-
 
     .facility-hours {
-
-      margin-top:
-        12px;
-
-      font-size:
-        14px;
-
-      color:
-        #6b7280;
-
+      margin-top: 12px;
+      font-size: 14px;
+      color: #6b7280;
     }
-
 
     .facility-status {
-
-      margin-top:
-        16px;
-
-      font-size:
-        12px;
-
-      font-weight:
-        700;
-
-      letter-spacing:
-        0.04em;
-
+      margin-top: 16px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
     }
-
 
     .facility-status.available {
-
-      color:
-        #15803d;
-
+      color: #15803d;
     }
-
 
     .facility-status.unavailable {
-
-      color:
-        #b91c1c;
-
+      color: #b91c1c;
     }
-
 
     /* =====================================================
        BACK BUTTON
        ===================================================== */
 
     .back-button {
-
-      border:
-        none;
-
-      background:
-        transparent;
-
-      padding:
-        0;
-
-      margin-bottom:
-        20px;
-
-      color:
-        #2563eb;
-
-      font-size:
-        14px;
-
-      font-weight:
-        600;
-
-      cursor:
-        pointer;
-
+      border: none;
+      background: transparent;
+      padding: 0;
+      margin-bottom: 20px;
+      color: #2563eb;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
     }
-
 
     .back-button:hover {
-
-      text-decoration:
-        underline;
-
+      text-decoration: underline;
     }
 
-
     /* =====================================================
-       FACILITY TITLE
+       FACILITY HEADER
        ===================================================== */
 
     .facility-header {
-
-      background:
-        white;
-
-      border:
-        1px solid #e5e7eb;
-
-      border-radius:
-        14px;
-
-      padding:
-        24px;
-
-      margin-bottom:
-        18px;
-
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 18px;
     }
-
 
     .facility-header h2 {
-
-      margin:
-        0 0 8px;
-
-      font-size:
-        26px;
-
-      color:
-        #111827;
-
+      margin: 0 0 8px;
+      font-size: 26px;
+      color: #111827;
     }
-
 
     .facility-header p {
-
-      margin:
-        0;
-
-      color:
-        #6b7280;
-
-      font-size:
-        14px;
-
+      margin: 0;
+      color: #6b7280;
+      font-size: 14px;
     }
-
 
     /* =====================================================
        BOOKING PANEL
        ===================================================== */
 
     .booking-panel {
-
-      background:
-        white;
-
-      border:
-        1px solid #e5e7eb;
-
-      border-radius:
-        14px;
-
-      padding:
-        24px;
-
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 24px;
     }
-
 
     .form-group {
-
-      margin-bottom:
-        20px;
-
+      margin-bottom: 20px;
     }
-
 
     .form-group label {
-
-      display:
-        block;
-
-      margin-bottom:
-        8px;
-
-      font-size:
-        14px;
-
-      font-weight:
-        600;
-
-      color:
-        #374151;
-
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #374151;
     }
-
 
     input,
     select {
-
-      width:
-        100%;
-
-      height:
-        46px;
-
-      border:
-        1px solid #d1d5db;
-
-      border-radius:
-        9px;
-
-      padding:
-        0 12px;
-
-      background:
-        white;
-
-      color:
-        #111827;
-
-      font-size:
-        15px;
-
-      outline:
-        none;
-
+      width: 100%;
+      height: 46px;
+      border: 1px solid #d1d5db;
+      border-radius: 9px;
+      padding: 0 12px;
+      background: white;
+      color: #111827;
+      font-size: 15px;
+      outline: none;
     }
-
 
     input:focus,
     select:focus {
-
-      border-color:
-        #2563eb;
-
+      border-color: #2563eb;
       box-shadow:
         0 0 0 3px rgba(
           37,
@@ -467,386 +238,237 @@
           235,
           0.1
         );
-
     }
-
 
     input[readonly] {
-
-      background:
-        #f9fafb;
-
-      color:
-        #4b5563;
-
+      background: #f9fafb;
+      color: #4b5563;
     }
 
-
-    .time-row {
-
-      display:
-        grid;
-
-      grid-template-columns:
-        1fr 1fr;
-
-      gap:
-        14px;
-
+    .time-row,
+    .date-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
     }
 
+    /* =====================================================
+       BOOKING RANGE SUMMARY
+       ===================================================== */
+
+    .booking-summary {
+      margin-top: 4px;
+      margin-bottom: 20px;
+      padding: 14px 16px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 10px;
+      color: #1e40af;
+      font-size: 14px;
+      line-height: 1.5;
+    }
 
     /* =====================================================
        AVAILABILITY
        ===================================================== */
 
     .availability-section {
-
-      margin-top:
-        26px;
-
+      margin-top: 26px;
     }
-
 
     .availability-title {
-
-      margin:
-        0 0 12px;
-
-      font-size:
-        16px;
-
-      font-weight:
-        650;
-
-      color:
-        #111827;
-
+      margin: 0 0 12px;
+      font-size: 16px;
+      font-weight: 650;
+      color: #111827;
     }
 
-
     .availability-grid {
-
-      display:
-        grid;
-
+      display: grid;
       grid-template-columns:
         repeat(
           auto-fill,
           minmax(100px, 1fr)
         );
-
-      gap:
-        8px;
-
+      gap: 8px;
     }
-
 
     .slot {
-
-      border:
-        1px solid #d1d5db;
-
-      background:
-        white;
-
-      border-radius:
-        8px;
-
-      padding:
-        10px 6px;
-
-      text-align:
-        center;
-
-      font-size:
-        13px;
-
-      cursor:
-        pointer;
-
-      transition:
-        all 0.12s ease;
-
+      border: 1px solid #d1d5db;
+      background: white;
+      border-radius: 8px;
+      padding: 10px 6px;
+      text-align: center;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.12s ease;
     }
-
 
     .slot:hover {
-
-      border-color:
-        #2563eb;
-
-      background:
-        #eff6ff;
-
+      border-color: #2563eb;
+      background: #eff6ff;
     }
-
 
     .slot.selected {
-
-      border-color:
-        #2563eb;
-
-      background:
-        #2563eb;
-
-      color:
-        white;
-
-      font-weight:
-        600;
-
+      border-color: #2563eb;
+      background: #2563eb;
+      color: white;
+      font-weight: 600;
     }
-
 
     .slot.booked {
-
-      cursor:
-        not-allowed;
-
-      background:
-        #f3f4f6;
-
-      border-color:
-        #e5e7eb;
-
-      color:
-        #9ca3af;
-
+      cursor: not-allowed;
+      background: #f3f4f6;
+      border-color: #e5e7eb;
+      color: #9ca3af;
     }
-
 
     .slot.pending {
-
-      cursor:
-        not-allowed;
-
-      background:
-        #fff7ed;
-
-      border-color:
-        #fed7aa;
-
-      color:
-        #c2410c;
-
+      cursor: not-allowed;
+      background: #fff7ed;
+      border-color: #fed7aa;
+      color: #c2410c;
     }
-
 
     .availability-message {
-
-      padding:
-        18px;
-
-      background:
-        #f9fafb;
-
-      border:
-        1px solid #e5e7eb;
-
-      border-radius:
-        10px;
-
-      color:
-        #6b7280;
-
-      font-size:
-        14px;
-
+      padding: 18px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      color: #6b7280;
+      font-size: 14px;
+      margin-bottom: 12px;
     }
 
+    /* =====================================================
+       AVAILABILITY STATUS
+       ===================================================== */
+
+    .range-status {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: 10px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .range-status.success {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #166534;
+    }
+
+    .range-status.warning {
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      color: #9a3412;
+    }
+
+    .range-status.error {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #b91c1c;
+    }
 
     /* =====================================================
        CONTINUE BUTTON
        ===================================================== */
 
     .continue-button {
-
-      width:
-        100%;
-
-      height:
-        48px;
-
-      margin-top:
-        10px;
-
-      border:
-        none;
-
-      border-radius:
-        9px;
-
-      background:
-        #111827;
-
-      color:
-        white;
-
-      font-size:
-        15px;
-
-      font-weight:
-        600;
-
-      cursor:
-        pointer;
-
+      width: 100%;
+      height: 48px;
+      margin-top: 18px;
+      border: none;
+      border-radius: 9px;
+      background: #111827;
+      color: white;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
       transition:
         background 0.15s ease,
         transform 0.15s ease;
-
     }
-
 
     .continue-button:hover {
-
-      background:
-        #1f2937;
-
+      background: #1f2937;
     }
-
 
     .continue-button:active {
-
-      transform:
-        scale(0.99);
-
+      transform: scale(0.99);
     }
-
 
     .continue-button:disabled {
-
-      background:
-        #d1d5db;
-
-      cursor:
-        not-allowed;
-
-      transform:
-        none;
-
+      background: #d1d5db;
+      cursor: not-allowed;
+      transform: none;
     }
-
 
     /* =====================================================
        LOADING / ERROR
        ===================================================== */
 
     .message {
-
-      padding:
-        18px;
-
-      border-radius:
-        10px;
-
-      font-size:
-        14px;
-
-      margin-bottom:
-        18px;
-
+      padding: 18px;
+      border-radius: 10px;
+      font-size: 14px;
+      margin-bottom: 18px;
     }
-
 
     .message.error {
-
-      background:
-        #fef2f2;
-
-      border:
-        1px solid #fecaca;
-
-      color:
-        #b91c1c;
-
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #b91c1c;
     }
-
 
     .message.loading {
-
-      background:
-        #eff6ff;
-
-      border:
-        1px solid #bfdbfe;
-
-      color:
-        #1d4ed8;
-
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1d4ed8;
     }
-
 
     .hidden {
-
-      display:
-        none !important;
-
+      display: none !important;
     }
-
 
     /* =====================================================
        RESPONSIVE
        ===================================================== */
 
-    @media (
-      max-width: 600px
-    ) {
+    @media (max-width: 600px) {
 
       .container {
-
-        padding:
-          24px 14px 40px;
-
+        padding: 24px 14px 40px;
       }
-
 
       .header h1 {
-
-        font-size:
-          27px;
-
+        font-size: 27px;
       }
-
 
       .facility-grid {
-
-        grid-template-columns:
-          1fr;
-
+        grid-template-columns: 1fr;
       }
 
-
-      .time-row {
-
-        grid-template-columns:
-          1fr;
-
+      .time-row,
+      .date-row {
+        grid-template-columns: 1fr;
       }
-
 
       .availability-grid {
-
         grid-template-columns:
           repeat(
             3,
             1fr
           );
-
       }
-
     }
-
   </style>
-
 </head>
 
 
 <body>
 
   <div class="container">
-
 
     <!-- ===================================================
          HEADER
@@ -938,26 +560,53 @@
       <div class="booking-panel">
 
 
-        <!-- DATE -->
+        <!-- =================================================
+             DATE RANGE
+             ================================================= -->
 
-        <div class="form-group">
+        <div class="date-row">
 
-          <label for="bookingDate">
-            Date
-          </label>
+          <div class="form-group">
 
-          <input
-            type="date"
-            id="bookingDate"
-          >
+            <label for="startDate">
+              Start date
+            </label>
+
+            <input
+              type="date"
+              id="startDate"
+            >
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label for="endDate">
+              End date
+            </label>
+
+            <input
+              type="date"
+              id="endDate"
+            >
+
+          </div>
 
         </div>
 
 
-        <!-- START + DURATION -->
+        <div
+          id="bookingSummary"
+          class="booking-summary hidden"
+        ></div>
+
+
+        <!-- =================================================
+             START + DURATION
+             ================================================= -->
 
         <div class="time-row">
-
 
           <div class="form-group">
 
@@ -968,6 +617,7 @@
             <select
               id="startTime"
               onchange="handleStartTimeChange()"
+              disabled
             >
 
               <option value="">
@@ -1002,7 +652,9 @@
         </div>
 
 
-        <!-- END -->
+        <!-- =================================================
+             END TIME
+             ================================================= -->
 
         <div class="form-group">
 
@@ -1020,7 +672,9 @@
         </div>
 
 
-        <!-- AVAILABILITY -->
+        <!-- =================================================
+             AVAILABILITY
+             ================================================= -->
 
         <div class="availability-section">
 
@@ -1033,7 +687,7 @@
             id="availabilityMessage"
             class="availability-message"
           >
-            Select a date to view availability.
+            Select a date range to view availability.
           </div>
 
 
@@ -1042,10 +696,18 @@
             class="availability-grid"
           ></div>
 
+
+          <div
+            id="rangeStatus"
+            class="range-status hidden"
+          ></div>
+
         </div>
 
 
-        <!-- CONTINUE -->
+        <!-- =================================================
+             CONTINUE
+             ================================================= -->
 
         <button
           type="button"
@@ -1060,7 +722,6 @@
       </div>
 
     </section>
-
 
   </div>
 
@@ -1084,13 +745,16 @@
       facility:
         "entry.1139525746",
 
-      date:
+      startDate:
         "entry.482205338",
 
-      start:
+      endDate:
+        "entry.1684937690",
+
+      startTime:
         "entry.1117912077",
 
-      end:
+      endTime:
         "entry.866972168"
 
     };
@@ -1108,6 +772,10 @@
       30;
 
 
+    const MAX_BOOKING_DAYS =
+      7;
+
+
     /* =====================================================
        STATE
        ===================================================== */
@@ -1116,13 +784,17 @@
 
     let selectedFacility = null;
 
-    let selectedDate = "";
+    let selectedStartDate = "";
+
+    let selectedEndDate = "";
 
     let selectedStartTime = null;
 
     let selectedEndTime = null;
 
-    let currentBookings = [];
+    let currentBookingsByDate = {};
+
+    let availabilityLoading = false;
 
 
     /* =====================================================
@@ -1165,9 +837,15 @@
       );
 
 
-    const bookingDate =
+    const startDate =
       document.getElementById(
-        "bookingDate"
+        "startDate"
+      );
+
+
+    const endDate =
+      document.getElementById(
+        "endDate"
       );
 
 
@@ -1198,6 +876,18 @@
     const availabilityMessage =
       document.getElementById(
         "availabilityMessage"
+      );
+
+
+    const rangeStatus =
+      document.getElementById(
+        "rangeStatus"
+      );
+
+
+    const bookingSummary =
+      document.getElementById(
+        "bookingSummary"
       );
 
 
@@ -1270,6 +960,7 @@
 
         console.log(
           "GViz response:",
+          sheetName,
           response.status,
           text.substring(
             0,
@@ -1300,7 +991,8 @@
 
         if (
           start === -1 ||
-          end === -1
+          end === -1 ||
+          end <= start
         ) {
 
           throw new Error(
@@ -1345,7 +1037,8 @@
       );
 
 
-      facilityGrid.innerHTML = "";
+      facilityGrid.innerHTML =
+        "";
 
 
       try {
@@ -1375,8 +1068,12 @@
 
         renderFacilities();
 
-
       } catch (error) {
+
+        console.error(
+          error
+        );
+
 
         showError(
           "Failed to load facilities. " +
@@ -1445,16 +1142,6 @@
               ).trim();
 
 
-            /*
-               NEW:
-
-               Column D = Status
-
-               If the status is missing,
-               default to ACTIVE for backwards
-               compatibility.
-            */
-
             const status =
               String(
                 getCellValue(
@@ -1466,10 +1153,14 @@
                 .toUpperCase();
 
 
+            /*
+             * Ignore empty rows and headers.
+             */
+
             if (
               !facility ||
               facility.toLowerCase() ===
-              "facility"
+                "facility"
             ) {
 
               return null;
@@ -1513,9 +1204,7 @@
     ) {
 
       if (!cell) {
-
         return "";
-
       }
 
 
@@ -1550,7 +1239,8 @@
 
     function renderFacilities() {
 
-      facilityGrid.innerHTML = "";
+      facilityGrid.innerHTML =
+        "";
 
 
       facilities.forEach(
@@ -1597,10 +1287,8 @@
               "div"
             );
 
-
           name.className =
             "facility-name";
-
 
           name.textContent =
             facility.facility;
@@ -1610,7 +1298,6 @@
             document.createElement(
               "div"
             );
-
 
           hours.className =
             "facility-hours";
@@ -1643,7 +1330,6 @@
             document.createElement(
               "div"
             );
-
 
           status.className =
             "facility-status " +
@@ -1691,13 +1377,6 @@
       facility
     ) {
 
-      /*
-         Extra safety check.
-
-         Even if an inactive facility somehow
-         receives a click, it cannot proceed.
-      */
-
       if (
         !facility ||
         facility.status !==
@@ -1729,6 +1408,9 @@
 
 
       resetBookingState();
+
+
+      setMinimumDates();
 
 
       facilityPage.classList.remove(
@@ -1777,7 +1459,10 @@
 
     function resetBookingState() {
 
-      selectedDate =
+      selectedStartDate =
+        "";
+
+      selectedEndDate =
         "";
 
       selectedStartTime =
@@ -1786,15 +1471,23 @@
       selectedEndTime =
         null;
 
-      currentBookings =
-        [];
+      currentBookingsByDate =
+        {};
 
 
-      bookingDate.value =
+      startDate.value =
         "";
+
+      endDate.value =
+        "";
+
 
       startTime.innerHTML =
         '<option value="">Select start time</option>';
+
+      startTime.disabled =
+        true;
+
 
       duration.innerHTML =
         '<option value="">Select duration</option>';
@@ -1802,14 +1495,31 @@
       duration.disabled =
         true;
 
+
       endTime.value =
         "";
+
 
       availabilityGrid.innerHTML =
         "";
 
+
       availabilityMessage.textContent =
-        "Select a date to view availability.";
+        "Select a date range to view availability.";
+
+
+      rangeStatus.className =
+        "range-status hidden";
+
+      rangeStatus.textContent =
+        "";
+
+
+      bookingSummary.className =
+        "booking-summary hidden";
+
+      bookingSummary.textContent =
+        "";
 
 
       continueButton.disabled =
@@ -1819,15 +1529,52 @@
 
 
     /* =====================================================
-       DATE CHANGE
+       DATE LIMITS
        ===================================================== */
 
-    bookingDate.addEventListener(
+    function setMinimumDates() {
+
+      const today =
+        new Date();
+
+
+      const todayString =
+        formatDateObject(
+          today
+        );
+
+
+      startDate.min =
+        todayString;
+
+      endDate.min =
+        todayString;
+
+
+      startDate.max =
+        formatDateObject(
+          addDays(
+            today,
+            MAX_BOOKING_DAYS - 1
+          )
+        );
+
+      endDate.max =
+        startDate.max;
+
+    }
+
+
+    /* =====================================================
+       START DATE CHANGE
+       ===================================================== */
+
+    startDate.addEventListener(
       "change",
       async function() {
 
-        selectedDate =
-          bookingDate.value;
+        selectedStartDate =
+          startDate.value;
 
 
         selectedStartTime =
@@ -1837,34 +1584,106 @@
           null;
 
 
-        startTime.innerHTML =
-          '<option value="">Select start time</option>';
-
-
-        duration.innerHTML =
-          '<option value="">Select duration</option>';
-
-
-        duration.disabled =
-          true;
-
-
-        endTime.value =
+        endDate.value =
           "";
 
 
-        continueButton.disabled =
-          true;
+        endDate.min =
+          selectedStartDate || startDate.min;
+
+
+        resetTimeSelection();
+
+
+        clearAvailability();
 
 
         if (
-          !selectedDate
+          !selectedStartDate
         ) {
 
-          availabilityMessage.textContent =
-            "Select a date to view availability.";
+          return;
 
-          availabilityGrid.innerHTML =
+        }
+
+
+        const maxEndDate =
+          calculateMaximumEndDate(
+            selectedStartDate
+          );
+
+
+        endDate.max =
+          maxEndDate;
+
+
+        updateBookingSummary();
+
+
+        if (
+          selectedEndDate
+        ) {
+
+          await loadAvailability();
+
+        }
+
+      }
+    );
+
+
+    /* =====================================================
+       END DATE CHANGE
+       ===================================================== */
+
+    endDate.addEventListener(
+      "change",
+      async function() {
+
+        selectedEndDate =
+          endDate.value;
+
+
+        selectedStartTime =
+          null;
+
+        selectedEndTime =
+          null;
+
+
+        resetTimeSelection();
+
+
+        clearAvailability();
+
+
+        if (
+          !selectedStartDate ||
+          !selectedEndDate
+        ) {
+
+          return;
+
+        }
+
+
+        const validation =
+          validateDateRange();
+
+
+        if (
+          !validation.valid
+        ) {
+
+          showRangeStatus(
+            validation.message,
+            "error"
+          );
+
+          endDate.value =
+            "";
+
+          selectedEndDate =
             "";
 
           return;
@@ -1872,10 +1691,101 @@
         }
 
 
+        updateBookingSummary();
+
+
         await loadAvailability();
 
       }
     );
+
+
+    /* =====================================================
+       VALIDATE DATE RANGE
+       ===================================================== */
+
+    function validateDateRange() {
+
+      if (
+        !selectedStartDate ||
+        !selectedEndDate
+      ) {
+
+        return {
+          valid: false,
+          message:
+            "Please select both a start date and an end date."
+        };
+
+      }
+
+
+      const start =
+        parseDateOnly(
+          selectedStartDate
+        );
+
+      const end =
+        parseDateOnly(
+          selectedEndDate
+        );
+
+
+      if (
+        !start ||
+        !end
+      ) {
+
+        return {
+          valid: false,
+          message:
+            "Please select valid dates."
+        };
+
+      }
+
+
+      if (
+        end < start
+      ) {
+
+        return {
+          valid: false,
+          message:
+            "End date cannot be before the start date."
+        };
+
+      }
+
+
+      const days =
+        getDateDifferenceInDays(
+          start,
+          end
+        ) + 1;
+
+
+      if (
+        days > MAX_BOOKING_DAYS
+      ) {
+
+        return {
+          valid: false,
+          message:
+            "A booking can cover a maximum of " +
+            MAX_BOOKING_DAYS +
+            " days."
+        };
+
+      }
+
+
+      return {
+        valid: true,
+        days: days
+      };
+
+    }
 
 
     /* =====================================================
@@ -1886,7 +1796,8 @@
 
       if (
         !selectedFacility ||
-        !selectedDate
+        !selectedStartDate ||
+        !selectedEndDate
       ) {
 
         return;
@@ -1894,16 +1805,41 @@
       }
 
 
+      const validation =
+        validateDateRange();
+
+
+      if (
+        !validation.valid
+      ) {
+
+        showRangeStatus(
+          validation.message,
+          "error"
+        );
+
+        return;
+
+      }
+
+
+      availabilityLoading =
+        true;
+
+
       availabilityGrid.innerHTML =
         "";
+
+
+      availabilityMessage.textContent =
+        "Loading availability...";
 
 
       availabilityMessage.className =
         "availability-message";
 
 
-      availabilityMessage.textContent =
-        "Loading availability...";
+      hideRangeStatus();
 
 
       try {
@@ -1914,11 +1850,12 @@
           );
 
 
-        currentBookings =
-          parseBookings(
+        currentBookingsByDate =
+          parseBookingsForRange(
             data,
             selectedFacility.facility,
-            selectedDate
+            selectedStartDate,
+            selectedEndDate
           );
 
 
@@ -1929,17 +1866,14 @@
 
 
         availabilityMessage.textContent =
-          "Select an available start time.";
+          "Select an available start time. The same time will be checked across every selected date.";
 
       } catch (error) {
 
         console.error(
+          "Availability error:",
           error
         );
-
-
-        availabilityMessage.className =
-          "availability-message";
 
 
         availabilityMessage.textContent =
@@ -1950,20 +1884,59 @@
         availabilityGrid.innerHTML =
           "";
 
+
+        startTime.innerHTML =
+          '<option value="">Select start time</option>';
+
+        startTime.disabled =
+          true;
+
+
+        duration.innerHTML =
+          '<option value="">Select duration</option>';
+
+        duration.disabled =
+          true;
+
+
+        continueButton.disabled =
+          true;
+
+      } finally {
+
+        availabilityLoading =
+          false;
+
       }
 
     }
 
 
     /* =====================================================
-       PARSE BOOKINGS
+       PARSE BOOKINGS FOR DATE RANGE
        ===================================================== */
 
-    function parseBookings(
+    function parseBookingsForRange(
       data,
       facilityName,
-      date
+      rangeStart,
+      rangeEnd
     ) {
+
+      const result = {};
+
+
+      getDatesBetween(
+        rangeStart,
+        rangeEnd
+      ).forEach(
+        function(date) {
+
+          result[date] = [];
+
+        }
+      );
+
 
       if (
         !data ||
@@ -1971,7 +1944,7 @@
         !data.table.rows
       ) {
 
-        return [];
+        return result;
 
       }
 
@@ -1984,132 +1957,136 @@
           .toLowerCase();
 
 
-      return data.table.rows
-        .map(
-          function(row) {
+      data.table.rows.forEach(
+        function(row) {
 
-            const cells =
-              row.c || [];
-
-
-            const facility =
-              String(
-                getCellValue(
-                  cells[0]
-                )
-              ).trim();
+          const cells =
+            row.c || [];
 
 
-            const bookingDate =
-              String(
-                getCellValue(
-                  cells[1]
-                )
-              ).trim();
-
-
-            const start =
-              normalizeTime(
-                getCellValue(
-                  cells[2]
-                )
-              );
-
-
-            const end =
-              normalizeTime(
-                getCellValue(
-                  cells[3]
-                )
-              );
-
-
-            const status =
-              String(
-                getCellValue(
-                  cells[4]
-                )
+          const facility =
+            String(
+              getCellValue(
+                cells[0]
               )
-                .trim()
-                .toUpperCase();
+            ).trim();
 
 
-            if (
-              !facility ||
-              facility.toLowerCase() ===
+          if (
+            !facility ||
+            facility.toLowerCase() ===
               "facility"
-            ) {
+          ) {
 
-              return null;
-
-            }
-
-
-            if (
-              facility
-                .toLowerCase() !==
-              targetFacility
-            ) {
-
-              return null;
-
-            }
-
-
-            if (
-              normalizeDate(
-                bookingDate
-              ) !==
-              date
-            ) {
-
-              return null;
-
-            }
-
-
-            if (
-              status !== "PENDING" &&
-              status !== "APPROVED"
-            ) {
-
-              return null;
-
-            }
-
-
-            if (
-              !start ||
-              !end
-            ) {
-
-              return null;
-
-            }
-
-
-            return {
-
-              start:
-                timeToMinutes(
-                  start
-                ),
-
-              end:
-                timeToMinutes(
-                  end
-                ),
-
-              status:
-                status
-
-            };
+            return;
 
           }
-        )
-        .filter(
-          Boolean
-        );
+
+
+          if (
+            facility.toLowerCase() !==
+            targetFacility
+          ) {
+
+            return;
+
+          }
+
+
+          const bookingDate =
+            normalizeDate(
+              getCellValue(
+                cells[1]
+              )
+            );
+
+
+          if (
+            !result[bookingDate]
+          ) {
+
+            return;
+
+          }
+
+
+          const start =
+            normalizeTime(
+              getCellValue(
+                cells[2]
+              )
+            );
+
+
+          const end =
+            normalizeTime(
+              getCellValue(
+                cells[3]
+              )
+            );
+
+
+          const status =
+            String(
+              getCellValue(
+                cells[4]
+              )
+            )
+              .trim()
+              .toUpperCase();
+
+
+          if (
+            status !== "PENDING" &&
+            status !== "APPROVED"
+          ) {
+
+            return;
+
+          }
+
+
+          const startMinutes =
+            timeToMinutes(
+              start
+            );
+
+
+          const endMinutes =
+            timeToMinutes(
+              end
+            );
+
+
+          if (
+            startMinutes === null ||
+            endMinutes === null ||
+            endMinutes <= startMinutes
+          ) {
+
+            return;
+
+          }
+
+
+          result[bookingDate].push({
+
+            start:
+              startMinutes,
+
+            end:
+              endMinutes,
+
+            status:
+              status
+
+          });
+
+        }
+      );
+
+
+      return result;
 
     }
 
@@ -2125,7 +2102,9 @@
 
 
       if (
-        !selectedFacility
+        !selectedFacility ||
+        !selectedStartDate ||
+        !selectedEndDate
       ) {
 
         return;
@@ -2163,6 +2142,20 @@
       }
 
 
+      /*
+       * The visual availability shown is for the
+       * START DATE.
+       *
+       * The final booking check still checks
+       * EVERY date in the selected range.
+       */
+
+      const bookings =
+        currentBookingsByDate[
+          selectedStartDate
+        ] || [];
+
+
       for (
         let minutes = opening;
         minutes < closing;
@@ -2187,6 +2180,7 @@
 
         const booking =
           findBookingAtTime(
+            bookings,
             minutes
           );
 
@@ -2254,10 +2248,11 @@
        ===================================================== */
 
     function findBookingAtTime(
+      bookings,
       minutes
     ) {
 
-      return currentBookings.find(
+      return bookings.find(
         function(booking) {
 
           return (
@@ -2282,9 +2277,14 @@
       startTime.innerHTML =
         '<option value="">Select start time</option>';
 
+      startTime.disabled =
+        true;
+
 
       if (
-        !selectedFacility
+        !selectedFacility ||
+        !selectedStartDate ||
+        !selectedEndDate
       ) {
 
         return;
@@ -2318,19 +2318,20 @@
       }
 
 
+      /*
+       * A start time is shown only when
+       * the first 30-minute interval is
+       * available on EVERY selected date.
+       */
+
       for (
         let minutes = opening;
         minutes < closing;
         minutes += SLOT_INTERVAL
       ) {
 
-        /*
-           A start time is selectable only if
-           the first 30-minute interval is free.
-        */
-
         if (
-          isIntervalAvailable(
+          isIntervalAvailableAcrossRange(
             minutes,
             minutes + MIN_DURATION
           )
@@ -2362,6 +2363,17 @@
 
       }
 
+
+      if (
+        startTime.options.length >
+        1
+      ) {
+
+        startTime.disabled =
+          false;
+
+      }
+
     }
 
 
@@ -2383,13 +2395,13 @@
         );
 
 
-      updateSelectedSlot();
-
-
       populateDurations();
 
 
       updateEndTime();
+
+
+      updateSelectedSlot();
 
     }
 
@@ -2410,17 +2422,21 @@
         selectedEndTime =
           null;
 
+
         duration.innerHTML =
           '<option value="">Select duration</option>';
 
         duration.disabled =
           true;
 
+
         endTime.value =
           "";
 
+
         continueButton.disabled =
           true;
+
 
         updateSelectedSlot();
 
@@ -2455,7 +2471,6 @@
 
       duration.innerHTML =
         '<option value="">Select duration</option>';
-
 
       duration.disabled =
         true;
@@ -2503,15 +2518,9 @@
 
 
       for (
-        let minutes =
-          MIN_DURATION;
-
-        minutes <=
-          MAX_DURATION;
-
-        minutes +=
-          SLOT_INTERVAL
-
+        let minutes = MIN_DURATION;
+        minutes <= MAX_DURATION;
+        minutes += SLOT_INTERVAL
       ) {
 
         const proposedEnd =
@@ -2530,7 +2539,7 @@
 
 
         if (
-          isIntervalAvailable(
+          isIntervalAvailableAcrossRange(
             selectedStartTime,
             proposedEnd
           )
@@ -2543,10 +2552,10 @@
         } else {
 
           /*
-             Once an interval is blocked,
-             longer durations will also
-             be blocked.
-          */
+           * Once a duration is blocked,
+           * all longer durations are also
+           * blocked.
+           */
 
           break;
 
@@ -2604,22 +2613,20 @@
 
       if (
         selectedStartTime === null ||
-        isNaN(
-          parseInt(
-            duration.value,
-            10
-          )
-        )
+        !duration.value
       ) {
 
         selectedEndTime =
           null;
 
+
         endTime.value =
           "";
 
+
         continueButton.disabled =
           true;
+
 
         return;
 
@@ -2631,6 +2638,29 @@
           duration.value,
           10
         );
+
+
+      if (
+        isNaN(
+          selectedDuration
+        )
+      ) {
+
+        selectedEndTime =
+          null;
+
+
+        endTime.value =
+          "";
+
+
+        continueButton.disabled =
+          true;
+
+
+        return;
+
+      }
 
 
       selectedEndTime =
@@ -2645,7 +2675,7 @@
 
 
       continueButton.disabled =
-        !isIntervalAvailable(
+        !isIntervalAvailableAcrossRange(
           selectedStartTime,
           selectedEndTime
         );
@@ -2653,29 +2683,24 @@
 
       updateSelectedSlot();
 
+
+      updateRangeStatus();
+
     }
 
 
     /* =====================================================
-       CHECK INTERVAL AVAILABILITY
+       CHECK INTERVAL ACROSS EVERY DATE
        ===================================================== */
 
-    function isIntervalAvailable(
+    function isIntervalAvailableAcrossRange(
       start,
       end
     ) {
 
       if (
         start === null ||
-        end === null
-      ) {
-
-        return false;
-
-      }
-
-
-      if (
+        end === null ||
         end <= start
       ) {
 
@@ -2684,17 +2709,43 @@
       }
 
 
-      return !currentBookings.some(
-        function(booking) {
+      if (
+        !selectedStartDate ||
+        !selectedEndDate
+      ) {
 
-          return (
+        return false;
 
-            start <
-            booking.end &&
+      }
 
-            end >
-            booking.start
 
+      const dates =
+        getDatesBetween(
+          selectedStartDate,
+          selectedEndDate
+        );
+
+
+      return dates.every(
+        function(date) {
+
+          const bookings =
+            currentBookingsByDate[
+              date
+            ] || [];
+
+
+          return !bookings.some(
+            function(booking) {
+
+              return (
+                start <
+                  booking.end &&
+                end >
+                  booking.start
+              );
+
+            }
           );
 
         }
@@ -2745,10 +2796,9 @@
         function(slot) {
 
           if (
-            slot.textContent
-              .startsWith(
-                target
-              ) &&
+            slot.textContent.startsWith(
+              target
+            ) &&
             !slot.classList.contains(
               "booked"
             ) &&
@@ -2770,6 +2820,119 @@
 
 
     /* =====================================================
+       UPDATE BOOKING SUMMARY
+       ===================================================== */
+
+    function updateBookingSummary() {
+
+      if (
+        !selectedStartDate ||
+        !selectedEndDate
+      ) {
+
+        bookingSummary.className =
+          "booking-summary hidden";
+
+        bookingSummary.textContent =
+          "";
+
+        return;
+
+      }
+
+
+      const validation =
+        validateDateRange();
+
+
+      if (
+        !validation.valid
+      ) {
+
+        bookingSummary.className =
+          "booking-summary hidden";
+
+        return;
+
+      }
+
+
+      const days =
+        validation.days;
+
+
+      bookingSummary.className =
+        "booking-summary";
+
+
+      bookingSummary.textContent =
+        days === 1
+          ? "Booking for 1 day. The selected time will apply to this date."
+          : "Booking for " +
+            days +
+            " days. The same time period will apply to every selected date.";
+
+    }
+
+
+    /* =====================================================
+       UPDATE RANGE STATUS
+       ===================================================== */
+
+    function updateRangeStatus() {
+
+      if (
+        selectedStartTime === null ||
+        selectedEndTime === null
+      ) {
+
+        hideRangeStatus();
+
+        return;
+
+      }
+
+
+      if (
+        isIntervalAvailableAcrossRange(
+          selectedStartTime,
+          selectedEndTime
+        )
+      ) {
+
+        const days =
+          getDatesBetween(
+            selectedStartDate,
+            selectedEndDate
+          ).length;
+
+
+        showRangeStatus(
+          "The selected time is available across all " +
+          days +
+          " selected date" +
+          (
+            days === 1
+              ? ""
+              : "s"
+          ) +
+          ".",
+          "success"
+        );
+
+      } else {
+
+        showRangeStatus(
+          "The selected time is unavailable on at least one of the selected dates.",
+          "error"
+        );
+
+      }
+
+    }
+
+
+    /* =====================================================
        CONTINUE TO GOOGLE FORM
        ===================================================== */
 
@@ -2786,12 +2949,16 @@
       }
 
 
+      const validation =
+        validateDateRange();
+
+
       if (
-        !selectedDate
+        !validation.valid
       ) {
 
         alert(
-          "Please select a booking date."
+          validation.message
         );
 
         return;
@@ -2825,15 +2992,21 @@
       }
 
 
+      /*
+       * Final frontend availability check.
+       *
+       * This checks every selected date.
+       */
+
       if (
-        !isIntervalAvailable(
+        !isIntervalAvailableAcrossRange(
           selectedStartTime,
           selectedEndTime
         )
       ) {
 
         alert(
-          "The selected time is no longer available. Please choose another time."
+          "The selected time is not available across all selected dates. Please choose another time."
         );
 
         return;
@@ -2853,15 +3026,6 @@
         );
 
 
-      /*
-         Google Forms Date question:
-         YYYY-MM-DD
-      */
-
-      const formDate =
-        selectedDate;
-
-
       const params =
         new URLSearchParams();
 
@@ -2873,19 +3037,25 @@
 
 
       params.set(
-        FORM_FIELDS.date,
-        formDate
+        FORM_FIELDS.startDate,
+        selectedStartDate
       );
 
 
       params.set(
-        FORM_FIELDS.start,
+        FORM_FIELDS.endDate,
+        selectedEndDate
+      );
+
+
+      params.set(
+        FORM_FIELDS.startTime,
         start
       );
 
 
       params.set(
-        FORM_FIELDS.end,
+        FORM_FIELDS.endTime,
         end
       );
 
@@ -2900,6 +3070,93 @@
         url,
         "_blank"
       );
+
+    }
+
+
+    /* =====================================================
+       RESET TIME SELECTION
+       ===================================================== */
+
+    function resetTimeSelection() {
+
+      startTime.innerHTML =
+        '<option value="">Select start time</option>';
+
+      startTime.disabled =
+        true;
+
+
+      duration.innerHTML =
+        '<option value="">Select duration</option>';
+
+      duration.disabled =
+        true;
+
+
+      endTime.value =
+        "";
+
+
+      continueButton.disabled =
+        true;
+
+    }
+
+
+    /* =====================================================
+       CLEAR AVAILABILITY
+       ===================================================== */
+
+    function clearAvailability() {
+
+      currentBookingsByDate =
+        {};
+
+
+      availabilityGrid.innerHTML =
+        "";
+
+
+      availabilityMessage.textContent =
+        "Select a valid date range to view availability.";
+
+
+      hideRangeStatus();
+
+
+      updateBookingSummary();
+
+    }
+
+
+    /* =====================================================
+       RANGE STATUS HELPERS
+       ===================================================== */
+
+    function showRangeStatus(
+      message,
+      type
+    ) {
+
+      rangeStatus.className =
+        "range-status " +
+        type;
+
+
+      rangeStatus.textContent =
+        message;
+
+    }
+
+
+    function hideRangeStatus() {
+
+      rangeStatus.className =
+        "range-status hidden";
+
+      rangeStatus.textContent =
+        "";
 
     }
 
@@ -2929,22 +3186,20 @@
         ).trim();
 
 
-      /*
-         Handle GViz / Sheets values such as:
-
-         08:00
-         08:00:00
-         8:00 AM
-         8:00 PM
-      */
-
       text =
-        text
-          .replace(
-            /\s+/g,
-            " "
-          );
+        text.replace(
+          /\s+/g,
+          " "
+        );
 
+
+      /*
+       * Handle:
+       * 08:00
+       * 08:00:00
+       * 8:00 AM
+       * 8:00 PM
+       */
 
       const match =
         text.match(
@@ -3131,30 +3386,8 @@
       minutes
     ) {
 
-      const hours =
-        Math.floor(
-          minutes / 60
-        );
-
-
-      const mins =
-        minutes % 60;
-
-
-      return (
-        String(
-          hours
-        ).padStart(
-          2,
-          "0"
-        ) +
-        ":" +
-        String(
-          mins
-        ).padStart(
-          2,
-          "0"
-        )
+      return minutesToDisplayTime(
+        minutes
       );
 
     }
@@ -3251,7 +3484,9 @@
     ) {
 
       if (
-        !value
+        value === null ||
+        value === undefined ||
+        value === ""
       ) {
 
         return "";
@@ -3266,14 +3501,13 @@
 
 
       /*
-         Already YYYY-MM-DD
-      */
+       * Already YYYY-MM-DD
+       */
 
       if (
-        /^\d{4}-\d{2}-\d{2}$/
-          .test(
-            text
-          )
+        /^\d{4}-\d{2}-\d{2}$/.test(
+          text
+        )
       ) {
 
         return text;
@@ -3282,12 +3516,8 @@
 
 
       /*
-         Handle common GViz display:
-
-         2026-10-09
-         09/10/2026
-         09-10-2026
-      */
+       * YYYY/M/D or YYYY-M-D
+       */
 
       let match =
         text.match(
@@ -3295,10 +3525,11 @@
         );
 
 
-      if (match) {
+      if (
+        match
+      ) {
 
         return (
-
           match[1] +
           "-" +
           String(
@@ -3314,11 +3545,14 @@
             2,
             "0"
           )
-
         );
 
       }
 
+
+      /*
+       * D/M/YYYY or D-M-YYYY
+       */
 
       match =
         text.match(
@@ -3326,10 +3560,11 @@
         );
 
 
-      if (match) {
+      if (
+        match
+      ) {
 
         return (
-
           match[3] +
           "-" +
           String(
@@ -3345,13 +3580,356 @@
             2,
             "0"
           )
+        );
 
+      }
+
+
+      /*
+       * Google Sheets can sometimes return
+       * Date(...) style strings.
+       */
+
+      const dateMatch =
+        text.match(
+          /^Date\((\d+),(\d+),(\d+)\)$/
+        );
+
+
+      if (
+        dateMatch
+      ) {
+
+        const year =
+          parseInt(
+            dateMatch[1],
+            10
+          );
+
+
+        const month =
+          parseInt(
+            dateMatch[2],
+            10
+          ) + 1;
+
+
+        const day =
+          parseInt(
+            dateMatch[3],
+            10
+          );
+
+
+        return (
+          String(
+            year
+          ).padStart(
+            4,
+            "0"
+          ) +
+          "-" +
+          String(
+            month
+          ).padStart(
+            2,
+            "0"
+          ) +
+          "-" +
+          String(
+            day
+          ).padStart(
+            2,
+            "0"
+          )
         );
 
       }
 
 
       return text;
+
+    }
+
+
+    function parseDateOnly(
+      value
+    ) {
+
+      const normalized =
+        normalizeDate(
+          value
+        );
+
+
+      if (
+        !/^\d{4}-\d{2}-\d{2}$/.test(
+          normalized
+        )
+      ) {
+
+        return null;
+
+      }
+
+
+      const parts =
+        normalized.split(
+          "-"
+        );
+
+
+      const year =
+        parseInt(
+          parts[0],
+          10
+        );
+
+
+      const month =
+        parseInt(
+          parts[1],
+          10
+        );
+
+
+      const day =
+        parseInt(
+          parts[2],
+          10
+        );
+
+
+      const date =
+        new Date(
+          Date.UTC(
+            year,
+            month - 1,
+            day
+          )
+        );
+
+
+      if (
+        isNaN(
+          date.getTime()
+        )
+      ) {
+
+        return null;
+
+      }
+
+
+      return date;
+
+    }
+
+
+    function formatDateObject(
+      date
+    ) {
+
+      const year =
+        date.getFullYear();
+
+
+      const month =
+        String(
+          date.getMonth() + 1
+        ).padStart(
+          2,
+          "0"
+        );
+
+
+      const day =
+        String(
+          date.getDate()
+        ).padStart(
+          2,
+          "0"
+        );
+
+
+      return (
+        year +
+        "-" +
+        month +
+        "-" +
+        day
+      );
+
+    }
+
+
+    function addDays(
+      date,
+      days
+    ) {
+
+      const result =
+        new Date(
+          date
+        );
+
+
+      result.setDate(
+        result.getDate() +
+        days
+      );
+
+
+      return result;
+
+    }
+
+
+    function getDateDifferenceInDays(
+      start,
+      end
+    ) {
+
+      return Math.round(
+        (
+          end.getTime() -
+          start.getTime()
+        ) /
+        (
+          1000 *
+          60 *
+          60 *
+          24
+        )
+      );
+
+    }
+
+
+    function getDatesBetween(
+      startDateString,
+      endDateString
+    ) {
+
+      const dates = [];
+
+
+      const start =
+        parseDateOnly(
+          startDateString
+        );
+
+
+      const end =
+        parseDateOnly(
+          endDateString
+        );
+
+
+      if (
+        !start ||
+        !end ||
+        end < start
+      ) {
+
+        return dates;
+
+      }
+
+
+      let current =
+        new Date(
+          start
+        );
+
+
+      while (
+        current <= end
+      ) {
+
+        dates.push(
+          formatUTCDate(
+            current
+          )
+        );
+
+
+        current.setUTCDate(
+          current.getUTCDate() + 1
+        );
+
+      }
+
+
+      return dates;
+
+    }
+
+
+    function formatUTCDate(
+      date
+    ) {
+
+      return (
+        String(
+          date.getUTCFullYear()
+        ).padStart(
+          4,
+          "0"
+        ) +
+        "-" +
+        String(
+          date.getUTCMonth() + 1
+        ).padStart(
+          2,
+          "0"
+        ) +
+        "-" +
+        String(
+          date.getUTCDate()
+        ).padStart(
+          2,
+          "0"
+        )
+      );
+
+    }
+
+
+    function calculateMaximumEndDate(
+      startDateString
+    ) {
+
+      const start =
+        parseDateOnly(
+          startDateString
+        );
+
+
+      if (!start) {
+
+        return "";
+
+      }
+
+
+      const maxEnd =
+        new Date(
+          start
+        );
+
+
+      maxEnd.setUTCDate(
+        maxEnd.getUTCDate() +
+        (
+          MAX_BOOKING_DAYS - 1
+        )
+      );
+
+
+      return formatUTCDate(
+        maxEnd
+      );
 
     }
 
@@ -3381,6 +3959,7 @@
         "hidden"
       );
 
+
       errorMessage.textContent =
         "";
 
@@ -3390,3 +3969,4 @@
 
 </body>
 </html>
+```
