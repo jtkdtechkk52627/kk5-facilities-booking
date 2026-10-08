@@ -759,6 +759,23 @@ const FORM_FIELDS = {
 
   end: "entry.866972168"
 
+}
+.slot.available:hover {
+  transform: translateY(-1px);
+  border-color: var(--green);
+}
+
+.slot.selected {
+  background: var(--green);
+  border-color: var(--green);
+  color: white;
+  box-shadow: 0 0 0 3px rgba(22, 101, 52, 0.14);
+  transform: translateY(-1px);
+}
+
+.slot.selected strong,
+.slot.selected span {
+  color: white;
 };
 
 
@@ -1556,202 +1573,101 @@ async function loadAvailability() {
 
 function renderAvailability() {
 
-  const schedule =
-    document.getElementById(
-      "schedule"
-    );
+  const schedule = document.getElementById("schedule");
+  const date = document.getElementById("date").value;
 
-
-  const date =
-    document.getElementById(
-      "date"
-    ).value;
-
-
-  document.getElementById(
-    "availabilityDate"
-  ).textContent =
+  document.getElementById("availabilityDate").textContent =
     formatDate(date);
-
 
   schedule.innerHTML = "";
 
-
   if (!selectedFacility) {
-
-    schedule.innerHTML =
-      `<div class="empty">
+    schedule.innerHTML = `
+      <div class="empty">
         Select a facility first.
       </div>`;
-
     return;
-
   }
 
-
-  const opening =
-    timeToMinutes(
-      selectedFacility.openingTime
-    );
-
-
-  const closing =
-    timeToMinutes(
-      selectedFacility.closingTime
-    );
-
+  const opening = timeToMinutes(selectedFacility.openingTime);
+  const closing = timeToMinutes(selectedFacility.closingTime);
 
   if (
     !Number.isFinite(opening) ||
     !Number.isFinite(closing) ||
     closing <= opening
   ) {
-
-    schedule.innerHTML =
-      `<div class="empty">
+    schedule.innerHTML = `
+      <div class="empty">
         This facility has invalid operating hours.
       </div>`;
-
     return;
-
   }
 
-
-  let hasSlots =
-    false;
-
+  let hasSlots = false;
 
   for (
     let time = opening;
-
     time + SLOT_INTERVAL <= closing;
-
     time += SLOT_INTERVAL
   ) {
 
     hasSlots = true;
 
+    const start = minutesToTime(time);
+    const end = minutesToTime(time + SLOT_INTERVAL);
+    const status = getSlotStatus(start, end);
 
-    const start =
-      minutesToTime(
-        time
-      );
+    const slot = document.createElement("button");
+    slot.type = "button";
+    slot.className = `slot ${status}`;
+    slot.dataset.start = start;
 
+    const isSelected =
+      selectedBooking &&
+      selectedBooking.date === date &&
+      selectedBooking.facility === selectedFacility.name &&
+      selectedBooking.start === start;
 
-    const end =
-      minutesToTime(
-        time +
-        SLOT_INTERVAL
-      );
-
-
-    const status =
-      getSlotStatus(
-        start,
-        end
-      );
-
-
-    const slot =
-      document.createElement(
-        "button"
-      );
-
-
-    slot.type =
-      "button";
-
-
-    slot.className =
-      `slot ${status}`;
-
-
-    slot.innerHTML = `
-
-      <div class="slot-time">
-        ${formatTime(start)}
-      </div>
-
-      <div class="slot-status">
-        ${statusLabel(status)}
-      </div>
-
-    `;
-
-
-    if (
-      status ===
-      "available"
-    ) {
-
-      slot.addEventListener(
-        "click",
-        function() {
-
-          selectStartTime(
-            start
-          );
-
-        }
-      );
-
-    } else {
-
-      slot.disabled =
-        true;
-
+    if (isSelected) {
+      slot.classList.add("selected");
     }
 
+    if (status === "available") {
+      slot.innerHTML = `
+        <strong>${formatTime(start)}</strong>
+        <span>${isSelected ? "Selected" : "Available"}</span>
+      `;
 
-    schedule.appendChild(
-      slot
-    );
+      slot.addEventListener("click", function() {
+        selectStartTime(start);
+      });
 
+    } else if (status === "pending") {
+      slot.innerHTML = `
+        <strong>${formatTime(start)}</strong>
+        <span>Pending</span>
+      `;
+      slot.disabled = true;
+
+    } else {
+      slot.innerHTML = `
+        <strong>${formatTime(start)}</strong>
+        <span>Booked</span>
+      `;
+      slot.disabled = true;
+    }
+
+    schedule.appendChild(slot);
   }
-
 
   if (!hasSlots) {
-
-    schedule.innerHTML =
-      `<div class="empty">
-        This facility has no available operating slots.
+    schedule.innerHTML = `
+      <div class="empty">
+        No bookable time slots are available for this facility.
       </div>`;
-
   }
-
 }
-
-
-/* =========================================================
-   SLOT LABEL
-   ========================================================= */
-
-function statusLabel(
-  status
-) {
-
-  if (
-    status === "booked"
-  ) {
-
-    return "Booked";
-
-  }
-
-
-  if (
-    status === "pending"
-  ) {
-
-    return "Pending";
-
-  }
-
-
-  return "Available";
-
-}
-
 
 /* =========================================================
    GET SLOT STATUS
@@ -1836,61 +1752,40 @@ function getSlotStatus(
    SELECT START TIME
    ========================================================= */
 
-function selectStartTime(
-  start
-) {
+function selectStartTime(start) {
 
-  document.getElementById(
-    "startTime"
-  ).value =
-    start;
+  if (!selectedFacility) {
+    return;
+  }
 
+  document.getElementById("startTime").value = start;
 
   updateDurationOptions();
 
-
   const duration =
-    document.getElementById(
-      "duration"
+    document.getElementById("duration");
+
+  const sixty =
+    [...duration.options].find(
+      option => option.value === "60"
     );
 
-
-  if (
-    [...duration.options].some(
-      option =>
-        option.value ===
-        "60"
-    )
-  ) {
-
-    duration.value =
-      "60";
-
-  } else if (
-    duration.options.length > 1
-  ) {
-
-    duration.value =
-      duration.options[1].value;
-
+  if (sixty) {
+    duration.value = "60";
+  } else if (duration.options.length > 1) {
+    duration.value = duration.options[1].value;
+  } else {
+    duration.value = "";
   }
 
-
-  updateBooking();
-
-
-  document.getElementById(
-    "startTime"
-  ).scrollIntoView({
-
-    behavior: "smooth",
-
-    block: "center"
-
-  });
-
+  if (duration.value) {
+    updateBooking();
+  } else {
+    selectedBooking = null;
+    hideBookingPreview();
+    renderAvailability();
+  }
 }
-
 
 /* =========================================================
    UPDATE DURATION OPTIONS
@@ -1899,125 +1794,61 @@ function selectStartTime(
 function updateDurationOptions() {
 
   const start =
-    document.getElementById(
-      "startTime"
-    ).value;
-
+    document.getElementById("startTime").value;
 
   const duration =
-    document.getElementById(
-      "duration"
-    );
+    document.getElementById("duration");
 
-
-  duration.innerHTML =
-    `<option value="">
+  duration.innerHTML = `
+    <option value="">
       Select duration
     </option>`;
 
+  duration.disabled = true;
 
-  duration.disabled =
-    true;
-
-
-  if (
-    !start ||
-    !selectedFacility
-  ) {
-
+  if (!start || !selectedFacility) {
     return;
-
   }
 
-
-  const startMinutes =
-    timeToMinutes(
-      start
-    );
-
-
+  const startMinutes = timeToMinutes(start);
   const closing =
-    timeToMinutes(
-      selectedFacility.closingTime
-    );
+    timeToMinutes(selectedFacility.closingTime);
 
+  if (!Number.isFinite(startMinutes) || !Number.isFinite(closing)) {
+    return;
+  }
 
   for (
-    let minutes =
-      MIN_DURATION;
-
-    minutes <=
-      MAX_DURATION;
-
-    minutes +=
-      MIN_DURATION
+    let minutes = MIN_DURATION;
+    minutes <= MAX_DURATION;
+    minutes += MIN_DURATION
   ) {
 
-    const endMinutes =
-      startMinutes +
-      minutes;
+    const endMinutes = startMinutes + minutes;
 
-
-    if (
-      endMinutes >
-      closing
-    ) {
-
+    if (endMinutes > closing) {
       break;
-
     }
 
+    const end = minutesToTime(endMinutes);
 
-    const end =
-      minutesToTime(
-        endMinutes
-      );
-
-
-    if (
-      isSlotAvailable(
-        start,
-        end
-      )
-    ) {
-
-      const option =
-        document.createElement(
-          "option"
-        );
-
-
-      option.value =
-        minutes;
-
-
-      option.textContent =
-        formatDuration(
-          minutes
-        );
-
-
-      duration.appendChild(
-        option
-      );
-
+    if (!isSlotAvailable(start, end)) {
+      break;
     }
 
+    const option = document.createElement("option");
+
+    option.value = String(minutes);
+    option.textContent =
+      minutes === 60
+        ? "1 hour"
+        : `${minutes} minutes`;
+
+    duration.appendChild(option);
   }
 
-
-  if (
-    duration.options.length >
-    1
-  ) {
-
-    duration.disabled =
-      false;
-
-  }
-
+  duration.disabled = duration.options.length <= 1;
 }
-
 
 /* =========================================================
    UPDATE BOOKING
@@ -2026,62 +1857,40 @@ function updateDurationOptions() {
 function updateBooking() {
 
   const start =
-    document.getElementById(
-      "startTime"
-    ).value;
-
+    document.getElementById("startTime").value;
 
   const duration =
     Number(
-      document.getElementById(
-        "duration"
-      ).value
+      document.getElementById("duration").value
     );
-
 
   if (
     !start ||
     !duration ||
     !selectedFacility
   ) {
-
+    selectedBooking = null;
     hideBookingPreview();
-
+    renderAvailability();
     return;
-
   }
-
 
   const end =
     minutesToTime(
-      timeToMinutes(start) +
-      duration
+      timeToMinutes(start) + duration
     );
 
-
   selectedBooking = {
-
-    facility:
-      selectedFacility.name,
-
-    date:
-      document.getElementById(
-        "date"
-      ).value,
-
+    facility: selectedFacility.name,
+    date: document.getElementById("date").value,
     start,
-
     duration,
-
     end
-
   };
 
-
   renderBookingPreview();
-
+  renderAvailability();
 }
-
 
 /* =========================================================
    BOOKING PREVIEW
