@@ -504,8 +504,6 @@
         organisation: document.getElementById("organisation").value.trim()
       };
 
-      console.log("Submitting payload:", payload);
-
       try {
         const response = await fetch(APPS_SCRIPT_URL, {
           method: "POST",
@@ -513,8 +511,18 @@
           body: JSON.stringify(payload),
           redirect: "follow"
         });
-        const result = await response.json();
-        if (!result || result.success !== true) throw new Error(result.message || "Server error");
+
+        const textResult = await response.text();
+        let result;
+        try {
+          result = JSON.parse(textResult);
+        } catch (e) {
+          throw new Error("Server response was not valid JSON: " + textResult);
+        }
+
+        if (!result || result.success !== true) {
+          throw new Error(result.message || "Server error occurred.");
+        }
 
         document.getElementById("successMessageText").textContent = "Your booking request has been received (Ref: " + result.bookingId + "). Status is PENDING.";
         showPage(successPage);
