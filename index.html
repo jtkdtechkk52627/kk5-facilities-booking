@@ -152,9 +152,23 @@
 
     <!-- SUCCESS -->
     <section id="successPage" class="page">
-      <div class="booking-panel" style="text-align:center;padding:40px 20px;">
-        <h2 style="color:#166534;margin-bottom:12px;">Booking Request Submitted</h2>
-        <p id="successMessageText" style="color:#4b5563;font-size:16px;margin-bottom:24px;"></p>
+      <div class="booking-panel" style="text-align:left;max-width:600px;margin:0 auto;padding:30px;">
+        <h2 style="color:#166534;margin-bottom:8px;text-align:center;">Booking Request Submitted!</h2>
+        <p style="color:#4b5563;font-size:14px;text-align:center;margin-bottom:20px;">Your booking is currently marked as <strong>PENDING</strong> and confirmation emails have been dispatched.</p>
+        
+        <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:16px;font-size:14px;margin-bottom:20px;">
+          <p style="margin:6px 0;"><strong>Booking ID:</strong> <span id="confBookingId" style="color:#2563eb;font-weight:600;"></span></p>
+          <p style="margin:6px 0;"><strong>Facility:</strong> <span id="confFacility"></span></p>
+          <p style="margin:6px 0;"><strong>Booker Name:</strong> <span id="confName"></span></p>
+          <p style="margin:6px 0;"><strong>Email:</strong> <span id="confEmail"></span></p>
+          <p style="margin:6px 0;"><strong>Organisation:</strong> <span id="confOrg"></span></p>
+          <p style="margin:6px 0;"><strong>Purpose:</strong> <span id="confPurpose"></span></p>
+          <div style="margin-top:12px;">
+            <strong>Requested Slots:</strong>
+            <ul id="confSlotsList" style="margin:6px 0 0 20px;padding:0;color:#374151;"></ul>
+          </div>
+        </div>
+
         <button type="button" class="continue-button" style="max-width:240px;margin:0 auto;" onclick="location.reload()">Make Another Booking</button>
       </div>
     </section>
@@ -472,6 +486,7 @@
 
       submitButton.disabled = true;
       submitButton.textContent = "Submitting booking...";
+      document.getElementById("submissionMessage").classList.add("hidden");
 
       const dateSlots = [];
       for (const dateStr of Object.keys(selectedSlotsByDate)) {
@@ -505,18 +520,39 @@
       };
 
       try {
-        await fetch(APPS_SCRIPT_URL, {
+        const response = await fetch(APPS_SCRIPT_URL, {
           method: "POST",
-          mode: "no-cors",
           headers: { "Content-Type": "text/plain;charset=utf-8" },
           body: JSON.stringify(payload)
         });
 
-        document.getElementById("successMessageText").textContent = 
-          "Your booking request has been successfully submitted! It is currently marked as PENDING and confirmation emails have been dispatched.";
+        const result = await response.json();
+
+        if (!result.success) {
+          throw new Error(result.message || "Failed to submit booking.");
+        }
+
+        document.getElementById("confBookingId").textContent = result.bookingId;
+        document.getElementById("confFacility").textContent = result.facility;
+        document.getElementById("confName").textContent = result.bookerName;
+        document.getElementById("confEmail").textContent = result.email;
+        document.getElementById("confOrg").textContent = result.organisation;
+        document.getElementById("confPurpose").textContent = payload.purpose;
+
+        const slotsList = document.getElementById("confSlotsList");
+        slotsList.innerHTML = "";
+        result.dateSlots.forEach(slot => {
+          const li = document.createElement("li");
+          li.textContent = slot.date + " (" + slot.startTime + " - " + slot.endTime + ")";
+          slotsList.appendChild(li);
+        });
+
         showPage(successPage);
       } catch (error) {
-        alert("Submission failed: " + error.message);
+        const subMsg = document.getElementById("submissionMessage");
+        subMsg.textContent = "Submission failed: " + error.message;
+        subMsg.className = "message error";
+        subMsg.classList.remove("hidden");
       } finally {
         submitButton.disabled = false;
         submitButton.textContent = "Submit Booking Request";
