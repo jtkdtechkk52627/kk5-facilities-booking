@@ -1,834 +1,398 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KK5 Facility Booking</title>
+/*************************************************
+ * KK5 FACILITY BOOKING SYSTEM
+ * GOOGLE APPS SCRIPT BACKEND (UPDATED)
+ *************************************************/
 
-  <style>
-    * { box-sizing: border-box; }
+const CONFIG = {
+  BOOKING_SHEET: "Bookings",
+  FACILITY_SHEET: "Facilities",
+  SETTINGS_SHEET: "Settings",
 
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-      background: #f5f7fa;
-      color: #1f2937;
-    }
+  PUBLIC_SPREADSHEET_ID: "1PGb7g244LFMQlqJdJWDGaeGsZzJsel9WTUakDcNatiQ",
+  PUBLIC_FACILITY_SHEET: "Facilities",
+  PUBLIC_BOOKING_SHEET: "Bookings",
+  PUBLIC_SETTINGS_SHEET: "Settings",
 
-    .container {
-      width: 100%;
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 32px 20px 60px;
-    }
+  PRIVATE_SPREADSHEET_ID: "1mSlsQlTVDEp2JmQNU8Vp1I6jKpV_tYawG-LZPW5oSAk",
 
-    .header { margin-bottom: 30px; }
-    .header h1 {
-      margin: 0 0 8px;
-      font-size: 32px;
-      font-weight: 700;
-      color: #111827;
-    }
-    .header p { margin: 0; color: #6b7280; font-size: 15px; }
+  ADMIN_EMAIL: "jtkdtechkk52627@gmail.com",
+  ADMIN_EMAILS: ["jtkdtechkk52627@gmail.com", "fatehkhwn@gmail.com"],
+  CALENDAR_ID: "72b4e5d60357583f7de6452a619e950ee610d62078c17ab46e8fa7f9ba64d855@group.calendar.google.com",
 
-    .support-banner {
-      background: #eff6ff;
-      border: 1px solid #bfdbfe;
-      padding: 12px 16px;
-      border-radius: 10px;
-      margin-bottom: 20px;
-      color: #1e40af;
-      font-size: 14px;
-      font-weight: 500;
-    }
+  MIN_DURATION_MINUTES: 30
+};
 
-    .page { display: none; }
-    .page.active { display: block; }
+function getPrivateSpreadsheet() {
+  return SpreadsheetApp.openById(CONFIG.PRIVATE_SPREADSHEET_ID);
+}
 
-    .facility-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 18px;
-    }
+function doGet() {
+  return ContentService.createTextOutput(JSON.stringify({ success: true, message: "KK5 Booking Backend is running." })).setMimeType(ContentService.MimeType.JSON);
+}
 
-    .facility-card {
-      background: white;
-      border: 1px solid #e5e7eb;
-      border-radius: 14px;
-      padding: 22px;
-      min-height: 150px;
-      cursor: pointer;
-      transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-
-    .facility-card:hover {
-      transform: translateY(-2px);
-      border-color: #cbd5e1;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, .07);
-    }
-
-    .facility-card.inactive {
-      cursor: not-allowed;
-      background: #f8fafc;
-      opacity: .78;
-    }
-
-    .facility-name {
-      font-size: 18px;
-      font-weight: 650;
-      color: #111827;
-      line-height: 1.35;
-    }
-
-    .facility-hours { margin-top: 12px; font-size: 14px; color: #6b7280; }
-    .facility-status {
-      margin-top: 16px;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: .04em;
-    }
-    .facility-status.available { color: #15803d; }
-    .facility-status.unavailable { color: #b91c1c; }
-
-    .back-button {
-      border: none;
-      background: transparent;
-      padding: 0;
-      margin-bottom: 20px;
-      color: #2563eb;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .back-button:hover { text-decoration: underline; }
-
-    .facility-header,
-    .booking-panel {
-      background: white;
-      border: 1px solid #e5e7eb;
-      border-radius: 14px;
-      padding: 24px;
-    }
-
-    .facility-header { margin-bottom: 18px; }
-    .facility-header h2 { margin: 0 0 8px; font-size: 26px; color: #111827; }
-    .facility-header p { margin: 0; color: #6b7280; font-size: 14px; }
-
-    .form-group { margin-bottom: 20px; }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 8px;
-      font-size: 14px;
-      font-weight: 600;
-      color: #374151;
-    }
-
-    input, select, textarea {
-      width: 100%;
-      border: 1px solid #d1d5db;
-      border-radius: 9px;
-      padding: 10px 12px;
-      background: white;
-      color: #111827;
-      font-size: 15px;
-      outline: none;
-    }
-
-    input, select { height: 46px; }
-    textarea { resize: vertical; min-height: 80px; }
-
-    input:focus, select:focus, textarea:focus {
-      border-color: #2563eb;
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, .1);
-    }
-
-    .date-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-    }
-
-    .booking-summary {
-      margin: 4px 0 20px;
-      padding: 14px 16px;
-      background: #eff6ff;
-      border: 1px solid #bfdbfe;
-      border-radius: 10px;
-      color: #1e40af;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    .availability-section { margin-top: 26px; }
-    .availability-title {
-      margin: 0 0 6px;
-      font-size: 16px;
-      font-weight: 650;
-      color: #111827;
-    }
-    .availability-subtitle {
-      font-size: 13px;
-      color: #6b7280;
-      margin-bottom: 14px;
-    }
-
-    .day-availability-box {
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
-      border-radius: 10px;
-      padding: 16px;
-      margin-bottom: 14px;
-    }
-
-    .day-title {
-      font-weight: 650;
-      color: #374151;
-      margin-bottom: 10px;
-      font-size: 14px;
-    }
-
-    .availability-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
-      gap: 6px;
-    }
-
-    .slot {
-      border: 1px solid #d1d5db;
-      background: white;
-      border-radius: 6px;
-      padding: 8px 4px;
-      text-align: center;
-      font-size: 12px;
-      cursor: pointer;
-      transition: all .12s ease;
-    }
-
-    .slot:hover { border-color: #2563eb; background: #eff6ff; }
-    .slot.selected { border-color: #2563eb; background: #2563eb; color: white; font-weight: 600; }
-    .slot.booked { cursor: not-allowed; background: #f3f4f6; border-color: #e5e7eb; color: #9ca3af; }
-    .slot.pending { cursor: not-allowed; background: #fff7ed; border-color: #fed7aa; color: #c2410c; }
-
-    .continue-button, .submit-button {
-      width: 100%;
-      min-height: 48px;
-      margin-top: 18px;
-      border: none;
-      border-radius: 9px;
-      background: #111827;
-      color: white;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background .15s ease;
-    }
-
-    .continue-button:hover, .submit-button:hover { background: #1f2937; }
-    .continue-button:disabled, .submit-button:disabled { background: #d1d5db; cursor: not-allowed; }
-
-    .message {
-      padding: 18px;
-      border-radius: 10px;
-      font-size: 14px;
-      margin-bottom: 18px;
-    }
-
-    .message.error { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; }
-    .message.loading { background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; }
-
-    .hidden { display: none !important; }
-
-    @media (max-width: 600px) {
-      .container { padding: 24px 14px 40px; }
-      .header h1 { font-size: 27px; }
-      .facility-grid { grid-template-columns: 1fr; }
-      .date-row { grid-template-columns: 1fr; }
-    }
-  </style>
-</head>
-
-<body>
-  <main class="container">
-    <header class="header">
-      <h1>KK5 Facility Booking</h1>
-      <p>Select a facility to view its availability and make a booking directly.</p>
-    </header>
-
-    <div class="support-banner">
-      💡 Need help or manual bookings? Contact <strong>JTKD Teknikal (Fateh)</strong> at <strong>0104563287</strong>.
-    </div>
-
-    <div id="maintenanceBanner" class="message error hidden" style="background:#fff7ed; border-color:#fed7aa; color:#9a3412;"></div>
-    <div id="errorMessage" class="message error hidden" role="alert"></div>
-
-    <!-- FACILITY SELECTION -->
-    <section id="facilityPage" class="page active">
-      <div id="facilityLoading" class="message loading">Loading facilities...</div>
-      <div id="facilityGrid" class="facility-grid"></div>
-    </section>
-
-    <!-- DATE AND TIME SELECTION -->
-    <section id="bookingPage" class="page">
-      <button type="button" class="back-button" onclick="goBackToFacilities()">← Back to facilities</button>
-
-      <div class="facility-header">
-        <h2 id="selectedFacilityName">Facility</h2>
-        <p id="selectedFacilityHours">Operating hours</p>
-      </div>
-
-      <div class="booking-panel">
-        <div class="date-row">
-          <div class="form-group">
-            <label for="startDate">Start date</label>
-            <input type="date" id="startDate" required>
-          </div>
-          <div class="form-group">
-            <label for="endDate">End date</label>
-            <input type="date" id="endDate" required>
-          </div>
-        </div>
-
-        <div id="bookingSummary" class="booking-summary hidden"></div>
-
-        <div class="availability-section">
-          <h3 class="availability-title">Select Time Slots per Day</h3>
-          <p class="availability-subtitle">Click consecutive time boxes for each day to choose your booking period (e.g. 10:00 to 11:00).</p>
-          <div id="availabilityContainer"></div>
-        </div>
-
-        <button type="button" id="continueButton" class="continue-button"
-                onclick="showDetailsForm()" disabled>
-          Continue to booking details
-        </button>
-      </div>
-    </section>
-
-    <!-- BOOKING DETAILS -->
-    <section id="detailsPage" class="page">
-      <button type="button" class="back-button" onclick="goBackToBooking()">← Back to date &amp; time</button>
-
-      <div class="facility-header">
-        <h2>Enter Booking Details</h2>
-        <p id="summaryReviewText">Review your slots and provide your contact information.</p>
-      </div>
-
-      <div class="booking-panel">
-        <form id="bookingForm">
-          <div class="form-group">
-            <label for="bookerName">Booker Name</label>
-            <input type="text" id="bookerName" required maxlength="120" placeholder="Full Name">
-          </div>
-
-          <div class="form-group">
-            <label for="matricNumber">Matric Number</label>
-            <input type="text" id="matricNumber" required maxlength="40" placeholder="e.g. 24001958">
-          </div>
-
-          <div class="form-group">
-            <label for="email">Email (UM Student Email preferred)</label>
-            <input type="email" id="email" required maxlength="254" placeholder="username@siswa.um.edu.my">
-          </div>
-
-          <div class="form-group">
-            <label for="phone">Phone Number</label>
-            <input type="tel" id="phone" required maxlength="30" placeholder="0104563287">
-          </div>
-
-          <div class="form-group">
-            <label for="organisation">Organisation / Bureau</label>
-            <input type="text" id="organisation" required maxlength="120" placeholder="e.g. JTK, KEP, etc.">
-          </div>
-
-          <div class="form-group">
-            <label for="purpose">Purpose / Usage</label>
-            <textarea id="purpose" required maxlength="2000" placeholder="Describe what the facility will be used for..."></textarea>
-          </div>
-
-          <div id="submissionMessage" class="message hidden" role="status"></div>
-
-          <button type="submit" id="submitButton" class="submit-button">
-            Submit Booking Request
-          </button>
-        </form>
-      </div>
-    </section>
-
-    <!-- SUCCESS -->
-    <section id="successPage" class="page">
-      <div class="booking-panel" style="text-align:center;padding:40px 20px;">
-        <h2 style="color:#166534;margin-bottom:12px;">Booking Request Submitted</h2>
-        <p id="successMessageText" style="color:#4b5563;font-size:16px;margin-bottom:24px;"></p>
-        <button type="button" class="continue-button" style="max-width:240px;margin:0 auto;"
-                onclick="location.reload()">
-          Make Another Booking
-        </button>
-      </div>
-    </section>
-  </main>
-
-  <script>
-    "use strict";
-
-    const PUBLIC_SHEET_ID = "1PGb7g244LFMQlqJdJWDGaeGsZzJsel9WTUakDcNatiQ";
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw3n23Sg5vLufUpGZp9S6tRvbVwTbp1FvS9Fj5DYBIsXH2hriNJznl9EJEC_a9145s7/exec";
-
-    const SLOT_INTERVAL = 30; // 30 mins
-
-    let facilities = [];
-    let selectedFacility = null;
-    let selectedStartDate = "";
-    let selectedEndDate = "";
-    let currentBookingsByDate = {};
-    let selectedSlotsByDate = {}; // Stores { "YYYY-MM-DD": [ {start, end}, ... ] }
+function getSettings_() {
+  try {
+    const sheet = getPrivateSpreadsheet().getSheetByName(CONFIG.SETTINGS_SHEET);
+    if (!sheet) return { maintenanceMode: false, maintenanceNotice: "" };
+    const values = sheet.getDataRange().getValues();
     let maintenanceMode = false;
-
-    const facilityPage = document.getElementById("facilityPage");
-    const bookingPage = document.getElementById("bookingPage");
-    const detailsPage = document.getElementById("detailsPage");
-    const successPage = document.getElementById("successPage");
-
-    const facilityGrid = document.getElementById("facilityGrid");
-    const facilityLoading = document.getElementById("facilityLoading");
-    const selectedFacilityName = document.getElementById("selectedFacilityName");
-    const selectedFacilityHours = document.getElementById("selectedFacilityHours");
-
-    const startDate = document.getElementById("startDate");
-    const endDate = document.getElementById("endDate");
-    const availabilityContainer = document.getElementById("availabilityContainer");
-    const bookingSummary = document.getElementById("bookingSummary");
-    const continueButton = document.getElementById("continueButton");
-    const errorMessage = document.getElementById("errorMessage");
-    const maintenanceBanner = document.getElementById("maintenanceBanner");
-    const summaryReviewText = document.getElementById("summaryReviewText");
-    const bookingForm = document.getElementById("bookingForm");
-    const submitButton = document.getElementById("submitButton");
-    const submissionMessage = document.getElementById("submissionMessage");
-
-    document.addEventListener("DOMContentLoaded", initializeApp);
-    bookingForm.addEventListener("submit", submitBooking);
-
-    async function fetchGviz(sheetName) {
-      const url = "https://docs.google.com/spreadsheets/d/ " + PUBLIC_SHEET_ID + "/gviz/tq?sheet=" + encodeURIComponent(sheetName) + "&tqx=out:json";
-      // Fixing potential whitespace in URL string:
-      const cleanUrl = "https://docs.google.com/spreadsheets/d/" + PUBLIC_SHEET_ID + "/gviz/tq?sheet=" + encodeURIComponent(sheetName) + "&tqx=out:json";
-      const response = await fetch(cleanUrl, { method: "GET", cache: "no-store" });
-      const text = await response.text();
-      if (!response.ok) throw new Error("Google Sheets returned HTTP " + response.status + ".");
-      const firstParen = text.indexOf("(");
-      const lastParen = text.lastIndexOf(")");
-      if (firstParen === -1 || lastParen <= firstParen) throw new Error("Google Sheets did not return readable data.");
-      return JSON.parse(text.substring(firstParen + 1, lastParen));
-    }
-
-    async function initializeApp() {
-      await checkMaintenanceMode();
-      await loadFacilities();
-    }
-
-    async function checkMaintenanceMode() {
-      try {
-        const data = await fetchGviz("Settings");
-        if (data && data.table && data.table.rows) {
-          data.table.rows.forEach(row => {
-            const cells = row.c || [];
-            const key = String(getCellValue(cells[0])).trim().toLowerCase();
-            const val = String(getCellValue(cells[1])).trim();
-            if (key === "maintenance_mode") {
-              maintenanceMode = val.toLowerCase() === "true" || val === "1" || val.toLowerCase() === "yes";
-            } else if (key === "maintenance_notice" && val) {
-              maintenanceBanner.textContent = val;
-            }
-          });
-        }
-        if (maintenanceMode) {
-          if (!maintenanceBanner.textContent.trim()) {
-            maintenanceBanner.textContent = "The booking system is currently under maintenance. Please contact JTKD Teknikal (Fateh) at 0104563287 directly for bookings.";
-          }
-          maintenanceBanner.classList.remove("hidden");
-        }
-      } catch (err) {
-        console.error("Failed to check maintenance settings:", err);
+    let maintenanceNotice = "";
+    for (let i = 1; i < values.length; i++) {
+      const key = String(values[i][0] || "").trim().toLowerCase();
+      const val = String(values[i][1] || "").trim();
+      if (key === "maintenancemode" || key === "maintenance_mode") {
+        maintenanceMode = val.toLowerCase() === "true" || val === "1" || val.toLowerCase() === "yes";
+      } else if (key === "maintenancenotice" || key === "maintenance_notice") {
+        maintenanceNotice = val;
       }
     }
+    return { maintenanceMode, maintenanceNotice };
+  } catch (err) {
+    return { maintenanceMode: false, maintenanceNotice: "" };
+  }
+}
 
-    async function loadFacilities() {
-      hideError();
-      facilityLoading.classList.remove("hidden");
-      facilityGrid.innerHTML = "";
+function processBooking(payload) {
+  const settings = getSettings_();
+  if (settings.maintenanceMode) {
+    throw new Error(settings.maintenanceNotice || "The booking system is currently under maintenance. Please contact JTKD Teknikal (Fateh) at 0104563287 directly for bookings.");
+  }
 
-      try {
-        const data = await fetchGviz("Facilities");
-        facilities = parseFacilities(data);
-        if (facilities.length === 0) throw new Error("No facilities found.");
-        renderFacilities();
-      } catch (error) {
-        console.error("Facility loading error:", error);
-        showError("Failed to load facilities. " + error.message);
-      } finally {
-        facilityLoading.classList.add("hidden");
-      }
+  const facility = String(payload.facility || "").trim();
+  const dateSlots = payload.dateSlots || [];
+  const bookerName = String(payload.bookerName || "").trim();
+  const matricNumber = String(payload.matricNumber || "").trim();
+  const email = String(payload.email || "").trim();
+  const phone = String(payload.phone || "").trim();
+  const organisation = String(payload.organisation || "").trim();
+  const purpose = String(payload.purpose || "").trim();
+
+  if (!facility) throw new Error("Facility is required.");
+  if (!dateSlots.length) throw new Error("At least one booking slot is required.");
+
+  const facilities = getFacilities();
+  const facilityData = facilities.find(item => String(item.name).trim().toLowerCase() === facility.toLowerCase());
+  if (!facilityData) throw new Error("Facility not found: " + facility);
+  if (String(facilityData.status || "").trim().toUpperCase() !== "ACTIVE") {
+    throw new Error("This facility is currently unavailable for booking.");
+  }
+
+  const openingMinutes = parseTimeToMinutes(facilityData.opening);
+  const closingMinutes = parseTimeToMinutes(facilityData.closing);
+  if (openingMinutes === null || closingMinutes === null) throw new Error("Facility operating hours are invalid.");
+
+  const bookingId = generateBookingId();
+  const timestamp = new Date();
+  const rows = [];
+
+  for (const slot of dateSlots) {
+    const parsedDate = parseDateOnly(slot.date);
+    if (!parsedDate) throw new Error("Invalid booking date format: " + slot.date);
+
+    const startMinutes = parseTimeToMinutes(slot.startTime);
+    const endMinutes = parseTimeToMinutes(slot.endTime);
+
+    if (startMinutes === null || endMinutes === null) throw new Error("Invalid booking time.");
+    if ((endMinutes - startMinutes) < CONFIG.MIN_DURATION_MINUTES) {
+      throw new Error("Booking duration must be at least " + CONFIG.MIN_DURATION_MINUTES + " minutes.");
+    }
+    if (startMinutes < openingMinutes || endMinutes > closingMinutes) {
+      throw new Error("Booking times fall outside facility operating hours.");
     }
 
-    function getCellValue(cell) {
-      if (!cell) return "";
-      if (cell.f !== undefined && cell.f !== null) return cell.f;
-      if (cell.v !== undefined && cell.v !== null) return cell.v;
-      return "";
+    if (checkForClashExceptBookingId(facility, parsedDate, startMinutes, endMinutes, null)) {
+      throw new Error("Booking conflict detected on " + formatDateForDisplay(parsedDate) + " (" + slot.startTime + " - " + slot.endTime + ").");
     }
 
-    function parseFacilities(data) {
-      if (!data || !data.table || !Array.isArray(data.table.rows)) return [];
-      return data.table.rows.map(row => {
-        const cells = row.c || [];
-        const facility = String(getCellValue(cells[0])).trim();
-        const openingTime = normalizeSheetTime(cells[1]);
-        const closingTime = normalizeSheetTime(cells[2]);
-        const status = String(getCellValue(cells[3]) || "ACTIVE").trim().toUpperCase();
-        if (!facility || facility.toLowerCase() === "facility") return null;
-        return { facility, openingTime, closingTime, status: status === "ACTIVE" ? "ACTIVE" : "INACTIVE" };
-      }).filter(Boolean);
-    }
+    rows.push([
+      timestamp,
+      bookingId,
+      facility,
+      parsedDate,
+      minutesToDateTime(parsedDate, startMinutes),
+      minutesToDateTime(parsedDate, endMinutes),
+      purpose,
+      bookerName,
+      matricNumber,
+      email,
+      phone,
+      organisation,
+      "PENDING",
+      "",
+      ""
+    ]);
+  }
 
-    function renderFacilities() {
-      facilityGrid.innerHTML = "";
-      facilities.forEach(facility => {
-        const inactive = facility.status !== "ACTIVE" || maintenanceMode;
-        const card = document.createElement("div");
-        card.className = "facility-card" + (inactive ? " inactive" : "");
-        
-        if (!inactive) {
-          card.tabIndex = 0;
-          card.addEventListener("click", () => openFacility(facility));
-        }
+  const sheet = getPrivateSpreadsheet().getSheetByName(CONFIG.BOOKING_SHEET);
+  if (!sheet) throw new Error("Booking sheet not found.");
+  sheet.getRange(sheet.getLastRow() + 1, 1, rows.length, rows[0].length).setValues(rows);
 
-        const name = document.createElement("div");
-        name.className = "facility-name";
-        name.textContent = facility.facility;
+  const firstSlot = dateSlots[0];
+  const lastSlot = dateSlots[dateSlots.length - 1];
 
-        const hours = document.createElement("div");
-        hours.className = "facility-hours";
-        hours.textContent = facility.openingTime && facility.closingTime ? "Open " + formatDisplayTime(facility.openingTime) + " – " + formatDisplayTime(facility.closingTime) : "";
-
-        const status = document.createElement("div");
-        status.className = "facility-status " + (inactive ? "unavailable" : "available");
-        status.textContent = maintenanceMode ? "MAINTENANCE MODE" : (inactive ? "UNAVAILABLE" : "AVAILABLE FOR BOOKING");
-
-        card.append(name, hours, status);
-        facilityGrid.appendChild(card);
-      });
-    }
-
-    function showPage(pageToShow) {
-      [facilityPage, bookingPage, detailsPage, successPage].forEach(page => {
-        page.classList.toggle("active", page === pageToShow);
-      });
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
-    function openFacility(facility) {
-      if (!facility || facility.status !== "ACTIVE" || maintenanceMode) return;
-      selectedFacility = facility;
-      selectedFacilityName.textContent = facility.facility;
-      selectedFacilityHours.textContent = "Operating hours: " + formatDisplayTime(facility.openingTime) + " – " + formatDisplayTime(facility.closingTime);
-      resetBookingState();
-      setMinimumDates();
-      showPage(bookingPage);
-    }
-
-    function goBackToFacilities() {
-      selectedFacility = null;
-      resetBookingState();
-      showPage(facilityPage);
-    }
-
-    function goBackToBooking() {
-      showPage(bookingPage);
-    }
-
-    function resetBookingState() {
-      selectedStartDate = "";
-      selectedEndDate = "";
-      currentBookingsByDate = {};
-      selectedSlotsByDate = {};
-      startDate.value = "";
-      endDate.value = "";
-      availabilityContainer.innerHTML = "";
-      bookingSummary.className = "booking-summary hidden";
-      continueButton.disabled = true;
-    }
-
-    function setMinimumDates() {
-      const todayString = formatDateObject(new Date());
-      startDate.min = todayString;
-      endDate.min = todayString;
-    }
-
-    startDate.addEventListener("change", async function() {
-      selectedStartDate = startDate.value;
-      selectedEndDate = "";
-      endDate.value = "";
-      endDate.min = selectedStartDate || startDate.min;
-      selectedSlotsByDate = {};
-      clearAvailability();
-      if (selectedStartDate) updateBookingSummary();
+  try {
+    sendPendingBookingEmail({
+      bookingId,
+      facility,
+      startDate: parseDateOnly(firstSlot.date),
+      endDate: parseDateOnly(lastSlot.date),
+      startTime: firstSlot.startTime,
+      endTime: lastSlot.endTime,
+      purpose,
+      bookerName,
+      email,
+      organisation,
+      dayCount: rows.length
     });
+  } catch (err) {
+    console.error("Pending email failed:", err);
+  }
 
-    endDate.addEventListener("change", async function() {
-      selectedEndDate = endDate.value;
-      selectedSlotsByDate = {};
-      clearAvailability();
-      if (!selectedStartDate || !selectedEndDate) return;
-      if (parseDateOnly(selectedEndDate) < parseDateOnly(selectedStartDate)) {
-        alert("End date cannot be before start date.");
-        endDate.value = "";
-        selectedEndDate = "";
-        return;
-      }
-      updateBookingSummary();
-      await loadAvailability();
+  try {
+    sendAdminNewBookingEmail({
+      bookingId,
+      facility,
+      startDate: parseDateOnly(firstSlot.date),
+      endDate: parseDateOnly(lastSlot.date),
+      startTime: firstSlot.startTime,
+      endTime: lastSlot.endTime,
+      purpose,
+      bookerName,
+      matricNumber,
+      email,
+      phone,
+      organisation,
+      dayCount: rows.length
     });
+  } catch (err) {
+    console.error("Admin email failed:", err);
+  }
 
-    async function loadAvailability() {
-      if (!selectedFacility || !selectedStartDate || !selectedEndDate) return;
-      availabilityContainer.innerHTML = "<div class='message loading'>Loading availability...</div>";
-      try {
-        const data = await fetchGviz("Bookings");
-        currentBookingsByDate = parseBookingsForRange(data, selectedFacility.facility, selectedStartDate, selectedEndDate);
-        renderAvailabilityMatrix();
-      } catch (error) {
-        availabilityContainer.innerHTML = "<div class='message error'>Failed to load availability.</div>";
+  syncPublicAvailability();
+
+  return { success: true, bookingId, dates: rows.length, status: "PENDING" };
+}
+
+function getFacilities() {
+  const sheet = getPrivateSpreadsheet().getSheetByName(CONFIG.FACILITY_SHEET);
+  if (!sheet) throw new Error("Facilities sheet not found.");
+  const values = sheet.getDataRange().getValues();
+  if (values.length < 2) return [];
+  return values.slice(1).filter(row => row[0]).map(row => ({
+    name: String(row[0] || "").trim(),
+    type: String(row[1] || "").trim(),
+    location: String(row[2] || "").trim(),
+    capacity: row[3],
+    opening: formatTimeValue(row[4]),
+    closing: formatTimeValue(row[5]),
+    status: String(row[6] || "").trim()
+  }));
+}
+
+function formatTimeValue(value) {
+  if (value instanceof Date) return Utilities.formatDate(value, Session.getScriptTimeZone(), "HH:mm");
+  if (typeof value === "number") return minutesToFormTime(Math.round(value * 24 * 60));
+  return String(value || "").trim();
+}
+
+function checkForClashExceptBookingId(facility, date, startMinutes, endMinutes, bookingId) {
+  const sheet = getPrivateSpreadsheet().getSheetByName(CONFIG.BOOKING_SHEET);
+  if (!sheet) return false;
+  const values = sheet.getDataRange().getValues();
+  if (values.length < 2) return false;
+  const targetDate = normalizeDate(date);
+
+  for (let i = 1; i < values.length; i++) {
+    const row = values[i];
+    if (bookingId && String(row[1] || "").trim() === String(bookingId).trim()) continue;
+    if (String(row[2] || "").trim().toLowerCase() !== String(facility).trim().toLowerCase()) continue;
+    const status = String(row[12] || "").trim().toUpperCase();
+    if (status !== "PENDING" && status !== "APPROVED") continue;
+
+    const rowDate = parseSheetDate(row[3]);
+    if (!rowDate || normalizeDate(rowDate).getTime() !== targetDate.getTime()) continue;
+
+    const existingStart = parseTimeToMinutes(formatTimeValue(row[4]));
+    const existingEnd = parseTimeToMinutes(formatTimeValue(row[5]));
+
+    if (existingStart !== null && existingEnd !== null) {
+      if (startMinutes < existingEnd && endMinutes > existingStart) return true;
+    }
+  }
+  return false;
+}
+
+function generateBookingId() {
+  const sheet = getPrivateSpreadsheet().getSheetByName(CONFIG.BOOKING_SHEET);
+  if (!sheet) throw new Error("Booking sheet not found.");
+  const year = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyy");
+  const prefix = "KK5-" + year + "-";
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return prefix + "0001";
+  const bookingIds = sheet.getRange(2, 2, lastRow - 1, 1).getValues().flat();
+  let maxNumber = 0;
+  bookingIds.forEach(id => {
+    const text = String(id || "").trim();
+    if (!text.startsWith(prefix)) return;
+    const num = parseInt(text.substring(prefix.length), 10);
+    if (!isNaN(num) && num > maxNumber) maxNumber = num;
+  });
+  return prefix + String(maxNumber + 1).padStart(4, "0");
+}
+
+function normalizeDate(date) {
+  const d = new Date(date);
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+
+function parseDateOnly(value) {
+  if (!value) return null;
+  if (value instanceof Date) return isNaN(value.getTime()) ? null : normalizeDate(value);
+  const text = String(value).trim();
+  let match = text.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if (match) return makeValidatedDate(Number(match[1]), Number(match[2]), Number(match[3]));
+  match = text.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);
+  if (match) return makeValidatedDate(Number(match[3]), Number(match[2]), Number(match[1]));
+  return null;
+}
+
+function makeValidatedDate(year, month, day) {
+  if (year < 1000 || month < 1 || month > 12 || day < 1 || day > 31) return null;
+  const date = new Date(year, month - 1, day);
+  if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) return null;
+  return date;
+}
+
+function parseSheetDate(value) {
+  if (value instanceof Date) return isNaN(value.getTime()) ? null : value;
+  return parseDateOnly(value);
+}
+
+function parseTimeToMinutes(value) {
+  if (value instanceof Date) return value.getHours() * 60 + value.getMinutes();
+  if (typeof value === "number") return Math.round(value * 24 * 60);
+  const text = String(value || "").trim();
+  const match = text.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+  if (!match) return null;
+  return Number(match[1]) * 60 + Number(match[2]);
+}
+
+function minutesToFormTime(minutes) {
+  return String(Math.floor(minutes / 60)).padStart(2, "0") + ":" + String(minutes % 60).padStart(2, "0");
+}
+
+function minutesToDateTime(date, minutes) {
+  const result = new Date(date);
+  result.setHours(Math.floor(minutes / 60), minutes % 60, 0, 0);
+  return result;
+}
+
+function formatDateForDisplay(date) {
+  return Utilities.formatDate(new Date(date), Session.getScriptTimeZone(), "dd MMM yyyy");
+}
+
+function sendPendingBookingEmail(booking) {
+  if (!booking.email) return;
+  MailApp.sendEmail(booking.email, "KK5 Facility Booking Submitted - " + booking.bookingId, "Your booking request " + booking.bookingId + " has been submitted for " + booking.facility + ".\nContact JTKD Teknikal (Fateh) at 0104563287 for help.");
+}
+
+function sendAdminNewBookingEmail(booking) {
+  MailApp.sendEmail(CONFIG.ADMIN_EMAIL, "New KK5 Booking - " + booking.bookingId, "New booking for " + booking.facility + " by " + booking.bookerName);
+}
+
+function updateBookingStatus(bookingId, status, adminNotes) {
+  bookingId = String(bookingId).trim();
+  status = String(status).trim().toUpperCase();
+  const sheet = getPrivateSpreadsheet().getSheetByName(CONFIG.BOOKING_SHEET);
+  const values = sheet.getDataRange().getValues();
+  for (let i = 1; i < values.length; i++) {
+    if (String(values[i][1] || "").trim() === bookingId) {
+      sheet.getRange(i + 1, 13).setValue(status);
+      if (adminNotes !== undefined) sheet.getRange(i + 1, 14).setValue(adminNotes);
+    }
+  }
+  SpreadsheetApp.flush();
+  processBookingGroupStatusChange(bookingId, status);
+  return { success: true, bookingId, status };
+}
+
+function processBookingGroupStatusChange(bookingId, status) {
+  const sheet = getPrivateSpreadsheet().getSheetByName(CONFIG.BOOKING_SHEET);
+  const values = sheet.getDataRange().getValues();
+  const rows = [];
+  for (let i = 1; i < values.length; i++) {
+    if (String(values[i][1] || "").trim() === bookingId) {
+      rows.push({ rowNumber: i + 1, facility: values[i][2], date: values[i][3], start: values[i][4], end: values[i][5], email: values[i][9] });
+    }
+  }
+  if (status === "APPROVED") {
+    const calendar = CalendarApp.getCalendarById(CONFIG.CALENDAR_ID);
+    rows.forEach(b => {
+      if (calendar) {
+        const ev = calendar.createEvent("KK5 Booking - " + b.facility, combineDateAndTime(b.date, b.start), combineDateAndTime(b.date, b.end));
+        sheet.getRange(b.rowNumber, 15).setValue(ev.getId());
       }
+    });
+    if (rows[0] && rows[0].email) {
+      MailApp.sendEmail(rows[0].email, "KK5 Booking APPROVED - " + bookingId, "Your booking has been approved. Contact JTKD Teknikal (Fateh) at 0104563287.");
     }
-
-    function parseBookingsForRange(data, facilityName, startStr, endStr) {
-      const map = {};
-      const start = parseDateOnly(startStr);
-      const end = parseDateOnly(endStr);
-      getDatesBetween(start, end).forEach(date => { map[formatDateObject(date)] = []; });
-      if (!data || !data.table || !Array.isArray(data.table.rows)) return map;
-
-      data.table.rows.forEach(row => {
-        const cells = row.c || [];
-        const facility = String(getCellValue(cells[0])).trim();
-        const date = parseSheetDate(cells[1]);
-        const bookingStart = normalizeSheetTime(cells[2]);
-        const bookingEnd = normalizeSheetTime(cells[3]);
-        const status = String(getCellValue(cells[4])).trim().toUpperCase();
-
-        if (facility.toLowerCase() !== facilityName.toLowerCase()) return;
-        if (status !== "PENDING" && status !== "APPROVED") return;
-        if (!date || !bookingStart || !bookingEnd) return;
-
-        const dateKey = formatDateObject(date);
-        if (map[dateKey]) {
-          map[dateKey].push({ start: bookingStart, end: bookingEnd, status });
-        }
-      });
-      return map;
+  } else if (status === "REJECTED") {
+    if (rows[0] && rows[0].email) {
+      MailApp.sendEmail(rows[0].email, "KK5 Booking REJECTED - " + bookingId, "Your booking was rejected. Contact JTKD Teknikal (Fateh) at 0104563287.");
     }
+  }
+  syncPublicAvailability();
+}
 
-    function renderAvailabilityMatrix() {
-      availabilityContainer.innerHTML = "";
-      const openingMin = parseTimeToMinutes(selectedFacility.openingTime);
-      const closingMin = parseTimeToMinutes(selectedFacility.closingTime);
+function combineDateAndTime(date, time) {
+  const result = new Date(date);
+  const mins = parseTimeToMinutes(time) || 0;
+  result.setHours(Math.floor(mins / 60), mins % 60, 0, 0);
+  return result;
+}
 
-      const dates = getDatesBetween(parseDateOnly(selectedStartDate), parseDateOnly(selectedEndDate));
-      
-      dates.forEach(dateObj => {
-        const dateKey = formatDateObject(dateObj);
-        const bookings = currentBookingsByDate[dateKey] || [];
+function syncPublicAvailability() {
+  const privateSS = getPrivateSpreadsheet();
+  const publicSS = SpreadsheetApp.openById(CONFIG.PUBLIC_SPREADSHEET_ID);
 
-        const dayBox = document.createElement("div");
-        dayBox.className = "day-availability-box";
+  let pubFac = publicSS.getSheetByName(CONFIG.PUBLIC_FACILITY_SHEET) || publicSS.insertSheet(CONFIG.PUBLIC_FACILITY_SHEET);
+  pubFac.clearContents();
+  pubFac.getRange(1, 1, 1, 4).setValues([["Facility", "Opening Time", "Closing Time", "Status"]]);
+  const privFac = privateSS.getSheetByName(CONFIG.FACILITY_SHEET).getDataRange().getValues();
+  const facRows = [];
+  for (let i = 1; i < privFac.length; i++) {
+    if (privFac[i][0]) facRows.push([String(privFac[i][0]).trim(), formatTimeValue(privFac[i][4]), formatTimeValue(privFac[i][5]), String(privFac[i][6] || "ACTIVE").trim()]);
+  }
+  if (facRows.length) pubFac.getRange(2, 1, facRows.length, 4).setValues(facRows);
 
-        const dayTitle = document.createElement("div");
-        dayTitle.className = "day-title";
-        dayTitle.textContent = formatDateForDisplay(dateObj);
-        dayBox.appendChild(dayTitle);
-
-        const grid = document.createElement("div");
-        grid.className = "availability-grid";
-
-        for (let minute = openingMin; minute + SLOT_INTERVAL <= closingMin; minute += SLOT_INTERVAL) {
-          const slotStart = minutesToTimeStr(minute);
-          const slotEnd = minutesToTimeStr(minute + SLOT_INTERVAL);
-          const slot = document.createElement("button");
-          slot.type = "button";
-          slot.className = "slot";
-          slot.textContent = slotStart;
-
-          let slotStatus = "available";
-          for (const b of bookings) {
-            const bStart = parseTimeToMinutes(b.start);
-            const bEnd = parseTimeToMinutes(b.end);
-            if (bStart !== null && bEnd !== null && minute < bEnd && minute + SLOT_INTERVAL > bStart) {
-              slotStatus = b.status === "APPROVED" ? "booked" : "pending";
-              break;
-            }
-          }
-
-          if (slotStatus === "booked") {
-            slot.classList.add("booked");
-            slot.disabled = true;
-            slot.title = "Approved booking";
-          } else if (slotStatus === "pending") {
-            slot.classList.add("pending");
-            slot.disabled = true;
-            slot.title = "Pending approval";
-          } else {
-            slot.addEventListener("click", () => toggleSlot(dateKey, slotStart, slotEnd, slot));
-          }
-          grid.appendChild(slot);
-        }
-
-        dayBox.appendChild(grid);
-        availabilityContainer.appendChild(dayBox);
-      });
+  let pubBook = publicSS.getSheetByName(CONFIG.PUBLIC_BOOKING_SHEET) || publicSS.insertSheet(CONFIG.PUBLIC_BOOKING_SHEET);
+  pubBook.clearContents();
+  pubBook.getRange(1, 1, 1, 5).setValues([["Facility", "Date", "Start", "End", "Status"]]);
+  const privBook = privateSS.getSheetByName(CONFIG.BOOKING_SHEET).getDataRange().getValues();
+  const bookRows = [];
+  for (let i = 1; i < privBook.length; i++) {
+    const row = privBook[i];
+    const status = String(row[12] || "").trim().toUpperCase();
+    if ((status === "PENDING" || status === "APPROVED") && row[2] && row[3]) {
+      bookRows.push([String(row[2]).trim(), formatPublicDate(row[3]), formatTimeValue(row[4]), formatTimeValue(row[5]), status]);
     }
+  }
+  if (bookRows.length) pubBook.getRange(2, 1, bookRows.length, 5).setValues(bookRows);
+}
 
-    function toggleSlot(dateKey, startStr, endStr, slotElement) {
-      if (!selectedSlotsByDate[dateKey]) {
-        selectedSlotsByDate[dateKey] = [];
-      }
+function formatPublicDate(v) {
+  const d = parseDateOnly(v);
+  return d ? Utilities.formatDate(d, Session.getScriptTimeZone(), "yyyy-MM-dd") : String(v || "");
+}
 
-      const existingIndex = selectedSlotsByDate[dateKey].findIndex(s => s.start === startStr);
-
-      if (existingIndex > -1) {
-        // Deselect
-        selectedSlotsByDate[dateKey].splice(existingIndex, 1);
-        slotElement.classList.remove("selected");
-      } else {
-        // Select
-        selectedSlotsByDate[dateKey].push({ start: startStr, end: endStr });
-        slotElement.classList.add("selected");
-      }
-
-      validateSelections();
+function doPost(e) {
+  try {
+    const payload = JSON.parse(e.postData.contents);
+    if (payload.action === "submitBooking") {
+      const result = processBooking(payload);
+      return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
     }
-
-    function validateSelections() {
-      let hasSelection = false;
-      for (const d in selectedSlotsByDate) {
-        if (selectedSlotsByDate[d].length > 0) {
-          hasSelection = true;
-          break;
-        }
-      }
-      continueButton.disabled = !hasSelection;
-    }
-
-    function showDetailsForm() {
-      summaryReviewText.textContent = "Facility: " + selectedFacility.facility + " | Dates: " + selectedStartDate + " to " + selectedEndDate;
-      showPage(detailsPage);
-    }
-
-    async function submitBooking(event) {
-      event.preventDefault();
-      if (!bookingForm.reportValidity()) return;
-
-      submitButton.disabled = true;
-      submitButton.textContent = "Submitting booking...";
-
-      // Build dateSlots array for the backend
-      const dateSlots = [];
-      for (const dateStr of Object.keys(selectedSlotsByDate)) {
-        const slots = selectedSlotsByDate[dateStr];
-        // Sort slots chronologically for this date
-        slots.sort((a, b) => parseTimeToMinutes(a.start) - parseTimeToMinutes(b.start));
-        
-        if (slots.length > 0) {
-          // If multiple slots chosen, merge consecutive ones or send the min start and max end
-          const startTime = slots[0].start;
-          const endTime = slots[slots.length - 1].end;
-          dateSlots.push({
-            date: dateStr,
-            startTime: startTime,
-            endTime: endTime
-          });
-        }
-      }
-
-      const payload = {
-        action: "submitBooking",
-        namedValues: {
-          "Facility": [selectedFacility.facility],
-          "Start Date": [selectedStartDate],
-          "End Date": [selectedEndDate],
-          "Start Time": [dateSlots[0]?.startTime || "09:00"],
-          "End Time": [dateSlots[0]?.endTime || "10:00"],
-          "DateSlots": [JSON.stringify(dateSlots)],
-          "Purpose": [document.getElementById("purpose").value.trim()],
-          "Booker Name": [document.getElementById("bookerName").value.trim()],
-          "Matric Number": [document.getElementById("matricNumber").value.trim()],
-          "Email": [document.getElementById("email").value.trim()],
-          "Phone": [document.getElementById("phone").value.trim()],
-          "Organisation": [document.getElementById("organisation").value.trim()]
-        }
-      };
-
-      try {
-        const response = await fetch(APPS_SCRIPT_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify(payload),
-          redirect: "follow"
-        });
-        const result = await response.json();
-        if (!result || result.success !== true) throw new Error(result.message || "Server error");
-
-        document.getElementById("successMessageText").textContent = "Your booking request has been received (Ref: " + result.bookingId + "). Status is PENDING.";
-        showPage(successPage);
-      } catch (error) {
-        alert("Submission failed: " + error.message);
-      } finally {
-        submitButton.disabled = false;
-        submitButton.textContent = "Submit Booking Request";
-      }
-    }
-
-    function formatDisplayTime(time) { return String(time || "").substring(0, 5); }
-    function normalizeSheetTime(cell) { return cell && cell.v ? String(cell.v) : ""; }
-    function parseSheetDate(cell) {
-      if (!cell) return null;
-      if (cell.v && String(cell.v).startsWith("Date(")) {
-        const m = cell.v.match(/Date\((\d+),(\d+),(\d+)\)/);
-        if (m) return new Date(Number(m[1]), Number(m[2]), Number(m[3]));
-      }
-      return parseDateOnly(cell.f || cell.v);
-    }
-    function formatDateObject(date) { return date.toISOString().split("T")[0]; }
-    function parseDateOnly(val) {
-      if (!val) return null;
-      const match = String(val).match(/^(\d{4})-(\d{2})-(\d{2})$/);
-      if (match) return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
-      return null;
-    }
-    function getDatesBetween(start, end) {
-      const dates = [];
-      let cur = new Date(start);
-      while (cur <= end) {
-        dates.push(new Date(cur));
-        cur.setDate(cur.getDate() + 1);
-      }
-      return dates;
-    }
-    function parseTimeToMinutes(t) {
-      if (!t) return null;
-      const parts = String(t).split(":");
-      return parts.length >= 2 ? Number(parts[0]) * 60 + Number(parts[1]) : null;
-    }
-    function minutesToTimeStr(m) {
-      return String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0");
-    }
-    function formatDateForDisplay(d) { return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" }); }
-    function updateBookingSummary() { bookingSummary.className = "booking-summary"; bookingSummary.textContent = "Booking period: " + selectedStartDate + (selectedEndDate ? " to " + selectedEndDate : ""); }
-    function clearAvailability() { availabilityContainer.innerHTML = ""; continueButton.disabled = true; }
-    function showError(msg) { errorMessage.textContent = msg; errorMessage.classList.remove("hidden"); }
-    function hideError() { errorMessage.classList.add("hidden"); }
-  </script>
-</body>
-</html>
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ success: false, message: err.message })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
