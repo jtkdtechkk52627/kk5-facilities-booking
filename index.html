@@ -330,7 +330,6 @@
       selectedStartDate = startDate.value;
       if (!selectedStartDate) return;
 
-      // Automatically default End Date to Start Date for convenience
       endDate.value = selectedStartDate;
       selectedEndDate = selectedStartDate;
       endDate.min = selectedStartDate;
@@ -504,6 +503,8 @@
         phone: document.getElementById("phone").value.trim(),
         organisation: document.getElementById("organisation").value.trim()
       };
+
+      console.log("Submitting payload:", payload);
 
       try {
         const response = await fetch(APPS_SCRIPT_URL, {
