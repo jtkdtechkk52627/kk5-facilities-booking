@@ -146,9 +146,7 @@
       box-shadow: 0 0 0 3px rgba(37, 99, 235, .1);
     }
 
-    input[readonly] { background: #f9fafb; color: #4b5563; }
-
-    .time-row, .date-row {
+    .date-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 14px;
@@ -167,25 +165,45 @@
 
     .availability-section { margin-top: 26px; }
     .availability-title {
-      margin: 0 0 12px;
+      margin: 0 0 6px;
       font-size: 16px;
       font-weight: 650;
       color: #111827;
     }
+    .availability-subtitle {
+      font-size: 13px;
+      color: #6b7280;
+      margin-bottom: 14px;
+    }
+
+    .day-availability-box {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .day-title {
+      font-weight: 650;
+      color: #374151;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
 
     .availability-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-      gap: 8px;
+      grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
+      gap: 6px;
     }
 
     .slot {
       border: 1px solid #d1d5db;
       background: white;
-      border-radius: 8px;
-      padding: 10px 6px;
+      border-radius: 6px;
+      padding: 8px 4px;
       text-align: center;
-      font-size: 13px;
+      font-size: 12px;
       cursor: pointer;
       transition: all .12s ease;
     }
@@ -194,27 +212,6 @@
     .slot.selected { border-color: #2563eb; background: #2563eb; color: white; font-weight: 600; }
     .slot.booked { cursor: not-allowed; background: #f3f4f6; border-color: #e5e7eb; color: #9ca3af; }
     .slot.pending { cursor: not-allowed; background: #fff7ed; border-color: #fed7aa; color: #c2410c; }
-
-    .availability-message {
-      padding: 18px;
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
-      border-radius: 10px;
-      color: #6b7280;
-      font-size: 14px;
-      margin-bottom: 12px;
-    }
-
-    .range-status {
-      margin-top: 16px;
-      padding: 14px 16px;
-      border-radius: 10px;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    .range-status.success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
-    .range-status.error { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; }
 
     .continue-button, .submit-button {
       width: 100%;
@@ -249,7 +246,7 @@
       .container { padding: 24px 14px 40px; }
       .header h1 { font-size: 27px; }
       .facility-grid { grid-template-columns: 1fr; }
-      .time-row, .date-row { grid-template-columns: 1fr; }
+      .date-row { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -297,34 +294,10 @@
 
         <div id="bookingSummary" class="booking-summary hidden"></div>
 
-        <div class="time-row">
-          <div class="form-group">
-            <label for="startTime">Start time</label>
-            <select id="startTime" disabled>
-              <option value="">Select start time</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="duration">Duration</label>
-            <select id="duration" disabled>
-              <option value="">Select duration</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="endTime">End time</label>
-          <input type="text" id="endTime" readonly placeholder="Automatically calculated">
-        </div>
-
         <div class="availability-section">
-          <h3 class="availability-title">Availability</h3>
-          <div id="availabilityMessage" class="availability-message">
-            Select a date range to view availability.
-          </div>
-          <div id="availabilityGrid" class="availability-grid"></div>
-          <div id="rangeStatus" class="range-status hidden"></div>
+          <h3 class="availability-title">Select Time Slots per Day</h3>
+          <p class="availability-subtitle">Click consecutive time boxes for each day to choose your booking period (e.g. 10:00 to 11:00).</p>
+          <div id="availabilityContainer"></div>
         </div>
 
         <button type="button" id="continueButton" class="continue-button"
@@ -340,14 +313,14 @@
 
       <div class="facility-header">
         <h2>Enter Booking Details</h2>
-        <p id="summaryReviewText">Review your slot and provide your contact information.</p>
+        <p id="summaryReviewText">Review your slots and provide your contact information.</p>
       </div>
 
       <div class="booking-panel">
         <form id="bookingForm">
           <div class="form-group">
             <label for="bookerName">Booker Name</label>
-            <input type="text" id="bookerName" required maxlength="120" autocomplete="name" placeholder="Full Name">
+            <input type="text" id="bookerName" required maxlength="120" placeholder="Full Name">
           </div>
 
           <div class="form-group">
@@ -357,12 +330,12 @@
 
           <div class="form-group">
             <label for="email">Email (UM Student Email preferred)</label>
-            <input type="email" id="email" required maxlength="254" autocomplete="email" placeholder="username@siswa.um.edu.my">
+            <input type="email" id="email" required maxlength="254" placeholder="username@siswa.um.edu.my">
           </div>
 
           <div class="form-group">
             <label for="phone">Phone Number</label>
-            <input type="tel" id="phone" required maxlength="30" autocomplete="tel" placeholder="0104563287">
+            <input type="tel" id="phone" required maxlength="30" placeholder="0104563287">
           </div>
 
           <div class="form-group">
@@ -403,16 +376,14 @@
     const PUBLIC_SHEET_ID = "1PGb7g244LFMQlqJdJWDGaeGsZzJsel9WTUakDcNatiQ";
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw3n23Sg5vLufUpGZp9S6tRvbVwTbp1FvS9Fj5DYBIsXH2hriNJznl9EJEC_a9145s7/exec";
 
-    const MIN_DURATION = 30;
-    const SLOT_INTERVAL = 30;
+    const SLOT_INTERVAL = 30; // 30 mins
 
     let facilities = [];
     let selectedFacility = null;
     let selectedStartDate = "";
     let selectedEndDate = "";
-    let selectedStartTime = null;
-    let selectedEndTime = null;
     let currentBookingsByDate = {};
+    let selectedSlotsByDate = {}; // Stores { "YYYY-MM-DD": [ {start, end}, ... ] }
     let maintenanceMode = false;
 
     const facilityPage = document.getElementById("facilityPage");
@@ -427,13 +398,7 @@
 
     const startDate = document.getElementById("startDate");
     const endDate = document.getElementById("endDate");
-    const startTime = document.getElementById("startTime");
-    const duration = document.getElementById("duration");
-    const endTime = document.getElementById("endTime");
-
-    const availabilityGrid = document.getElementById("availabilityGrid");
-    const availabilityMessage = document.getElementById("availabilityMessage");
-    const rangeStatus = document.getElementById("rangeStatus");
+    const availabilityContainer = document.getElementById("availabilityContainer");
     const bookingSummary = document.getElementById("bookingSummary");
     const continueButton = document.getElementById("continueButton");
     const errorMessage = document.getElementById("errorMessage");
@@ -447,8 +412,10 @@
     bookingForm.addEventListener("submit", submitBooking);
 
     async function fetchGviz(sheetName) {
-      const url = "https://docs.google.com/spreadsheets/d/" + PUBLIC_SHEET_ID + "/gviz/tq?sheet=" + encodeURIComponent(sheetName) + "&tqx=out:json";
-      const response = await fetch(url, { method: "GET", cache: "no-store" });
+      const url = "https://docs.google.com/spreadsheets/d/ " + PUBLIC_SHEET_ID + "/gviz/tq?sheet=" + encodeURIComponent(sheetName) + "&tqx=out:json";
+      // Fixing potential whitespace in URL string:
+      const cleanUrl = "https://docs.google.com/spreadsheets/d/" + PUBLIC_SHEET_ID + "/gviz/tq?sheet=" + encodeURIComponent(sheetName) + "&tqx=out:json";
+      const response = await fetch(cleanUrl, { method: "GET", cache: "no-store" });
       const text = await response.text();
       if (!response.ok) throw new Error("Google Sheets returned HTTP " + response.status + ".");
       const firstParen = text.indexOf("(");
@@ -585,19 +552,11 @@
     function resetBookingState() {
       selectedStartDate = "";
       selectedEndDate = "";
-      selectedStartTime = null;
-      selectedEndTime = null;
       currentBookingsByDate = {};
+      selectedSlotsByDate = {};
       startDate.value = "";
       endDate.value = "";
-      startTime.innerHTML = '<option value="">Select start time</option>';
-      startTime.disabled = true;
-      duration.innerHTML = '<option value="">Select duration</option>';
-      duration.disabled = true;
-      endTime.value = "";
-      availabilityGrid.innerHTML = "";
-      availabilityMessage.textContent = "Select a date range to view availability.";
-      rangeStatus.className = "range-status hidden";
+      availabilityContainer.innerHTML = "";
       bookingSummary.className = "booking-summary hidden";
       continueButton.disabled = true;
     }
@@ -606,7 +565,6 @@
       const todayString = formatDateObject(new Date());
       startDate.min = todayString;
       endDate.min = todayString;
-      // Removed 7-day max limit entirely per your request!
     }
 
     startDate.addEventListener("change", async function() {
@@ -614,18 +572,18 @@
       selectedEndDate = "";
       endDate.value = "";
       endDate.min = selectedStartDate || startDate.min;
-      resetTimeSelection();
+      selectedSlotsByDate = {};
       clearAvailability();
       if (selectedStartDate) updateBookingSummary();
     });
 
     endDate.addEventListener("change", async function() {
       selectedEndDate = endDate.value;
-      resetTimeSelection();
+      selectedSlotsByDate = {};
       clearAvailability();
       if (!selectedStartDate || !selectedEndDate) return;
       if (parseDateOnly(selectedEndDate) < parseDateOnly(selectedStartDate)) {
-        showRangeStatus("End date cannot be before start date.", "error");
+        alert("End date cannot be before start date.");
         endDate.value = "";
         selectedEndDate = "";
         return;
@@ -636,14 +594,13 @@
 
     async function loadAvailability() {
       if (!selectedFacility || !selectedStartDate || !selectedEndDate) return;
-      availabilityGrid.innerHTML = "";
-      availabilityMessage.textContent = "Loading availability...";
+      availabilityContainer.innerHTML = "<div class='message loading'>Loading availability...</div>";
       try {
         const data = await fetchGviz("Bookings");
         currentBookingsByDate = parseBookingsForRange(data, selectedFacility.facility, selectedStartDate, selectedEndDate);
         renderAvailabilityMatrix();
       } catch (error) {
-        availabilityMessage.textContent = "Failed to load availability.";
+        availabilityContainer.innerHTML = "<div class='message error'>Failed to load availability.</div>";
       }
     }
 
@@ -675,28 +632,26 @@
     }
 
     function renderAvailabilityMatrix() {
-      availabilityMessage.textContent = "";
-      availabilityGrid.innerHTML = "";
+      availabilityContainer.innerHTML = "";
       const openingMin = parseTimeToMinutes(selectedFacility.openingTime);
       const closingMin = parseTimeToMinutes(selectedFacility.closingTime);
 
       const dates = getDatesBetween(parseDateOnly(selectedStartDate), parseDateOnly(selectedEndDate));
+      
       dates.forEach(dateObj => {
         const dateKey = formatDateObject(dateObj);
         const bookings = currentBookingsByDate[dateKey] || [];
 
-        const dayHeader = document.createElement("div");
-        dayHeader.style.gridColumn = "1 / -1";
-        dayHeader.style.fontWeight = "650";
-        dayHeader.style.marginTop = "10px";
-        dayHeader.textContent = formatDateForDisplay(dateObj);
-        availabilityGrid.appendChild(dayHeader);
+        const dayBox = document.createElement("div");
+        dayBox.className = "day-availability-box";
 
-        const dayContainer = document.createElement("div");
-        dayContainer.style.display = "grid";
-        dayContainer.style.gridTemplateColumns = "repeat(auto-fill, minmax(90px, 1fr))";
-        dayContainer.style.gap = "6px";
-        dayContainer.style.gridColumn = "1 / -1";
+        const dayTitle = document.createElement("div");
+        dayTitle.className = "day-title";
+        dayTitle.textContent = formatDateForDisplay(dateObj);
+        dayBox.appendChild(dayTitle);
+
+        const grid = document.createElement("div");
+        grid.className = "availability-grid";
 
         for (let minute = openingMin; minute + SLOT_INTERVAL <= closingMin; minute += SLOT_INTERVAL) {
           const slotStart = minutesToTimeStr(minute);
@@ -719,89 +674,55 @@
           if (slotStatus === "booked") {
             slot.classList.add("booked");
             slot.disabled = true;
+            slot.title = "Approved booking";
           } else if (slotStatus === "pending") {
             slot.classList.add("pending");
             slot.disabled = true;
+            slot.title = "Pending approval";
           } else {
-            slot.addEventListener("click", () => selectQuickSlot(slotStart));
+            slot.addEventListener("click", () => toggleSlot(dateKey, slotStart, slotEnd, slot));
           }
-          dayContainer.appendChild(slot);
+          grid.appendChild(slot);
         }
-        availabilityGrid.appendChild(dayContainer);
+
+        dayBox.appendChild(grid);
+        availabilityContainer.appendChild(dayBox);
       });
-      populateStartTimeDropdowns(openingMin, closingMin);
     }
 
-    function populateStartTimeDropdowns(openMin, closeMin) {
-      startTime.innerHTML = '<option value="">Select start time</option>';
-      for (let minute = openMin; minute + MIN_DURATION <= closeMin; minute += SLOT_INTERVAL) {
-        const time = minutesToTimeStr(minute);
-        const option = document.createElement("option");
-        option.value = time;
-        option.textContent = time;
-        startTime.appendChild(option);
+    function toggleSlot(dateKey, startStr, endStr, slotElement) {
+      if (!selectedSlotsByDate[dateKey]) {
+        selectedSlotsByDate[dateKey] = [];
       }
-      startTime.disabled = false;
+
+      const existingIndex = selectedSlotsByDate[dateKey].findIndex(s => s.start === startStr);
+
+      if (existingIndex > -1) {
+        // Deselect
+        selectedSlotsByDate[dateKey].splice(existingIndex, 1);
+        slotElement.classList.remove("selected");
+      } else {
+        // Select
+        selectedSlotsByDate[dateKey].push({ start: startStr, end: endStr });
+        slotElement.classList.add("selected");
+      }
+
+      validateSelections();
     }
 
-    function resetTimeSelection() {
-      selectedStartTime = null;
-      selectedEndTime = null;
-      startTime.innerHTML = '<option value="">Select start time</option>';
-      startTime.disabled = true;
-      duration.innerHTML = '<option value="">Select duration</option>';
-      duration.disabled = true;
-      endTime.value = "";
-      continueButton.disabled = true;
-      hideRangeStatus();
-    }
-
-    startTime.addEventListener("change", function() {
-      selectedStartTime = startTime.value;
-      duration.innerHTML = '<option value="">Select duration</option>';
-      duration.disabled = true;
-      endTime.value = "";
-      continueButton.disabled = true;
-
-      if (!selectedStartTime) return;
-      const closingMin = parseTimeToMinutes(selectedFacility.closingTime);
-      const startMin = parseTimeToMinutes(selectedStartTime);
-      const latestDuration = closingMin - startMin;
-
-      for (let m = MIN_DURATION; m <= latestDuration; m += SLOT_INTERVAL) {
-        const opt = document.createElement("option");
-        opt.value = String(m);
-        opt.textContent = formatDurationDisplay(m);
-        duration.appendChild(opt);
+    function validateSelections() {
+      let hasSelection = false;
+      for (const d in selectedSlotsByDate) {
+        if (selectedSlotsByDate[d].length > 0) {
+          hasSelection = true;
+          break;
+        }
       }
-      duration.disabled = false;
-    });
-
-    duration.addEventListener("change", function() {
-      const durationMins = parseInt(duration.value, 10);
-      if (isNaN(durationMins)) {
-        continueButton.disabled = true;
-        return;
-      }
-      const startMin = parseTimeToMinutes(selectedStartTime);
-      const endMin = startMin + durationMins;
-      selectedEndTime = minutesToTimeStr(endMin);
-      endTime.value = selectedEndTime;
-      continueButton.disabled = false;
-    });
-
-    function selectQuickSlot(timeStr) {
-      startTime.value = timeStr;
-      startTime.dispatchEvent(new Event("change"));
-      if (duration.options.length > 1) {
-        duration.value = String(MIN_DURATION);
-        duration.dispatchEvent(new Event("change"));
-      }
+      continueButton.disabled = !hasSelection;
     }
 
     function showDetailsForm() {
-      if (!selectedFacility || !selectedStartDate || !selectedEndDate || !selectedStartTime || !selectedEndTime) return;
-      summaryReviewText.textContent = "Facility: " + selectedFacility.facility + " | Dates: " + selectedStartDate + " to " + selectedEndDate + " | Time: " + selectedStartTime + "–" + selectedEndTime;
+      summaryReviewText.textContent = "Facility: " + selectedFacility.facility + " | Dates: " + selectedStartDate + " to " + selectedEndDate;
       showPage(detailsPage);
     }
 
@@ -812,14 +733,34 @@
       submitButton.disabled = true;
       submitButton.textContent = "Submitting booking...";
 
+      // Build dateSlots array for the backend
+      const dateSlots = [];
+      for (const dateStr of Object.keys(selectedSlotsByDate)) {
+        const slots = selectedSlotsByDate[dateStr];
+        // Sort slots chronologically for this date
+        slots.sort((a, b) => parseTimeToMinutes(a.start) - parseTimeToMinutes(b.start));
+        
+        if (slots.length > 0) {
+          // If multiple slots chosen, merge consecutive ones or send the min start and max end
+          const startTime = slots[0].start;
+          const endTime = slots[slots.length - 1].end;
+          dateSlots.push({
+            date: dateStr,
+            startTime: startTime,
+            endTime: endTime
+          });
+        }
+      }
+
       const payload = {
         action: "submitBooking",
         namedValues: {
           "Facility": [selectedFacility.facility],
           "Start Date": [selectedStartDate],
           "End Date": [selectedEndDate],
-          "Start Time": [selectedStartTime],
-          "End Time": [selectedEndTime],
+          "Start Time": [dateSlots[0]?.startTime || "09:00"],
+          "End Time": [dateSlots[0]?.endTime || "10:00"],
+          "DateSlots": [JSON.stringify(dateSlots)],
           "Purpose": [document.getElementById("purpose").value.trim()],
           "Booker Name": [document.getElementById("bookerName").value.trim()],
           "Matric Number": [document.getElementById("matricNumber").value.trim()],
@@ -883,15 +824,9 @@
     function minutesToTimeStr(m) {
       return String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0");
     }
-    function formatDurationDisplay(m) {
-      const h = Math.floor(m / 60), min = m % 60;
-      return h > 0 ? h + " hr" + (min > 0 ? " " + min + " mins" : "") : min + " mins";
-    }
     function formatDateForDisplay(d) { return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" }); }
-    function showRangeStatus(msg, type) { rangeStatus.className = "range-status " + type; rangeStatus.textContent = msg; }
-    function hideRangeStatus() { rangeStatus.className = "range-status hidden"; }
     function updateBookingSummary() { bookingSummary.className = "booking-summary"; bookingSummary.textContent = "Booking period: " + selectedStartDate + (selectedEndDate ? " to " + selectedEndDate : ""); }
-    function clearAvailability() { availabilityGrid.innerHTML = ""; availabilityMessage.textContent = "Select a date range to view availability."; continueButton.disabled = true; }
+    function clearAvailability() { availabilityContainer.innerHTML = ""; continueButton.disabled = true; }
     function showError(msg) { errorMessage.textContent = msg; errorMessage.classList.remove("hidden"); }
     function hideError() { errorMessage.classList.add("hidden"); }
   </script>
