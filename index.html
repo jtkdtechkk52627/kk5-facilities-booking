@@ -326,14 +326,18 @@
       continueButton.disabled = true;
     }
 
-    startDate.addEventListener("change", () => {
+    startDate.addEventListener("change", async () => {
       selectedStartDate = startDate.value;
-      selectedEndDate = ""; endDate.value = "";
+      if (!selectedStartDate) return;
+
+      // Automatically default End Date to Start Date for convenience
+      endDate.value = selectedStartDate;
+      selectedEndDate = selectedStartDate;
       endDate.min = selectedStartDate;
+
       selectedSlotsByDate = {};
-      availabilityContainer.innerHTML = "";
-      continueButton.disabled = true;
-      if (selectedStartDate) updateBookingSummary();
+      updateBookingSummary();
+      await loadAvailability();
     });
 
     endDate.addEventListener("change", async () => {
@@ -342,7 +346,9 @@
       if (!selectedStartDate || !selectedEndDate) return;
       if (selectedEndDate < selectedStartDate) {
         alert("End date cannot be before start date.");
-        endDate.value = ""; selectedEndDate = ""; return;
+        endDate.value = selectedStartDate; 
+        selectedEndDate = selectedStartDate; 
+        return;
       }
       updateBookingSummary();
       await loadAvailability();
@@ -445,9 +451,14 @@
         selectedSlotsByDate[dateKey].push({ start: startStr, end: endStr });
         slotElement.classList.add("selected");
       }
-      let hasSelection = Object.values(selectedSlotsByDate.some(arr => arr.length > 0)); // wait, let's write cleanly:
+
       let active = false;
-      for (const k in selectedSlotsByDate) { if (selectedSlotsByDate[k].length > 0) active = true; }
+      for (const k in selectedSlotsByDate) { 
+        if (selectedSlotsByDate[k] && selectedSlotsByDate[k].length > 0) {
+          active = true;
+          break;
+        }
+      }
       continueButton.disabled = !active;
     }
 
@@ -463,7 +474,6 @@
       submitButton.disabled = true;
       submitButton.textContent = "Submitting booking...";
 
-      // Build contiguous dateSlots per day
       const dateSlots = [];
       for (const dateStr of Object.keys(selectedSlotsByDate)) {
         const slots = selectedSlotsByDate[dateStr];
