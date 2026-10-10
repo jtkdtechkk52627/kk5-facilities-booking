@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -32,6 +31,17 @@
     }
     .header p { margin: 0; color: #6b7280; font-size: 15px; }
 
+    .support-banner {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      padding: 12px 16px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      color: #1e40af;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
     .page { display: none; }
     .page.active { display: block; }
 
@@ -64,11 +74,6 @@
       cursor: not-allowed;
       background: #f8fafc;
       opacity: .78;
-    }
-
-    .facility-card.inactive:hover {
-      transform: none;
-      box-shadow: none;
     }
 
     .facility-name {
@@ -209,7 +214,6 @@
     }
 
     .range-status.success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
-    .range-status.warning { background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412; }
     .range-status.error { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; }
 
     .continue-button, .submit-button {
@@ -238,7 +242,6 @@
 
     .message.error { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; }
     .message.loading { background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; }
-    .message.success-box { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
 
     .hidden { display: none !important; }
 
@@ -247,7 +250,6 @@
       .header h1 { font-size: 27px; }
       .facility-grid { grid-template-columns: 1fr; }
       .time-row, .date-row { grid-template-columns: 1fr; }
-      .availability-grid { grid-template-columns: repeat(3, 1fr); }
     }
   </style>
 </head>
@@ -259,6 +261,11 @@
       <p>Select a facility to view its availability and make a booking directly.</p>
     </header>
 
+    <div class="support-banner">
+      💡 Need help or manual bookings? Contact <strong>JTKD Teknikal (Fateh)</strong> at <strong>0104563287</strong>.
+    </div>
+
+    <div id="maintenanceBanner" class="message error hidden" style="background:#fff7ed; border-color:#fed7aa; color:#9a3412;"></div>
     <div id="errorMessage" class="message error hidden" role="alert"></div>
 
     <!-- FACILITY SELECTION -->
@@ -393,24 +400,11 @@
   <script>
     "use strict";
 
-    /* =====================================================
-       CONFIGURATION
-       ===================================================== */
-
     const PUBLIC_SHEET_ID = "1PGb7g244LFMQlqJdJWDGaeGsZzJsel9WTUakDcNatiQ";
-
-    // Confirm this is the current deployed Apps Script Web App URL.
-    // If you redeploy and receive a different URL, replace it here.
-    const APPS_SCRIPT_URL =
-      "https://script.google.com/macros/s/AKfycbw3n23Sg5vLufUpGZp9S6tRvbVwTbp1FvS9Fj5DYBIsXH2hriNJznl9EJEC_a9145s7/exec";
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw3n23Sg5vLufUpGZp9S6tRvbVwTbp1FvS9Fj5DYBIsXH2hriNJznl9EJEC_a9145s7/exec";
 
     const MIN_DURATION = 30;
     const SLOT_INTERVAL = 30;
-    const MAX_BOOKING_DAYS = 7;
-
-    /* =====================================================
-       STATE
-       ===================================================== */
 
     let facilities = [];
     let selectedFacility = null;
@@ -419,11 +413,7 @@
     let selectedStartTime = null;
     let selectedEndTime = null;
     let currentBookingsByDate = {};
-    let availabilityLoading = false;
-
-    /* =====================================================
-       ELEMENTS
-       ===================================================== */
+    let maintenanceMode = false;
 
     const facilityPage = document.getElementById("facilityPage");
     const bookingPage = document.getElementById("bookingPage");
@@ -447,54 +437,55 @@
     const bookingSummary = document.getElementById("bookingSummary");
     const continueButton = document.getElementById("continueButton");
     const errorMessage = document.getElementById("errorMessage");
+    const maintenanceBanner = document.getElementById("maintenanceBanner");
     const summaryReviewText = document.getElementById("summaryReviewText");
     const bookingForm = document.getElementById("bookingForm");
     const submitButton = document.getElementById("submitButton");
     const submissionMessage = document.getElementById("submissionMessage");
 
-    document.addEventListener("DOMContentLoaded", loadFacilities);
+    document.addEventListener("DOMContentLoaded", initializeApp);
     bookingForm.addEventListener("submit", submitBooking);
 
-    /* =====================================================
-       PUBLIC GOOGLE SHEETS READING
-       ===================================================== */
-
     async function fetchGviz(sheetName) {
-      const url =
-        "https://docs.google.com/spreadsheets/d/" +
-        PUBLIC_SHEET_ID +
-        "/gviz/tq?sheet=" +
-        encodeURIComponent(sheetName) +
-        "&tqx=out:json";
-
-      const response = await fetch(url, {
-        method: "GET",
-        cache: "no-store"
-      });
-
+      const url = "https://docs.google.com/spreadsheets/d/" + PUBLIC_SHEET_ID + "/gviz/tq?sheet=" + encodeURIComponent(sheetName) + "&tqx=out:json";
+      const response = await fetch(url, { method: "GET", cache: "no-store" });
       const text = await response.text();
-
-      if (!response.ok) {
-        throw new Error("Google Sheets returned HTTP " + response.status + ".");
-      }
-
+      if (!response.ok) throw new Error("Google Sheets returned HTTP " + response.status + ".");
       const firstParen = text.indexOf("(");
       const lastParen = text.lastIndexOf(")");
+      if (firstParen === -1 || lastParen <= firstParen) throw new Error("Google Sheets did not return readable data.");
+      return JSON.parse(text.substring(firstParen + 1, lastParen));
+    }
 
-      if (firstParen === -1 || lastParen <= firstParen) {
-        throw new Error(
-          "Google Sheets did not return readable data. Check that the public spreadsheet is accessible."
-        );
+    async function initializeApp() {
+      await checkMaintenanceMode();
+      await loadFacilities();
+    }
+
+    async function checkMaintenanceMode() {
+      try {
+        const data = await fetchGviz("Settings");
+        if (data && data.table && data.table.rows) {
+          data.table.rows.forEach(row => {
+            const cells = row.c || [];
+            const key = String(getCellValue(cells[0])).trim().toLowerCase();
+            const val = String(getCellValue(cells[1])).trim();
+            if (key === "maintenance_mode") {
+              maintenanceMode = val.toLowerCase() === "true" || val === "1" || val.toLowerCase() === "yes";
+            } else if (key === "maintenance_notice" && val) {
+              maintenanceBanner.textContent = val;
+            }
+          });
+        }
+        if (maintenanceMode) {
+          if (!maintenanceBanner.textContent.trim()) {
+            maintenanceBanner.textContent = "The booking system is currently under maintenance. Please contact JTKD Teknikal (Fateh) at 0104563287 directly for bookings.";
+          }
+          maintenanceBanner.classList.remove("hidden");
+        }
+      } catch (err) {
+        console.error("Failed to check maintenance settings:", err);
       }
-
-      const jsonText = text.substring(firstParen + 1, lastParen);
-      const data = JSON.parse(jsonText);
-
-      if (data.status === "error") {
-        throw new Error("Google Sheets could not return the requested tab.");
-      }
-
-      return data;
     }
 
     async function loadFacilities() {
@@ -505,11 +496,7 @@
       try {
         const data = await fetchGviz("Facilities");
         facilities = parseFacilities(data);
-
-        if (facilities.length === 0) {
-          throw new Error("No facilities were found in the public Facilities tab.");
-        }
-
+        if (facilities.length === 0) throw new Error("No facilities found.");
         renderFacilities();
       } catch (error) {
         console.error("Facility loading error:", error);
@@ -528,48 +515,27 @@
 
     function parseFacilities(data) {
       if (!data || !data.table || !Array.isArray(data.table.rows)) return [];
-
       return data.table.rows.map(row => {
         const cells = row.c || [];
         const facility = String(getCellValue(cells[0])).trim();
         const openingTime = normalizeSheetTime(cells[1]);
         const closingTime = normalizeSheetTime(cells[2]);
-        const status = String(getCellValue(cells[3]) || "ACTIVE")
-          .trim()
-          .toUpperCase();
-
-        // Ignore header rows accidentally included as data.
+        const status = String(getCellValue(cells[3]) || "ACTIVE").trim().toUpperCase();
         if (!facility || facility.toLowerCase() === "facility") return null;
-
-        return {
-          facility,
-          openingTime,
-          closingTime,
-          status: status === "ACTIVE" ? "ACTIVE" : "INACTIVE"
-        };
+        return { facility, openingTime, closingTime, status: status === "ACTIVE" ? "ACTIVE" : "INACTIVE" };
       }).filter(Boolean);
     }
 
     function renderFacilities() {
       facilityGrid.innerHTML = "";
-
       facilities.forEach(facility => {
-        const inactive = facility.status !== "ACTIVE";
+        const inactive = facility.status !== "ACTIVE" || maintenanceMode;
         const card = document.createElement("div");
-
         card.className = "facility-card" + (inactive ? " inactive" : "");
-        card.setAttribute("role", inactive ? "group" : "button");
-
+        
         if (!inactive) {
           card.tabIndex = 0;
-          card.setAttribute("aria-label", "Book " + facility.facility);
           card.addEventListener("click", () => openFacility(facility));
-          card.addEventListener("keydown", event => {
-            if (event.key === "Enter" || event.key === " ") {
-              event.preventDefault();
-              openFacility(facility);
-            }
-          });
         }
 
         const name = document.createElement("div");
@@ -578,57 +544,37 @@
 
         const hours = document.createElement("div");
         hours.className = "facility-hours";
-        hours.textContent = facility.openingTime && facility.closingTime
-          ? "Open " + formatDisplayTime(facility.openingTime) +
-            " – " + formatDisplayTime(facility.closingTime)
-          : "Operating hours unavailable";
+        hours.textContent = facility.openingTime && facility.closingTime ? "Open " + formatDisplayTime(facility.openingTime) + " – " + formatDisplayTime(facility.closingTime) : "";
 
         const status = document.createElement("div");
-        status.className = "facility-status " +
-          (inactive ? "unavailable" : "available");
-        status.textContent = inactive
-          ? "UNAVAILABLE FOR BOOKING"
-          : "AVAILABLE FOR BOOKING";
+        status.className = "facility-status " + (inactive ? "unavailable" : "available");
+        status.textContent = maintenanceMode ? "MAINTENANCE MODE" : (inactive ? "UNAVAILABLE" : "AVAILABLE FOR BOOKING");
 
         card.append(name, hours, status);
         facilityGrid.appendChild(card);
       });
     }
 
-    /* =====================================================
-       PAGE NAVIGATION
-       ===================================================== */
-
     function showPage(pageToShow) {
       [facilityPage, bookingPage, detailsPage, successPage].forEach(page => {
         page.classList.toggle("active", page === pageToShow);
       });
-
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     function openFacility(facility) {
-      if (!facility || facility.status !== "ACTIVE") return;
-
+      if (!facility || facility.status !== "ACTIVE" || maintenanceMode) return;
       selectedFacility = facility;
       selectedFacilityName.textContent = facility.facility;
-
-      selectedFacilityHours.textContent =
-        "Operating hours: " +
-        formatDisplayTime(facility.openingTime) +
-        " – " +
-        formatDisplayTime(facility.closingTime);
-
+      selectedFacilityHours.textContent = "Operating hours: " + formatDisplayTime(facility.openingTime) + " – " + formatDisplayTime(facility.closingTime);
       resetBookingState();
       setMinimumDates();
-      hideError();
       showPage(bookingPage);
     }
 
     function goBackToFacilities() {
       selectedFacility = null;
       resetBookingState();
-      hideError();
       showPage(facilityPage);
     }
 
@@ -642,7 +588,6 @@
       selectedStartTime = null;
       selectedEndTime = null;
       currentBookingsByDate = {};
-
       startDate.value = "";
       endDate.value = "";
       startTime.innerHTML = '<option value="">Select start time</option>';
@@ -650,157 +595,55 @@
       duration.innerHTML = '<option value="">Select duration</option>';
       duration.disabled = true;
       endTime.value = "";
-
       availabilityGrid.innerHTML = "";
-      availabilityMessage.textContent =
-        "Select a date range to view availability.";
-
+      availabilityMessage.textContent = "Select a date range to view availability.";
       rangeStatus.className = "range-status hidden";
-      rangeStatus.textContent = "";
       bookingSummary.className = "booking-summary hidden";
       continueButton.disabled = true;
-
-      submissionMessage.className = "message hidden";
-      submissionMessage.textContent = "";
     }
 
     function setMinimumDates() {
-      const today = new Date();
-      const todayString = formatDateObject(today);
-      const maximumDate = formatDateObject(
-        addDays(today, MAX_BOOKING_DAYS - 1)
-      );
-
+      const todayString = formatDateObject(new Date());
       startDate.min = todayString;
-      startDate.max = maximumDate;
       endDate.min = todayString;
-      endDate.max = maximumDate;
+      // Removed 7-day max limit entirely per your request!
     }
-
-    /* =====================================================
-       DATE SELECTION
-       ===================================================== */
 
     startDate.addEventListener("change", async function() {
       selectedStartDate = startDate.value;
-
-      // Clear both the visible and stored end date.
       selectedEndDate = "";
       endDate.value = "";
-
-      selectedStartTime = null;
-      selectedEndTime = null;
-
       endDate.min = selectedStartDate || startDate.min;
-      endDate.max = selectedStartDate
-        ? calculateMaximumEndDate(selectedStartDate)
-        : startDate.max;
-
       resetTimeSelection();
       clearAvailability();
-
-      if (!selectedStartDate) return;
-
-      updateBookingSummary();
+      if (selectedStartDate) updateBookingSummary();
     });
 
     endDate.addEventListener("change", async function() {
       selectedEndDate = endDate.value;
-      selectedStartTime = null;
-      selectedEndTime = null;
-
       resetTimeSelection();
       clearAvailability();
-
       if (!selectedStartDate || !selectedEndDate) return;
-
-      const validation = validateDateRange();
-
-      if (!validation.valid) {
-        showRangeStatus(validation.message, "error");
+      if (parseDateOnly(selectedEndDate) < parseDateOnly(selectedStartDate)) {
+        showRangeStatus("End date cannot be before start date.", "error");
         endDate.value = "";
         selectedEndDate = "";
-        updateBookingSummary();
         return;
       }
-
       updateBookingSummary();
       await loadAvailability();
     });
 
-    function validateDateRange() {
-      if (!selectedStartDate || !selectedEndDate) {
-        return {
-          valid: false,
-          message: "Please select start and end dates."
-        };
-      }
-
-      const start = parseDateOnly(selectedStartDate);
-      const end = parseDateOnly(selectedEndDate);
-
-      if (!start || !end) {
-        return { valid: false, message: "Please select valid dates." };
-      }
-
-      if (end < start) {
-        return {
-          valid: false,
-          message: "End date cannot be before start date."
-        };
-      }
-
-      const days = getDateDifferenceInDays(start, end) + 1;
-
-      if (days > MAX_BOOKING_DAYS) {
-        return {
-          valid: false,
-          message: "Bookings can cover a maximum of " +
-            MAX_BOOKING_DAYS + " calendar days."
-        };
-      }
-
-      return { valid: true, days };
-    }
-
-    /* =====================================================
-       AVAILABILITY
-       ===================================================== */
-
     async function loadAvailability() {
       if (!selectedFacility || !selectedStartDate || !selectedEndDate) return;
-
-      const validation = validateDateRange();
-
-      if (!validation.valid) {
-        showRangeStatus(validation.message, "error");
-        return;
-      }
-
-      availabilityLoading = true;
-      continueButton.disabled = true;
       availabilityGrid.innerHTML = "";
       availabilityMessage.textContent = "Loading availability...";
-      hideRangeStatus();
-
       try {
         const data = await fetchGviz("Bookings");
-
-        currentBookingsByDate = parseBookingsForRange(
-          data,
-          selectedFacility.facility,
-          selectedStartDate,
-          selectedEndDate
-        );
-
+        currentBookingsByDate = parseBookingsForRange(data, selectedFacility.facility, selectedStartDate, selectedEndDate);
         renderAvailabilityMatrix();
       } catch (error) {
-        console.error("Availability loading error:", error);
-        availabilityMessage.textContent =
-          "Failed to load availability. Check that the public Bookings tab is accessible, then try selecting the dates again.";
-        showRangeStatus(error.message, "error");
-      } finally {
-        availabilityLoading = false;
+        availabilityMessage.textContent = "Failed to load availability.";
       }
     }
 
@@ -808,16 +651,8 @@
       const map = {};
       const start = parseDateOnly(startStr);
       const end = parseDateOnly(endStr);
-
-      if (!start || !end) return map;
-
-      getDatesBetween(start, end).forEach(date => {
-        map[formatDateObject(date)] = [];
-      });
-
-      if (!data || !data.table || !Array.isArray(data.table.rows)) {
-        return map;
-      }
+      getDatesBetween(start, end).forEach(date => { map[formatDateObject(date)] = []; });
+      if (!data || !data.table || !Array.isArray(data.table.rows)) return map;
 
       data.table.rows.forEach(row => {
         const cells = row.c || [];
@@ -827,48 +662,25 @@
         const bookingEnd = normalizeSheetTime(cells[3]);
         const status = String(getCellValue(cells[4])).trim().toUpperCase();
 
-        // Ignore header rows and unrelated facilities.
-        if (!facility || facility.toLowerCase() === "facility") return;
         if (facility.toLowerCase() !== facilityName.toLowerCase()) return;
         if (status !== "PENDING" && status !== "APPROVED") return;
         if (!date || !bookingStart || !bookingEnd) return;
 
         const dateKey = formatDateObject(date);
-
-        if (Object.prototype.hasOwnProperty.call(map, dateKey)) {
-          map[dateKey].push({
-            start: bookingStart,
-            end: bookingEnd,
-            status
-          });
+        if (map[dateKey]) {
+          map[dateKey].push({ start: bookingStart, end: bookingEnd, status });
         }
       });
-
       return map;
     }
 
     function renderAvailabilityMatrix() {
       availabilityMessage.textContent = "";
       availabilityGrid.innerHTML = "";
-
       const openingMin = parseTimeToMinutes(selectedFacility.openingTime);
       const closingMin = parseTimeToMinutes(selectedFacility.closingTime);
 
-      if (
-        openingMin === null ||
-        closingMin === null ||
-        closingMin <= openingMin
-      ) {
-        availabilityMessage.textContent =
-          "The operating hours for this facility are invalid. Please contact the administrator.";
-        return;
-      }
-
-      const dates = getDatesBetween(
-        parseDateOnly(selectedStartDate),
-        parseDateOnly(selectedEndDate)
-      );
-
+      const dates = getDatesBetween(parseDateOnly(selectedStartDate), parseDateOnly(selectedEndDate));
       dates.forEach(dateObj => {
         const dateKey = formatDateObject(dateObj);
         const bookings = currentBookingsByDate[dateKey] || [];
@@ -877,47 +689,29 @@
         dayHeader.style.gridColumn = "1 / -1";
         dayHeader.style.fontWeight = "650";
         dayHeader.style.marginTop = "10px";
-        dayHeader.style.color = "#374151";
         dayHeader.textContent = formatDateForDisplay(dateObj);
         availabilityGrid.appendChild(dayHeader);
 
         const dayContainer = document.createElement("div");
         dayContainer.style.display = "grid";
-        dayContainer.style.gridTemplateColumns =
-          "repeat(auto-fill, minmax(90px, 1fr))";
+        dayContainer.style.gridTemplateColumns = "repeat(auto-fill, minmax(90px, 1fr))";
         dayContainer.style.gap = "6px";
         dayContainer.style.gridColumn = "1 / -1";
 
-        let slotFound = false;
-
-        for (
-          let minute = openingMin;
-          minute + SLOT_INTERVAL <= closingMin;
-          minute += SLOT_INTERVAL
-        ) {
+        for (let minute = openingMin; minute + SLOT_INTERVAL <= closingMin; minute += SLOT_INTERVAL) {
           const slotStart = minutesToTimeStr(minute);
           const slotEnd = minutesToTimeStr(minute + SLOT_INTERVAL);
           const slot = document.createElement("button");
-
           slot.type = "button";
           slot.className = "slot";
           slot.textContent = slotStart;
-          slot.setAttribute("aria-label", "Start at " + slotStart);
 
           let slotStatus = "available";
-
-          for (const booking of bookings) {
-            const bookingStart = parseTimeToMinutes(booking.start);
-            const bookingEnd = parseTimeToMinutes(booking.end);
-
-            if (
-              bookingStart !== null &&
-              bookingEnd !== null &&
-              minute < bookingEnd &&
-              minute + SLOT_INTERVAL > bookingStart
-            ) {
-              slotStatus =
-                booking.status === "APPROVED" ? "booked" : "pending";
+          for (const b of bookings) {
+            const bStart = parseTimeToMinutes(b.start);
+            const bEnd = parseTimeToMinutes(b.end);
+            if (bStart !== null && bEnd !== null && minute < bEnd && minute + SLOT_INTERVAL > bStart) {
+              slotStatus = b.status === "APPROVED" ? "booked" : "pending";
               break;
             }
           }
@@ -925,269 +719,99 @@
           if (slotStatus === "booked") {
             slot.classList.add("booked");
             slot.disabled = true;
-            slot.title = "Approved booking";
           } else if (slotStatus === "pending") {
             slot.classList.add("pending");
             slot.disabled = true;
-            slot.title = "Pending approval";
           } else {
-            slot.title = "Select this start time";
             slot.addEventListener("click", () => selectQuickSlot(slotStart));
           }
-
           dayContainer.appendChild(slot);
-          slotFound = true;
         }
-
-        if (!slotFound) {
-          const message = document.createElement("div");
-          message.style.color = "#6b7280";
-          message.style.fontSize = "13px";
-          message.textContent = "No time slots available for this day.";
-          dayContainer.appendChild(message);
-        }
-
         availabilityGrid.appendChild(dayContainer);
       });
-
       populateStartTimeDropdowns(openingMin, closingMin);
     }
 
     function populateStartTimeDropdowns(openMin, closeMin) {
       startTime.innerHTML = '<option value="">Select start time</option>';
-
-      for (
-        let minute = openMin;
-        minute + MIN_DURATION <= closeMin;
-        minute += SLOT_INTERVAL
-      ) {
+      for (let minute = openMin; minute + MIN_DURATION <= closeMin; minute += SLOT_INTERVAL) {
         const time = minutesToTimeStr(minute);
         const option = document.createElement("option");
         option.value = time;
         option.textContent = time;
         startTime.appendChild(option);
       }
-
       startTime.disabled = false;
     }
-
-    /* =====================================================
-       TIME AND DURATION
-       ===================================================== */
 
     function resetTimeSelection() {
       selectedStartTime = null;
       selectedEndTime = null;
-
       startTime.innerHTML = '<option value="">Select start time</option>';
       startTime.disabled = true;
-
       duration.innerHTML = '<option value="">Select duration</option>';
       duration.disabled = true;
-
       endTime.value = "";
       continueButton.disabled = true;
       hideRangeStatus();
     }
 
-    startTime.addEventListener("change", handleStartTimeChange);
-    duration.addEventListener("change", updateEndTime);
-
-    function handleStartTimeChange() {
+    startTime.addEventListener("change", function() {
       selectedStartTime = startTime.value;
-      selectedEndTime = null;
-
       duration.innerHTML = '<option value="">Select duration</option>';
       duration.disabled = true;
       endTime.value = "";
       continueButton.disabled = true;
-      hideRangeStatus();
 
-      if (!selectedStartTime || !selectedFacility) return;
-
+      if (!selectedStartTime) return;
       const closingMin = parseTimeToMinutes(selectedFacility.closingTime);
       const startMin = parseTimeToMinutes(selectedStartTime);
-
-      if (closingMin === null || startMin === null) return;
-
       const latestDuration = closingMin - startMin;
 
-      for (
-        let minutes = MIN_DURATION;
-        minutes <= latestDuration;
-        minutes += SLOT_INTERVAL
-      ) {
-        const option = document.createElement("option");
-        option.value = String(minutes);
-        option.textContent = formatDurationDisplay(minutes);
-        duration.appendChild(option);
+      for (let m = MIN_DURATION; m <= latestDuration; m += SLOT_INTERVAL) {
+        const opt = document.createElement("option");
+        opt.value = String(m);
+        opt.textContent = formatDurationDisplay(m);
+        duration.appendChild(opt);
       }
+      duration.disabled = false;
+    });
 
-      duration.disabled = duration.options.length <= 1;
-    }
-
-    function updateEndTime() {
-      const durationMinutes = Number.parseInt(duration.value, 10);
-
-      if (
-        !Number.isFinite(durationMinutes) ||
-        durationMinutes < MIN_DURATION ||
-        !selectedStartTime ||
-        !selectedFacility
-      ) {
-        selectedEndTime = null;
-        endTime.value = "";
+    duration.addEventListener("change", function() {
+      const durationMins = parseInt(duration.value, 10);
+      if (isNaN(durationMins)) {
         continueButton.disabled = true;
         return;
       }
-
       const startMin = parseTimeToMinutes(selectedStartTime);
-      const closeMin = parseTimeToMinutes(selectedFacility.closingTime);
-
-      if (startMin === null || startMin + durationMinutes > closeMin) {
-        selectedEndTime = null;
-        endTime.value = "";
-        continueButton.disabled = true;
-        showRangeStatus("The selected time is outside the facility's operating hours.", "error");
-        return;
-      }
-
-      const endMin = startMin + durationMinutes;
+      const endMin = startMin + durationMins;
       selectedEndTime = minutesToTimeStr(endMin);
       endTime.value = selectedEndTime;
-
-      if (hasClashInRange(startMin, endMin)) {
-        showRangeStatus(
-          "This time range overlaps with an existing booking on at least one selected date. Please choose another time or date range.",
-          "error"
-        );
-        continueButton.disabled = true;
-      } else {
-        hideRangeStatus();
-        continueButton.disabled = false;
-      }
-    }
-
-    function hasClashInRange(startMin, endMin) {
-      const start = parseDateOnly(selectedStartDate);
-      const end = parseDateOnly(selectedEndDate);
-
-      if (!start || !end) return true;
-
-      const dates = getDatesBetween(start, end);
-
-      for (const date of dates) {
-        const dateKey = formatDateObject(date);
-        const bookings = currentBookingsByDate[dateKey] || [];
-
-        for (const booking of bookings) {
-          const bookingStart = parseTimeToMinutes(booking.start);
-          const bookingEnd = parseTimeToMinutes(booking.end);
-
-          if (
-            bookingStart !== null &&
-            bookingEnd !== null &&
-            startMin < bookingEnd &&
-            endMin > bookingStart
-          ) {
-            return true;
-          }
-        }
-      }
-
-      return false;
-    }
+      continueButton.disabled = false;
+    });
 
     function selectQuickSlot(timeStr) {
       startTime.value = timeStr;
-      handleStartTimeChange();
-
-      // Select the shortest duration by default.
+      startTime.dispatchEvent(new Event("change"));
       if (duration.options.length > 1) {
         duration.value = String(MIN_DURATION);
-        updateEndTime();
+        duration.dispatchEvent(new Event("change"));
       }
-
-      // Highlight the selected slot in the availability display.
-      document.querySelectorAll(".slot.selected").forEach(slot => {
-        slot.classList.remove("selected");
-      });
-
-      const selectedSlot = Array.from(document.querySelectorAll(".slot"))
-        .find(slot => slot.textContent === timeStr && !slot.disabled);
-
-      if (selectedSlot) selectedSlot.classList.add("selected");
     }
 
-    /* =====================================================
-       CONTINUE TO DETAILS
-       ===================================================== */
-
     function showDetailsForm() {
-      if (
-        !selectedFacility ||
-        !selectedStartDate ||
-        !selectedEndDate ||
-        !selectedStartTime ||
-        !selectedEndTime ||
-        continueButton.disabled ||
-        availabilityLoading
-      ) {
-        showRangeStatus("Please select a valid date and time first.", "error");
-        return;
-      }
-
-      summaryReviewText.textContent =
-        "Facility: " + selectedFacility.facility +
-        " | Dates: " + selectedStartDate + " to " + selectedEndDate +
-        " | Time: " + selectedStartTime + "–" + selectedEndTime;
-
-      hideError();
+      if (!selectedFacility || !selectedStartDate || !selectedEndDate || !selectedStartTime || !selectedEndTime) return;
+      summaryReviewText.textContent = "Facility: " + selectedFacility.facility + " | Dates: " + selectedStartDate + " to " + selectedEndDate + " | Time: " + selectedStartTime + "–" + selectedEndTime;
       showPage(detailsPage);
     }
 
-    /* =====================================================
-       SUBMIT BOOKING
-       ===================================================== */
-
     async function submitBooking(event) {
       event.preventDefault();
-
       if (!bookingForm.reportValidity()) return;
-
-      if (
-        !selectedFacility ||
-        !selectedStartDate ||
-        !selectedEndDate ||
-        !selectedStartTime ||
-        !selectedEndTime
-      ) {
-        showSubmissionMessage(
-          "Your selected booking details are incomplete. Return to the previous page and select your dates and times again.",
-          "error"
-        );
-        return;
-      }
-
-      if (!APPS_SCRIPT_URL.startsWith("https://script.google.com/macros/s/")) {
-        showSubmissionMessage(
-          "The Apps Script Web App URL is not configured correctly.",
-          "error"
-        );
-        return;
-      }
 
       submitButton.disabled = true;
       submitButton.textContent = "Submitting booking...";
-      showSubmissionMessage("Submitting your booking request...", "loading");
 
-      /*
-       * This payload matches the field names expected by your existing
-       * Google Forms processBooking(e) logic.
-       *
-       * The Apps Script doPost(e) must separately implement the
-       * public "submitBooking" action and return a JSON response.
-       */
       const payload = {
         action: "submitBooking",
         namedValues: {
@@ -1208,349 +832,68 @@
       try {
         const response = await fetch(APPS_SCRIPT_URL, {
           method: "POST",
-          headers: {
-            "Content-Type": "text/plain;charset=utf-8"
-          },
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
           body: JSON.stringify(payload),
           redirect: "follow"
         });
-
-        if (!response.ok) {
-          throw new Error("The booking server returned HTTP " + response.status + ".");
-        }
-
         const result = await response.json();
+        if (!result || result.success !== true) throw new Error(result.message || "Server error");
 
-        if (!result || result.success !== true) {
-          throw new Error(
-            result && result.message
-              ? result.message
-              : "The server did not confirm the booking."
-          );
-        }
-
-        const bookingId =
-          result.bookingId ||
-          (result.data && result.data.bookingId) ||
-          "";
-
-        document.getElementById("successMessageText").textContent =
-          "Your booking request has been received." +
-          (bookingId ? " Your reference is " + bookingId + "." : "") +
-          " Your request is subject to approval. Please check your email for confirmation.";
-
+        document.getElementById("successMessageText").textContent = "Your booking request has been received (Ref: " + result.bookingId + "). Status is PENDING.";
         showPage(successPage);
       } catch (error) {
-        console.error("Booking submission error:", error);
-
-        showSubmissionMessage(
-          "We could not confirm that your request was submitted. " +
-          error.message +
-          " Please check your details and try again. If the problem continues, contact the KK5 technical team.",
-          "error"
-        );
+        alert("Submission failed: " + error.message);
       } finally {
         submitButton.disabled = false;
         submitButton.textContent = "Submit Booking Request";
       }
     }
 
-    function showSubmissionMessage(message, type) {
-      submissionMessage.textContent = message;
-      submissionMessage.className = "message " + type;
-    }
-
-    /* =====================================================
-       DATE/TIME PARSING HELPERS
-       ===================================================== */
-
-    function formatDisplayTime(time) {
-      const normalized = normalizeSheetTime({ f: time });
-      return normalized || String(time || "").substring(0, 5);
-    }
-
-    function normalizeSheetTime(cell) {
-      if (!cell) return "";
-
-      const candidates = [cell.f, cell.v];
-
-      for (const candidate of candidates) {
-        if (candidate === undefined || candidate === null || candidate === "") continue;
-
-        const value = String(candidate).trim();
-
-        // Google Sheets time formatted as HH:mm or HH:mm:ss.
-        let match = value.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
-        if (match) {
-          return String(Number(match[1])).padStart(2, "0") + ":" + match[2];
-        }
-
-        // Time formatted with AM/PM, e.g. 9:00:00 AM.
-        match = value.match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)$/i);
-        if (match) {
-          let hour = Number(match[1]);
-          const minute = match[2];
-          const meridiem = match[3].toUpperCase();
-
-          if (meridiem === "AM" && hour === 12) hour = 0;
-          if (meridiem === "PM" && hour !== 12) hour += 12;
-
-          return String(hour).padStart(2, "0") + ":" + minute;
-        }
-
-        // Google Visualization time objects.
-        match = value.match(/Date\(\d+,\d+,\d+,\s*(\d+),\s*(\d+)/);
-        if (match) {
-          return String(Number(match[1])).padStart(2, "0") + ":" +
-            String(Number(match[2])).padStart(2, "0");
-        }
-      }
-
-      return "";
-    }
-
+    function formatDisplayTime(time) { return String(time || "").substring(0, 5); }
+    function normalizeSheetTime(cell) { return cell && cell.v ? String(cell.v) : ""; }
     function parseSheetDate(cell) {
       if (!cell) return null;
-
-      // Prefer the raw Google Visualization value, which can be
-      // represented as Date(year, monthIndex, day).
-      const raw = cell.v !== undefined && cell.v !== null
-        ? String(cell.v).trim()
-        : "";
-
-      const dateObjectMatch = raw.match(/^Date\((\d{4}),(\d{1,2}),(\d{1,2})/);
-
-      if (dateObjectMatch) {
-        return new Date(
-          Number(dateObjectMatch[1]),
-          Number(dateObjectMatch[2]),
-          Number(dateObjectMatch[3])
-        );
+      if (cell.v && String(cell.v).startsWith("Date(")) {
+        const m = cell.v.match(/Date\((\d+),(\d+),(\d+)\)/);
+        if (m) return new Date(Number(m[1]), Number(m[2]), Number(m[3]));
       }
-
-      const displayed = String(
-        cell.f !== undefined && cell.f !== null ? cell.f : raw
-      ).trim();
-
-      // ISO date: YYYY-MM-DD.
-      let match = displayed.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
-
-      if (match) {
-        return new Date(
-          Number(match[1]),
-          Number(match[2]) - 1,
-          Number(match[3])
-        );
-      }
-
-      // Slash date: DD/MM/YYYY or MM/DD/YYYY.
-      // For unambiguous dates, determine which component is the day.
-      match = displayed.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-
-      if (match) {
-        const first = Number(match[1]);
-        const second = Number(match[2]);
-        const year = Number(match[3]);
-
-        let day;
-        let month;
-
-        if (first > 12) {
-          day = first;
-          month = second;
-        } else if (second > 12) {
-          month = first;
-          day = second;
-        } else {
-          // Malaysia-style date display: DD/MM/YYYY.
-          day = first;
-          month = second;
-        }
-
-        return new Date(year, month - 1, day);
-      }
-
+      return parseDateOnly(cell.f || cell.v);
+    }
+    function formatDateObject(date) { return date.toISOString().split("T")[0]; }
+    function parseDateOnly(val) {
+      if (!val) return null;
+      const match = String(val).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (match) return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
       return null;
     }
-
-    function formatDateObject(date) {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const day = String(date.getDate()).padStart(2, "0");
-
-      return year + "-" + month + "-" + day;
-    }
-
-    function parseDateOnly(value) {
-      if (!value) return null;
-
-      const match = String(value).match(/^(\d{4})-(\d{2})-(\d{2})$/);
-      if (!match) return null;
-
-      const year = Number(match[1]);
-      const month = Number(match[2]);
-      const day = Number(match[3]);
-      const date = new Date(year, month - 1, day);
-
-      // Reject impossible dates such as 2026-02-31.
-      if (
-        date.getFullYear() !== year ||
-        date.getMonth() !== month - 1 ||
-        date.getDate() !== day
-      ) {
-        return null;
-      }
-
-      return date;
-    }
-
-    function addDays(date, days) {
-      const result = new Date(date);
-      result.setDate(result.getDate() + days);
-      return result;
-    }
-
-    function calculateMaximumEndDate(startDateString) {
-      const date = parseDateOnly(startDateString);
-      if (!date) return startDate.max;
-
-      return formatDateObject(addDays(date, MAX_BOOKING_DAYS - 1));
-    }
-
-    function getDateDifferenceInDays(start, end) {
-      const startUtc = Date.UTC(
-        start.getFullYear(), start.getMonth(), start.getDate()
-      );
-      const endUtc = Date.UTC(
-        end.getFullYear(), end.getMonth(), end.getDate()
-      );
-
-      return Math.round((endUtc - startUtc) / 86400000);
-    }
-
-    function getDatesBetween(startDateObject, endDateObject) {
+    function getDatesBetween(start, end) {
       const dates = [];
-
-      if (!startDateObject || !endDateObject) return dates;
-
-      const current = new Date(
-        startDateObject.getFullYear(),
-        startDateObject.getMonth(),
-        startDateObject.getDate()
-      );
-
-      const end = new Date(
-        endDateObject.getFullYear(),
-        endDateObject.getMonth(),
-        endDateObject.getDate()
-      );
-
-      while (current <= end) {
-        dates.push(new Date(current));
-        current.setDate(current.getDate() + 1);
+      let cur = new Date(start);
+      while (cur <= end) {
+        dates.push(new Date(cur));
+        cur.setDate(cur.getDate() + 1);
       }
-
       return dates;
     }
-
-    function parseTimeToMinutes(timeString) {
-      if (!timeString) return null;
-
-      const normalized = normalizeSheetTime({ f: timeString });
-      const value = normalized || String(timeString).trim();
-      const match = value.match(/^(\d{1,2}):(\d{2})$/);
-
-      if (!match) return null;
-
-      const hour = Number(match[1]);
-      const minute = Number(match[2]);
-
-      if (hour < 0 || hour > 23 || minute < 0 || minute > 59) return null;
-
-      return hour * 60 + minute;
+    function parseTimeToMinutes(t) {
+      if (!t) return null;
+      const parts = String(t).split(":");
+      return parts.length >= 2 ? Number(parts[0]) * 60 + Number(parts[1]) : null;
     }
-
-    function minutesToTimeStr(minutes) {
-      const hour = Math.floor(minutes / 60);
-      const minute = minutes % 60;
-
-      return String(hour).padStart(2, "0") + ":" +
-        String(minute).padStart(2, "0");
+    function minutesToTimeStr(m) {
+      return String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0");
     }
-
-    function formatDurationDisplay(minutes) {
-      const hours = Math.floor(minutes / 60);
-      const remainingMinutes = minutes % 60;
-
-      if (hours > 0 && remainingMinutes > 0) {
-        return hours + " hr " + remainingMinutes + " mins";
-      }
-
-      if (hours > 0) {
-        return hours + (hours > 1 ? " hrs" : " hr");
-      }
-
-      return remainingMinutes + " mins";
+    function formatDurationDisplay(m) {
+      const h = Math.floor(m / 60), min = m % 60;
+      return h > 0 ? h + " hr" + (min > 0 ? " " + min + " mins" : "") : min + " mins";
     }
-
-    function formatDateForDisplay(date) {
-      return date.toLocaleDateString("en-GB", {
-        weekday: "short",
-        day: "numeric",
-        month: "short",
-        year: "numeric"
-      });
-    }
-
-    /* =====================================================
-       DISPLAY HELPERS
-       ===================================================== */
-
-    function showRangeStatus(message, type) {
-      rangeStatus.className = "range-status " + type;
-      rangeStatus.textContent = message;
-    }
-
-    function hideRangeStatus() {
-      rangeStatus.className = "range-status hidden";
-      rangeStatus.textContent = "";
-    }
-
-    function updateBookingSummary() {
-      if (!selectedStartDate) {
-        bookingSummary.className = "booking-summary hidden";
-        bookingSummary.textContent = "";
-        return;
-      }
-
-      bookingSummary.className = "booking-summary";
-
-      if (selectedEndDate) {
-        bookingSummary.textContent =
-          "Booking period: " + selectedStartDate + " to " + selectedEndDate;
-      } else {
-        bookingSummary.textContent =
-          "Start date: " + selectedStartDate + ". Please select an end date.";
-      }
-    }
-
-    function clearAvailability() {
-      availabilityGrid.innerHTML = "";
-      availabilityMessage.textContent =
-        "Select a valid date range to view availability.";
-      continueButton.disabled = true;
-      hideRangeStatus();
-    }
-
-    function showError(message) {
-      errorMessage.textContent = message;
-      errorMessage.classList.remove("hidden");
-    }
-
-    function hideError() {
-      errorMessage.textContent = "";
-      errorMessage.classList.add("hidden");
-    }
+    function formatDateForDisplay(d) { return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" }); }
+    function showRangeStatus(msg, type) { rangeStatus.className = "range-status " + type; rangeStatus.textContent = msg; }
+    function hideRangeStatus() { rangeStatus.className = "range-status hidden"; }
+    function updateBookingSummary() { bookingSummary.className = "booking-summary"; bookingSummary.textContent = "Booking period: " + selectedStartDate + (selectedEndDate ? " to " + selectedEndDate : ""); }
+    function clearAvailability() { availabilityGrid.innerHTML = ""; availabilityMessage.textContent = "Select a date range to view availability."; continueButton.disabled = true; }
+    function showError(msg) { errorMessage.textContent = msg; errorMessage.classList.remove("hidden"); }
+    function hideError() { errorMessage.classList.add("hidden"); }
   </script>
 </body>
 </html>
