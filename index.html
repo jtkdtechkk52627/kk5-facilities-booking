@@ -59,12 +59,17 @@
 
     .day-availability-box { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px; margin-bottom: 14px; }
     .day-title { font-weight: 650; color: #374151; margin-bottom: 10px; font-size: 14px; }
-    .availability-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 6px; }
-    .slot { border: 1px solid #d1d5db; background: white; border-radius: 6px; padding: 8px 4px; text-align: center; font-size: 12px; cursor: pointer; }
+    .availability-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(115px, 1fr)); gap: 8px; }
+    .slot { border: 1px solid #d1d5db; background: white; border-radius: 6px; padding: 8px 6px; text-align: center; font-size: 12px; cursor: pointer; }
     .slot:hover { border-color: #2563eb; background: #eff6ff; }
     .slot.selected { border-color: #2563eb; background: #2563eb; color: white; font-weight: 600; }
     .slot.booked { cursor: not-allowed; background: #f3f4f6; color: #9ca3af; }
     .slot.pending { cursor: not-allowed; background: #fff7ed; color: #c2410c; }
+
+    .selection-live-banner {
+      background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: 12px 16px;
+      border-radius: 10px; font-size: 14px; font-weight: 500; margin-bottom: 16px;
+    }
 
     .continue-button, .submit-button { width: 100%; min-height: 48px; margin-top: 18px; border: none; border-radius: 9px; background: #111827; color: white; font-size: 15px; font-weight: 600; cursor: pointer; }
     .continue-button:disabled, .submit-button:disabled { background: #d1d5db; cursor: not-allowed; }
@@ -119,7 +124,13 @@
 
         <div class="availability-section">
           <h3 class="availability-title">Select Time Slots per Day</h3>
-          <p style="font-size:13px;color:#6b7280;margin-bottom:14px;">Click time boxes for each day. Non-contiguous selections (e.g. 10-11 and 13-14) will be registered as separate time entries under the same booking reference.</p>
+          <p style="font-size:13px;color:#6b7280;margin-bottom:14px;">Each button represents a 30-minute block (e.g. 08:00 – 08:30). Select consecutive blocks to build your desired booking duration.</p>
+          
+          <!-- Live Selection Banner -->
+          <div id="selectionLiveBanner" class="selection-live-banner hidden">
+            ✨ <strong>Selected Time:</strong> <span id="liveSelectionSummaryText">None</span>
+          </div>
+
           <div id="availabilityContainer"></div>
         </div>
 
@@ -203,6 +214,8 @@
     const endDate = document.getElementById("endDate");
     const availabilityContainer = document.getElementById("availabilityContainer");
     const bookingSummary = document.getElementById("bookingSummary");
+    const selectionLiveBanner = document.getElementById("selectionLiveBanner");
+    const liveSelectionSummaryText = document.getElementById("liveSelectionSummaryText");
     const continueButton = document.getElementById("continueButton");
     const errorMessage = document.getElementById("errorMessage");
     const maintenanceBanner = document.getElementById("maintenanceBanner");
@@ -337,6 +350,7 @@
       startDate.value = ""; endDate.value = "";
       availabilityContainer.innerHTML = "";
       bookingSummary.className = "booking-summary hidden";
+      selectionLiveBanner.classList.add("hidden");
       continueButton.disabled = true;
     }
 
@@ -350,6 +364,7 @@
 
       selectedSlotsByDate = {};
       updateBookingSummary();
+      updateLiveSelectionSummary();
       await loadAvailability();
     });
 
@@ -364,6 +379,7 @@
         return;
       }
       updateBookingSummary();
+      updateLiveSelectionSummary();
       await loadAvailability();
     });
 
@@ -428,7 +444,8 @@
           const slot = document.createElement("button");
           slot.type = "button";
           slot.className = "slot";
-          slot.textContent = slotStart;
+          // Full range label on button to eliminate ambiguity
+          slot.textContent = slotStart + " – " + slotEnd;
 
           let slotStatus = "available";
           for (const b of bookings) {
@@ -445,6 +462,9 @@
           } else if (slotStatus === "pending") {
             slot.classList.add("pending"); slot.disabled = true;
           } else {
+            if (selectedSlotsByDate[dateKey] && selectedSlotsByDate[dateKey].some(s => s.start === slotStart)) {
+              slot.classList.add("selected");
+            }
             slot.addEventListener("click", () => toggleSlot(dateKey, slotStart, slotEnd, slot));
           }
           grid.appendChild(slot);
@@ -473,6 +493,28 @@
         }
       }
       continueButton.disabled = !active;
+      updateLiveSelectionSummary();
+    }
+
+    function updateLiveSelectionSummary() {
+      let totalSlots = 0;
+      let summaryParts = [];
+
+      for (const dateStr of Object.keys(selectedSlotsByDate)) {
+        const slots = selectedSlotsByDate[dateStr];
+        if (!slots || slots.length === 0) continue;
+        totalSlots += slots.length;
+      }
+
+      if (totalSlots === 0) {
+        selectionLiveBanner.classList.add("hidden");
+        liveSelectionSummaryText.textContent = "None";
+        return;
+      }
+
+      const totalHours = (totalSlots * SLOT_INTERVAL) / 60;
+      liveSelectionSummaryText.textContent = totalSlots + " slot(s) selected (" + totalHours + " hour(s) total)";
+      selectionLiveBanner.classList.remove("hidden");
     }
 
     function showDetailsForm() {
