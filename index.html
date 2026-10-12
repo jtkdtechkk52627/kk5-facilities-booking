@@ -150,7 +150,7 @@
         <form id="bookingForm">
           <div class="form-group"><label for="bookerName">Booker Name</label><input type="text" id="bookerName" required maxlength="120" placeholder="Full Name"></div>
           <div class="form-group"><label for="matricNumber">Matric Number</label><input type="text" id="matricNumber" required maxlength="40" placeholder="e.g. 24001958"></div>
-          <div class="form-group"><label for="email">Email (UM Student Email preferred)</label><input type="email" id="email" required maxlength="254" placeholder="username@siswa.um.edu.my"></div>
+          <div class="form-group"><label for="email">Email (UM Student Email)</label><input type="email" id="email" required maxlength="254" placeholder="username@siswa.um.edu.my"></div>
           <div class="form-group"><label for="phone">Phone Number</label><input type="tel" id="phone" required maxlength="30" placeholder="0104563287"></div>
           <div class="form-group"><label for="organisation">Organisation / Bureau</label><input type="text" id="organisation" required maxlength="120" placeholder="e.g. JTK, KEP"></div>
           <div class="form-group"><label for="purpose">Purpose / Usage</label><textarea id="purpose" required maxlength="2000" placeholder="Describe what the facility will be used for..."></textarea></div>
@@ -498,8 +498,6 @@
 
     function updateLiveSelectionSummary() {
       let totalSlots = 0;
-      let summaryParts = [];
-
       for (const dateStr of Object.keys(selectedSlotsByDate)) {
         const slots = selectedSlotsByDate[dateStr];
         if (!slots || slots.length === 0) continue;
@@ -524,7 +522,15 @@
 
     async function submitBooking(event) {
       event.preventDefault();
+      if (submitButton.disabled) return; // Double-click guard check
       if (!bookingForm.reportValidity()) return;
+
+      // UM Student/Staff email validation check
+      const emailInput = document.getElementById("email").value.trim().toLowerCase();
+      if (!emailInput.endsWith("@siswa.um.edu.my") && !emailInput.endsWith("@um.edu.my")) {
+        alert("Please use your official UM student or staff email address (ending with @siswa.um.edu.my or @um.edu.my).");
+        return;
+      }
 
       submitButton.disabled = true;
       submitButton.textContent = "Submitting booking...";
@@ -556,7 +562,7 @@
         purpose: document.getElementById("purpose").value.trim(),
         bookerName: document.getElementById("bookerName").value.trim(),
         matricNumber: document.getElementById("matricNumber").value.trim(),
-        email: document.getElementById("email").value.trim(),
+        email: emailInput,
         phone: document.getElementById("phone").value.trim(),
         organisation: document.getElementById("organisation").value.trim()
       };
@@ -610,7 +616,15 @@
       }
       return parseDateOnly(cell.f || cell.v);
     }
-    function formatDateObject(d) { return d.toISOString().split("T")[0]; }
+
+    // Timezone-safe local date formatter to prevent late-night date shifting bugs
+    function formatDateObject(d) {
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return year + "-" + month + "-" + day;
+    }
+
     function parseDateOnly(val) {
       if (!val) return null;
       const m = String(val).match(/^(\d{4})-(\d{2})-(\d{2})$/);
