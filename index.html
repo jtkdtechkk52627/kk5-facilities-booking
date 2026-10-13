@@ -33,10 +33,11 @@
       display: flex; flex-direction: column; justify-content: space-between;
     }
     .facility-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.07); }
-    .facility-card.inactive { cursor: not-allowed; background: #f8fafc; opacity: .78; }
+    .facility-card.inactive { cursor: not-allowed; background: #f8fafc; opacity: .85; }
     .facility-name { font-size: 18px; font-weight: 650; color: #111827; }
-    .facility-hours { margin-top: 12px; font-size: 14px; color: #6b7280; }
-    .facility-status { margin-top: 16px; font-size: 12px; font-weight: 700; }
+    .facility-hours { margin-top: 8px; font-size: 14px; color: #6b7280; }
+    .facility-notice { margin-top: 8px; font-size: 13px; color: #b91c1c; font-weight: 500; background: #fef2f2; padding: 6px 10px; border-radius: 6px; border: 1px solid #fecaca; }
+    .facility-status { margin-top: 12px; font-size: 12px; font-weight: 700; }
     .facility-status.available { color: #15803d; }
     .facility-status.unavailable { color: #b91c1c; }
 
@@ -69,6 +70,11 @@
     .selection-live-banner {
       background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: 12px 16px;
       border-radius: 10px; font-size: 14px; font-weight: 500; margin-bottom: 16px;
+    }
+
+    .disclaimer-banner {
+      background: #fffbeb; border: 1px solid #fde68a; padding: 12px 16px;
+      border-radius: 10px; margin-bottom: 20px; font-size: 13px; color: #92400e; line-height: 1.5;
     }
 
     /* Spinner animation for loading button */
@@ -163,6 +169,11 @@
       </div>
 
       <div class="booking-panel">
+        <!-- Student Activity Priority Disclaimer -->
+        <div class="disclaimer-banner">
+          <strong>⚠️ Perhatian / Notice:</strong> Pihak Kolej Kediaman berhak mendahulukan aktiviti rasmi pelajar dan kolej bagi sebarang permohonan fasiliti. (The management prioritizes official student and college activities for all facility reservations.)
+        </div>
+
         <form id="bookingForm">
           <div class="form-group"><label for="bookerName">Booker Name</label><input type="text" id="bookerName" required maxlength="120" placeholder="Full Name"></div>
           <div class="form-group"><label for="matricNumber">Matric Number</label><input type="text" id="matricNumber" required maxlength="40" placeholder="e.g. 24001958"></div>
@@ -242,7 +253,6 @@
     document.addEventListener("DOMContentLoaded", initializeApp);
     bookingForm.addEventListener("submit", submitBooking);
 
-    // Cache-busting GViz fetch to prevent stale sheet data
     async function fetchGviz(sheetName) {
       const url = "https://docs.google.com/spreadsheets/d/" + PUBLIC_SHEET_ID + "/gviz/tq?sheet=" + encodeURIComponent(sheetName) + "&tqx=out:json&_ts=" + new Date().getTime();
       const response = await fetch(url, { method: "GET", cache: "no-store" });
@@ -312,8 +322,9 @@
         const openingTime = normalizeSheetTime(cells[1]);
         const closingTime = normalizeSheetTime(cells[2]);
         const status = String(getCellValue(cells[3]) || "ACTIVE").trim().toUpperCase();
+        const notice = String(getCellValue(cells[4]) || "").trim(); // Unavailability / Maintenance reason
         if (!facility || facility.toLowerCase() === "facility") return null;
-        return { facility, openingTime, closingTime, status: status === "ACTIVE" ? "ACTIVE" : "INACTIVE" };
+        return { facility, openingTime, closingTime, status: status === "ACTIVE" ? "ACTIVE" : "INACTIVE", notice };
       }).filter(Boolean);
     }
 
@@ -333,11 +344,23 @@
         hours.className = "facility-hours";
         hours.textContent = facility.openingTime && facility.closingTime ? "Open " + facility.openingTime + " – " + facility.closingTime : "";
 
+        const cardContent = document.createElement("div");
+        cardContent.appendChild(name);
+        cardContent.appendChild(hours);
+
+        if (facility.notice && facility.status !== "ACTIVE") {
+          const noticeDiv = document.createElement("div");
+          noticeDiv.className = "facility-notice";
+          noticeDiv.textContent = "⚠️ " + facility.notice;
+          cardContent.appendChild(noticeDiv);
+        }
+
         const status = document.createElement("div");
         status.className = "facility-status " + (inactive ? "unavailable" : "available");
         status.textContent = maintenanceMode ? "MAINTENANCE MODE" : (inactive ? "UNAVAILABLE" : "AVAILABLE");
 
-        card.append(name, hours, status);
+        card.appendChild(cardContent);
+        card.appendChild(status);
         facilityGrid.appendChild(card);
       });
     }
@@ -353,8 +376,11 @@
       selectedFacilityName.textContent = facility.facility;
       selectedFacilityHours.textContent = "Operating hours: " + facility.openingTime + " – " + facility.closingTime;
       resetBookingState();
-      startDate.min = formatDateObject(new Date());
-      endDate.min = startDate.min;
+      
+      // Restrict past dates using current system context date (2026-10-13)
+      const todayStr = "2026-10-13";
+      startDate.min = todayStr;
+      endDate.min = todayStr;
       showPage(bookingPage);
     }
 
@@ -440,6 +466,8 @@
       const closeMin = parseTimeToMinutes(selectedFacility.closingTime);
       const dates = getDatesBetween(parseDateOnly(selectedStartDate), parseDateOnly(selectedEndDate));
 
+      const now = new Date("2026-10-13T11:00:00"); // Current context anchor time
+
       dates.forEach(dateObj => {
         const dateKey = formatDateObject(dateObj);
         const bookings = currentBookingsByDate[dateKey] || [];
@@ -462,6 +490,16 @@
           slot.type = "button";
           slot.className = "slot";
           slot.textContent = slotStart + " – " + slotEnd;
+
+          // Check if slot is in the past
+          const slotDateTime = new Date(dateKey + "T" + slotStart + ":00");
+          if (slotDateTime < now) {
+            slot.classList.add("booked");
+            slot.disabled = true;
+            slot.title = "Past time slot";
+            grid.appendChild(slot);
+            continue;
+          }
 
           let slotStatus = "available";
           for (const b of bookings) {
@@ -547,7 +585,6 @@
         return;
       }
 
-      // Lock form inputs and display loading spinner
       submitButton.disabled = true;
       submitButton.innerHTML = '<span class="spinner"></span> Submitting booking request...';
       const formInputs = bookingForm.querySelectorAll("input, textarea");
@@ -620,7 +657,6 @@
         subMsg.className = "message error";
         subMsg.classList.remove("hidden");
 
-        // Unlock inputs on failure so user can retry
         formInputs.forEach(input => input.disabled = false);
         submitButton.disabled = false;
         submitButton.textContent = "Submit Booking Request";
@@ -637,7 +673,6 @@
       return parseDateOnly(cell.f || cell.v);
     }
     
-    // Timezone-safe date formatter
     function formatDateObject(d) {
       const year = d.getFullYear();
       const month = String(d.getMonth() + 1).padStart(2, '0');
