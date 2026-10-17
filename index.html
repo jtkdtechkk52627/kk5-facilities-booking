@@ -77,21 +77,14 @@
       border-radius: 10px; margin-bottom: 20px; font-size: 13px; color: #92400e; line-height: 1.5;
     }
 
-    /* Spinner animation for loading button */
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
     .spinner {
-      display: inline-block;
-      width: 16px;
-      height: 16px;
-      border: 2px solid rgba(255, 255, 255, 0.3);
-      border-radius: 50%;
-      border-top-color: #fff;
-      animation: spin 0.8s ease infinite;
-      vertical-align: middle;
-      margin-right: 8px;
+      display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%; border-top-color: #fff; animation: spin 0.8s ease infinite;
+      vertical-align: middle; margin-right: 8px;
     }
 
     .continue-button, .submit-button { width: 100%; min-height: 48px; margin-top: 18px; border: none; border-radius: 9px; background: #111827; color: white; font-size: 15px; font-weight: 600; cursor: pointer; }
@@ -147,7 +140,7 @@
 
         <div class="availability-section">
           <h3 class="availability-title">Select Time Slots per Day</h3>
-          <p style="font-size:13px;color:#6b7280;margin-bottom:14px;">Each button represents a 30-minute block (e.g. 08:00 – 08:30). Select consecutive blocks to build your desired booking duration.</p>
+          <p style="font-size:13px;color:#6b7280;margin-bottom:14px;">Each button represents a 30-minute block. Select consecutive blocks to build your booking duration.</p>
           
           <div id="selectionLiveBanner" class="selection-live-banner hidden">
             ✨ <strong>Selected Time:</strong> <span id="liveSelectionSummaryText">None</span>
@@ -169,9 +162,8 @@
       </div>
 
       <div class="booking-panel">
-        <!-- Student Activity Priority Disclaimer -->
         <div class="disclaimer-banner">
-          <strong>⚠️ Perhatian / Notice:</strong> Pihak Kolej Kediaman berhak mendahulukan aktiviti rasmi pelajar dan kolej bagi sebarang permohonan fasiliti. (The management prioritizes official student and college activities for all facility reservations.)
+          <strong>⚠️ Perhatian / Notice:</strong> Pihak Kolej Kediaman berhak mendahulukan aktiviti rasmi pelajar dan kolej bagi sebarang permohonan fasiliti.
         </div>
 
         <form id="bookingForm">
@@ -192,7 +184,7 @@
     <section id="successPage" class="page">
       <div class="booking-panel" style="text-align:left;max-width:600px;margin:0 auto;padding:30px;">
         <h2 style="color:#166534;margin-bottom:8px;text-align:center;">Booking Request Submitted!</h2>
-        <p style="color:#4b5563;font-size:14px;text-align:center;margin-bottom:20px;">Your booking is currently marked as <strong>PENDING</strong> and confirmation emails have been dispatched.</p>
+        <p style="color:#4b5563;font-size:14px;text-align:center;margin-bottom:20px;">Your booking is currently marked as <strong>PENDING</strong> and a confirmation email has been dispatched.</p>
         
         <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:16px;font-size:14px;margin-bottom:20px;">
           <p style="margin:6px 0;"><strong>Booking ID:</strong> <span id="confBookingId" style="color:#2563eb;font-weight:600;"></span></p>
@@ -226,6 +218,7 @@
     let currentBookingsByDate = {};
     let selectedSlotsByDate = {};
     let maintenanceMode = false;
+    let submittedDateSlotsCache = []; // Stores slots for the success page summary
 
     const facilityPage = document.getElementById("facilityPage");
     const bookingPage = document.getElementById("bookingPage");
@@ -254,7 +247,8 @@
     bookingForm.addEventListener("submit", submitBooking);
 
     async function fetchGviz(sheetName) {
-      const url = "https://docs.google.com/spreadsheets/d/" + PUBLIC_SHEET_ID + "/gviz/tq?sheet=" + encodeURIComponent(sheetName) + "&tqx=out:json&_ts=" + new Date().getTime();
+      const cacheBuster = new Date().getTime();
+      const url = "https://docs.google.com/spreadsheets/d/" + PUBLIC_SHEET_ID + "/gviz/tq?sheet=" + encodeURIComponent(sheetName) + "&tqx=out:json&_ts=" + cacheBuster;
       const response = await fetch(url, { method: "GET", cache: "no-store" });
       const text = await response.text();
       if (!response.ok) throw new Error("Google Sheets HTTP " + response.status);
@@ -276,9 +270,9 @@
             const cells = row.c || [];
             const key = String(getCellValue(cells[0])).trim().toLowerCase();
             const val = String(getCellValue(cells[1])).trim();
-            if (key === "maintenance_mode") {
+            if (key === "maintenance_mode" || key === "maintenancemode") {
               maintenanceMode = val.toLowerCase() === "true" || val === "1" || val.toLowerCase() === "yes";
-            } else if (key === "maintenance_notice" && val) {
+            } else if ((key === "maintenance_notice" || key === "maintenancenotice") && val) {
               maintenanceBanner.textContent = val;
             }
           });
@@ -298,12 +292,37 @@
       errorMessage.classList.add("hidden");
       facilityLoading.classList.remove("hidden");
       try {
-        const data = await fetchGviz("Facilities");
-        facilities = parseFacilities(data);
+        // Try fetching via Apps Script public endpoint first for lightning-fast speeds
+        const response = await fetch(APPS_SCRIPT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ action: "getPublicFacilities", t: new Date().getTime() })
+        });
+        const result = await response.json();
+        
+        if (result.success && Array.isArray(result.data)) {
+          facilities = result.data.map(item => ({
+            facility: item.name,
+            openingTime: item.opening,
+            closingTime: item.closing,
+            status: String(item.status || "ACTIVE").toUpperCase(),
+            notice: item.notice || ""
+          }));
+        } else {
+          // Fallback to gviz if needed
+          const data = await fetchGviz("Facilities");
+          facilities = parseFacilities(data);
+        }
         renderFacilities();
       } catch (error) {
-        errorMessage.textContent = "Failed to load facilities. " + error.message;
-        errorMessage.classList.remove("hidden");
+        try {
+          const data = await fetchGviz("Facilities");
+          facilities = parseFacilities(data);
+          renderFacilities();
+        } catch (err) {
+          errorMessage.textContent = "Failed to load facilities. " + error.message;
+          errorMessage.classList.remove("hidden");
+        }
       } finally {
         facilityLoading.classList.add("hidden");
       }
@@ -322,7 +341,7 @@
         const openingTime = normalizeSheetTime(cells[1]);
         const closingTime = normalizeSheetTime(cells[2]);
         const status = String(getCellValue(cells[3]) || "ACTIVE").trim().toUpperCase();
-        const notice = String(getCellValue(cells[4]) || "").trim(); // Unavailability / Maintenance reason
+        const notice = String(getCellValue(cells[4]) || "").trim();
         if (!facility || facility.toLowerCase() === "facility") return null;
         return { facility, openingTime, closingTime, status: status === "ACTIVE" ? "ACTIVE" : "INACTIVE", notice };
       }).filter(Boolean);
@@ -377,8 +396,8 @@
       selectedFacilityHours.textContent = "Operating hours: " + facility.openingTime + " – " + facility.closingTime;
       resetBookingState();
       
-      // Restrict past dates using current system context date (2026-10-13)
-      const todayStr = "2026-10-13";
+      // Dynamic live date minimum constraint
+      const todayStr = formatDateObject(new Date());
       startDate.min = todayStr;
       endDate.min = todayStr;
       showPage(bookingPage);
@@ -466,7 +485,7 @@
       const closeMin = parseTimeToMinutes(selectedFacility.closingTime);
       const dates = getDatesBetween(parseDateOnly(selectedStartDate), parseDateOnly(selectedEndDate));
 
-      const now = new Date("2026-10-13T11:00:00"); // Current context anchor time
+      const now = new Date(); // Live current clock context
 
       dates.forEach(dateObj => {
         const dateKey = formatDateObject(dateObj);
@@ -491,7 +510,7 @@
           slot.className = "slot";
           slot.textContent = slotStart + " – " + slotEnd;
 
-          // Check if slot is in the past
+          // Check if slot is in the past using live date/time
           const slotDateTime = new Date(dateKey + "T" + slotStart + ":00");
           if (slotDateTime < now) {
             slot.classList.add("booked");
@@ -610,6 +629,9 @@
         dateSlots.push({ date: dateStr, startTime: currentBlock.start, endTime: currentBlock.end });
       }
 
+      // Cache dateSlots locally for safe success page rendering
+      submittedDateSlotsCache = dateSlots;
+
       const payload = {
         action: "submitBooking",
         dateSlots: dateSlots,
@@ -636,15 +658,15 @@
         }
 
         document.getElementById("confBookingId").textContent = result.bookingId;
-        document.getElementById("confFacility").textContent = result.facility;
-        document.getElementById("confName").textContent = result.bookerName;
-        document.getElementById("confEmail").textContent = result.email;
-        document.getElementById("confOrg").textContent = result.organisation;
+        document.getElementById("confFacility").textContent = payload.facility;
+        document.getElementById("confName").textContent = payload.bookerName;
+        document.getElementById("confEmail").textContent = payload.email;
+        document.getElementById("confOrg").textContent = payload.organisation;
         document.getElementById("confPurpose").textContent = payload.purpose;
 
         const slotsList = document.getElementById("confSlotsList");
         slotsList.innerHTML = "";
-        result.dateSlots.forEach(slot => {
+        submittedDateSlotsCache.forEach(slot => {
           const li = document.createElement("li");
           li.textContent = slot.date + " (" + slot.startTime + " - " + slot.endTime + ")";
           slotsList.appendChild(li);
