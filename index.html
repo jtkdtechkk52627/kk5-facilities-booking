@@ -218,7 +218,7 @@
     let currentBookingsByDate = {};
     let selectedSlotsByDate = {};
     let maintenanceMode = false;
-    let submittedDateSlotsCache = []; // Stores slots for the success page summary
+    let submittedDateSlotsCache = [];
 
     const facilityPage = document.getElementById("facilityPage");
     const bookingPage = document.getElementById("bookingPage");
@@ -292,7 +292,6 @@
       errorMessage.classList.add("hidden");
       facilityLoading.classList.remove("hidden");
       try {
-        // Try fetching via Apps Script public endpoint first for lightning-fast speeds
         const response = await fetch(APPS_SCRIPT_URL, {
           method: "POST",
           headers: { "Content-Type": "text/plain;charset=utf-8" },
@@ -309,7 +308,6 @@
             notice: item.notice || ""
           }));
         } else {
-          // Fallback to gviz if needed
           const data = await fetchGviz("Facilities");
           facilities = parseFacilities(data);
         }
@@ -396,7 +394,6 @@
       selectedFacilityHours.textContent = "Operating hours: " + facility.openingTime + " – " + facility.closingTime;
       resetBookingState();
       
-      // Dynamic live date minimum constraint
       const todayStr = formatDateObject(new Date());
       startDate.min = todayStr;
       endDate.min = todayStr;
@@ -485,7 +482,7 @@
       const closeMin = parseTimeToMinutes(selectedFacility.closingTime);
       const dates = getDatesBetween(parseDateOnly(selectedStartDate), parseDateOnly(selectedEndDate));
 
-      const now = new Date(); // Live current clock context
+      const now = new Date();
 
       dates.forEach(dateObj => {
         const dateKey = formatDateObject(dateObj);
@@ -510,7 +507,6 @@
           slot.className = "slot";
           slot.textContent = slotStart + " – " + slotEnd;
 
-          // Check if slot is in the past using live date/time
           const slotDateTime = new Date(dateKey + "T" + slotStart + ":00");
           if (slotDateTime < now) {
             slot.classList.add("booked");
@@ -629,7 +625,6 @@
         dateSlots.push({ date: dateStr, startTime: currentBlock.start, endTime: currentBlock.end });
       }
 
-      // Cache dateSlots locally for safe success page rendering
       submittedDateSlotsCache = dateSlots;
 
       const payload = {
