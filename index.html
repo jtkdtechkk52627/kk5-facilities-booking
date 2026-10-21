@@ -127,7 +127,7 @@
       <div class="booking-panel">
         <div class="date-row">
           <div class="form-group">
-            <label for="startDate">Start date</label>
+            <label for="startDate">Start date (At least 1 day in advance)</label>
             <input type="date" id="startDate" required>
           </div>
           <div class="form-group">
@@ -365,7 +365,8 @@
         cardContent.appendChild(name);
         cardContent.appendChild(hours);
 
-        if (facility.notice && facility.status !== "ACTIVE") {
+        // Display notice/warning for facilities if present
+        if (facility.notice) {
           const noticeDiv = document.createElement("div");
           noticeDiv.className = "facility-notice";
           noticeDiv.textContent = "⚠️ " + facility.notice;
@@ -394,9 +395,13 @@
       selectedFacilityHours.textContent = "Operating hours: " + facility.openingTime + " – " + facility.closingTime;
       resetBookingState();
       
-      const todayStr = formatDateObject(new Date());
-      startDate.min = todayStr;
-      endDate.min = todayStr;
+      // Enforce 1-day advance booking restriction (minimum date = tomorrow)
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const tomorrowStr = formatDateObject(tomorrow);
+      startDate.min = tomorrowStr;
+      endDate.min = tomorrowStr;
+
       showPage(bookingPage);
     }
 
