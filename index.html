@@ -119,7 +119,7 @@
         <li>Bookings must be made at least <strong>1 day in advance</strong> (same-day bookings are not allowed).</li>
         <li>Maximum booking limit is <strong>3 hours per day</strong> per user.</li>
         <li>You must use your official UM student or staff email (ending with <code>@siswa.um.edu.my</code> or <code>@um.edu.my</code>).</li>
-        <li>Pihak Kolej Kediaman berhak mendahulukan aktiviti rasmi pelajar dan kolej bagi sebarang permohonan fasiliti.</li>
+        <li>The Residential College management reserves the right to prioritize official college and student activities for any facility applications.</li>
       </ul>
     </div>
 
@@ -179,7 +179,7 @@
 
       <div class="booking-panel">
         <div class="disclaimer-banner">
-          <strong>⚠️ Perhatian / Notice:</strong> Pihak Kolej Kediaman berhak mendahulukan aktiviti rasmi pelajar dan kolej bagi sebarang permohonan fasiliti.
+          <strong>⚠️ Notice:</strong> The Residential College management reserves the right to prioritize official college and student activities for any facility applications.
         </div>
 
         <form id="bookingForm">
@@ -226,7 +226,7 @@
     const PUBLIC_SHEET_ID = "1PGb7g244LFMQlqJdJWDGaeGsZzJsel9WTUakDcNatiQ";
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw3n23Sg5vLufUpGZp9S6tRvbVwTbp1FvS9Fj5DYBIsXH2hriNJznl9EJEC_a9145s7/exec";
     const SLOT_INTERVAL = 30;
-    const MAX_HOURS_PER_DAY = 3; // Maximum allowed booking duration per day in hours
+    const MAX_HOURS_PER_DAY = 3;
 
     let facilities = [];
     let selectedFacility = null;
@@ -382,7 +382,6 @@
         cardContent.appendChild(name);
         cardContent.appendChild(hours);
 
-        // Display notice/warning for facilities if present
         if (facility.notice) {
           const noticeDiv = document.createElement("div");
           noticeDiv.className = "facility-notice";
@@ -412,7 +411,6 @@
       selectedFacilityHours.textContent = "Operating hours: " + facility.openingTime + " – " + facility.closingTime;
       resetBookingState();
       
-      // Enforce 1-day advance booking restriction (minimum date = tomorrow)
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
       const tomorrowStr = formatDateObject(tomorrow);
@@ -573,7 +571,6 @@
         selectedSlotsByDate[dateKey].splice(idx, 1);
         slotElement.classList.remove("selected");
       } else {
-        // Enforce max 3 hours per day physically on frontend matrix selection
         const maxSlotsPerDay = (MAX_HOURS_PER_DAY * 60) / SLOT_INTERVAL;
         if (selectedSlotsByDate[dateKey].length >= maxSlotsPerDay) {
           alert(`You can only select a maximum of ${MAX_HOURS_PER_DAY} hours per day.`);
