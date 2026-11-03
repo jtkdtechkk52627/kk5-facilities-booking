@@ -109,17 +109,17 @@
     </header>
 
     <div class="support-banner">
-      💡 Need help or manual bookings? Contact <strong>JTKD Teknikal (Fateh)</strong> at <strong>0104563287</strong>.
+      💡 Need help or manual bookings? Contact <strong>JTKD Teknikal (Fateh)</strong> at <strong>0104563287</strong>[cite: 7].
     </div>
 
     <!-- BOOKING RULES BANNER -->
     <div class="rules-banner">
       📌 <strong>Booking Rules & Guidelines:</strong>
       <ul style="margin: 6px 0 0 20px; padding: 0;">
-        <li>Bookings must be made at least <strong>1 day in advance</strong> (same-day bookings are not allowed).</li>
-        <li>Maximum booking limit is <strong>3 hours per day</strong> per user.</li>
-        <li>You must use your official UM student or staff email (ending with <code>@siswa.um.edu.my</code> or <code>@um.edu.my</code>).</li>
-        <li>The Residential College management reserves the right to prioritize official college and student activities for any facility applications.</li>
+        <li>Bookings must be made at least <strong>2 days in advance</strong>.</li>
+        <li>Maximum booking limit is <strong>3 hours per day</strong> per user[cite: 7].</li>
+        <li>You must use your official UM student or staff email (ending with <code>@siswa.um.edu.my</code> or <code>@um.edu.my</code>)[cite: 7].</li>
+        <li>The Residential College management reserves the right to prioritize official college and student activities for any facility applications[cite: 7].</li>
       </ul>
     </div>
 
@@ -143,7 +143,7 @@
       <div class="booking-panel">
         <div class="date-row">
           <div class="form-group">
-            <label for="startDate">Start date (At least 1 day in advance)</label>
+            <label for="startDate">Start date (At least 2 days in advance)</label>
             <input type="date" id="startDate" required>
           </div>
           <div class="form-group">
@@ -179,7 +179,7 @@
 
       <div class="booking-panel">
         <div class="disclaimer-banner">
-          <strong>⚠️ Notice:</strong> The Residential College management reserves the right to prioritize official college and student activities for any facility applications.
+          <strong>⚠️ Notice:</strong> The Residential College management reserves the right to prioritize official college and student activities for any facility applications[cite: 7].
         </div>
 
         <form id="bookingForm">
@@ -424,11 +424,11 @@
       selectedFacilityHours.textContent = "Operating hours: " + facility.openingTime + " – " + facility.closingTime;
       resetBookingState();
       
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      const tomorrowStr = formatDateObject(tomorrow);
-      startDate.min = tomorrowStr;
-      endDate.min = tomorrowStr;
+      const minDate = new Date();
+      minDate.setDate(minDate.getDate() + 2);
+      const minDateStr = formatDateObject(minDate);
+      startDate.min = minDateStr;
+      endDate.min = minDateStr;
 
       showPage(bookingPage);
     }
