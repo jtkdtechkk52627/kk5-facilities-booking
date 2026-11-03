@@ -296,7 +296,9 @@
         }
         if (maintenanceMode) {
           if (!maintenanceBanner.textContent.trim()) {
-            maintenanceBanner.textContent = "The booking system is currently under maintenance. Please contact JTKD Teknikal (Fateh) at 0104563287 directly for bookings.";
+            maintenanceBanner.innerHTML = "🛠️ <strong>System Under Maintenance:</strong> The booking system is currently under maintenance. Online bookings are temporarily paused.";
+          } else {
+            maintenanceBanner.innerHTML = "🛠️ <strong>System Under Maintenance:</strong> " + maintenanceBanner.textContent.trim();
           }
           maintenanceBanner.classList.remove("hidden");
         }
@@ -365,10 +367,17 @@
     function renderFacilities() {
       facilityGrid.innerHTML = "";
       facilities.forEach(facility => {
-        const inactive = facility.status !== "ACTIVE" || maintenanceMode;
+        const isInactive = facility.status !== "ACTIVE";
         const card = document.createElement("div");
-        card.className = "facility-card" + (inactive ? " inactive" : "");
-        if (!inactive) card.addEventListener("click", () => openFacility(facility));
+        card.className = "facility-card" + (isInactive ? " inactive" : "");
+        
+        card.addEventListener("click", () => {
+          if (maintenanceMode) {
+            alert("🛠️ System Under Maintenance: Online facility bookings are currently paused. Please try again later or contact JTKD Teknikal.");
+            return;
+          }
+          openFacility(facility);
+        });
 
         const name = document.createElement("div");
         name.className = "facility-name";
@@ -390,8 +399,8 @@
         }
 
         const status = document.createElement("div");
-        status.className = "facility-status " + (inactive ? "unavailable" : "available");
-        status.textContent = maintenanceMode ? "MAINTENANCE MODE" : (inactive ? "UNAVAILABLE" : "AVAILABLE");
+        status.className = "facility-status " + (isInactive ? "unavailable" : "available");
+        status.textContent = isInactive ? "UNAVAILABLE" : "AVAILABLE";
 
         card.appendChild(cardContent);
         card.appendChild(status);
@@ -405,7 +414,11 @@
     }
 
     function openFacility(facility) {
-      if (maintenanceMode || facility.status !== "ACTIVE") return;
+      if (maintenanceMode) {
+        alert("🛠️ System Under Maintenance: Online facility bookings are currently paused.");
+        return;
+      }
+      if (facility.status !== "ACTIVE") return;
       selectedFacility = facility;
       selectedFacilityName.textContent = facility.facility;
       selectedFacilityHours.textContent = "Operating hours: " + facility.openingTime + " – " + facility.closingTime;
