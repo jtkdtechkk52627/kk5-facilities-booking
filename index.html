@@ -82,6 +82,22 @@
       border-radius: 10px; margin-bottom: 20px; font-size: 13px; color: #92400e; line-height: 1.5;
     }
 
+    /* RULES MODAL STYLES */
+    #rulesModal {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(3px); z-index: 9999;
+      justify-content: center; align-items: center; padding: 16px;
+    }
+    .modal-box {
+      background: white; border-radius: 14px; max-width: 550px; width: 100%; padding: 24px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: flex; flex-direction: column; gap: 16px;
+      max-height: 90vh; overflow-y: auto;
+    }
+    .rules-body {
+      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px;
+      font-size: 13px; color: #334155; line-height: 1.6;
+    }
+
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
@@ -116,7 +132,7 @@
     <div class="rules-banner">
       📌 <strong>Booking Rules & Guidelines:</strong>
       <ul style="margin: 6px 0 0 20px; padding: 0;">
-        <li>Bookings must be made at least <strong>2 days in advance</strong>.</li>
+        <li>Bookings must be made at least <strong>2 days in advance</strong>[cite: 7].</li>
         <li>Maximum booking limit is <strong>3 hours per day</strong> per user[cite: 7].</li>
         <li>You must use your official UM student or staff email (ending with <code>@siswa.um.edu.my</code> or <code>@um.edu.my</code>)[cite: 7].</li>
         <li>The Residential College management reserves the right to prioritize official college and student activities for any facility applications[cite: 7].</li>
@@ -200,7 +216,7 @@
     <section id="successPage" class="page">
       <div class="booking-panel" style="text-align:left;max-width:600px;margin:0 auto;padding:30px;">
         <h2 style="color:#166534;margin-bottom:8px;text-align:center;">Booking Request Submitted!</h2>
-        <p style="color:#4b5563;font-size:14px;text-align:center;margin-bottom:20px;">Your booking is currently marked as <strong>PENDING</strong> and a confirmation email has been dispatched.</p>
+        <p style="color:#4b5563;font-size:14px;text-align:center;margin-bottom:20px;">Your booking is currently marked as <strong>PENDING</strong> and a confirmation email has been dispatched[cite: 7].</p>
         
         <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:16px;font-size:14px;margin-bottom:20px;">
           <p style="margin:6px 0;"><strong>Booking ID:</strong> <span id="confBookingId" style="color:#2563eb;font-weight:600;"></span></p>
@@ -220,6 +236,32 @@
     </section>
   </main>
 
+  <!-- FACILITY RULES & TERMS MODAL -->
+  <div id="rulesModal">
+    <div class="modal-box">
+      <div>
+        <h3 id="rulesFacilityTitle" style="margin:0 0 4px; font-size:18px; color:#0f172a;">Facility Rules & Regulations</h3>
+        <p style="font-size:13px; color:#64748b; margin:0;">Please read the terms carefully before booking.</p>
+      </div>
+
+      <div id="rulesContentBody" class="rules-body">
+        <!-- Injected Rules HTML -->
+      </div>
+
+      <div style="display:flex; align-items:flex-start; gap:10px;">
+        <input type="checkbox" id="agreeRulesCheckbox" style="width:18px; height:18px; margin-top:2px; cursor:pointer;" onchange="toggleProceedButton()">
+        <label for="agreeRulesCheckbox" style="font-size:13px; font-weight:600; color:#0f172a; cursor:pointer; text-transform:none; letter-spacing:normal;">
+          I have read, understood, and agree to follow all the rules and regulations stated above for this facility.
+        </label>
+      </div>
+
+      <div style="display:flex; gap:10px; border-top:1px solid #e2e8f0; padding-top:14px;">
+        <button type="button" class="continue-button" style="background:#e2e8f0; color:#334155; margin-top:0;" onclick="closeRulesModal()">Cancel</button>
+        <button type="button" id="proceedBtn" class="continue-button" style="background:#111827; margin-top:0;" disabled onclick="confirmRulesAndProceed()">Proceed to Booking</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     "use strict";
 
@@ -230,12 +272,51 @@
 
     let facilities = [];
     let selectedFacility = null;
+    let pendingFacility = null;
     let selectedStartDate = "";
     let selectedEndDate = "";
     let currentBookingsByDate = {};
     let selectedSlotsByDate = {};
     let maintenanceMode = false;
     let submittedDateSlotsCache = [];
+
+    // Specific fallback rules dictionary mapped by facility name
+    const SPECIFIC_RULES = {
+      "Ballroom Dayasari": `
+        <strong>📌 Ballroom Dayasari Regulations:</strong>
+        <ul style="margin: 6px 0 0 16px; padding: 0;">
+          <li>Shoes must be wiped or removed before entering carpeted zones.</li>
+          <li>No food or colored drinks allowed inside the main hall.</li>
+          <li>All furniture must be returned to its original arrangement after use.</li>
+        </ul>
+        <p style="margin: 8px 0 0; color:#b91c1c;"><strong>⚠️ Penalty:</strong> Failure to clean up will result in a 2-week booking suspension for your bureau.</p>
+      `,
+      "Bilik Kaca": `
+        <strong>📌 Bilik Kaca Usage Guidelines:</strong>
+        <ul style="margin: 6px 0 0 16px; padding: 0;">
+          <li>Keep noise levels down after 11:00 PM out of respect for nearby residents.</li>
+          <li>Ensure all air conditioning and lights are switched off upon leaving.</li>
+          <li>Smoking and vaping are strictly prohibited within 10 meters of the glass panels.</li>
+        </ul>
+      `,
+      "Gymnasium KK5": `
+        <strong>📌 Fitness Center Rules:</strong>
+        <ul style="margin: 6px 0 0 16px; padding: 0;">
+          <li>Proper sports attire and sports shoes are mandatory. No slippers or sandals.</li>
+          <li>Rerack all dumbbells and weight plates after your session.</li>
+          <li>Use the provided disinfectant wipes to clean equipment handles after use.</li>
+        </ul>
+      `
+    };
+
+    const DEFAULT_RULES = `
+      <strong>📌 Standard Facility Regulations:</strong>
+      <ul style="margin: 6px 0 0 16px; padding: 0;">
+        <li>Maintain cleanliness and orderliness at all times.</li>
+        <li>Respect facility property and report any damages immediately to JTK/JKP.</li>
+        <li>Bookings are strictly non-transferable to other individuals or groups.</li>
+      </ul>
+    `;
 
     const facilityPage = document.getElementById("facilityPage");
     const bookingPage = document.getElementById("bookingPage");
@@ -324,7 +405,8 @@
             openingTime: item.opening,
             closingTime: item.closing,
             status: String(item.status || "ACTIVE").toUpperCase(),
-            notice: item.notice || ""
+            notice: item.notice || "",
+            rules: item.rules || ""
           }));
         } else {
           const data = await fetchGviz("Facilities");
@@ -359,8 +441,9 @@
         const closingTime = normalizeSheetTime(cells[2]);
         const status = String(getCellValue(cells[3]) || "ACTIVE").trim().toUpperCase();
         const notice = String(getCellValue(cells[4]) || "").trim();
+        const rules = String(getCellValue(cells[5]) || "").trim();
         if (!facility || facility.toLowerCase() === "facility") return null;
-        return { facility, openingTime, closingTime, status: status === "ACTIVE" ? "ACTIVE" : "INACTIVE", notice };
+        return { facility, openingTime, closingTime, status: status === "ACTIVE" ? "ACTIVE" : "INACTIVE", notice, rules };
       }).filter(Boolean);
     }
 
@@ -376,7 +459,8 @@
             alert("🛠️ System Under Maintenance: Online facility bookings are currently paused. Please try again later or contact JTKD Teknikal.");
             return;
           }
-          openFacility(facility);
+          if (isInactive) return;
+          triggerFacilityRulesModal(facility);
         });
 
         const name = document.createElement("div");
@@ -408,17 +492,44 @@
       });
     }
 
+    // --- RULES MODAL HANDLERS ---
+    function triggerFacilityRulesModal(facility) {
+      pendingFacility = facility;
+      document.getElementById("rulesFacilityTitle").textContent = `Rules: ${facility.facility}`;
+
+      // Use rules from sheet if available, else look up in dictionary, else use default
+      let rulesHtml = facility.rules ? facility.rules : (SPECIFIC_RULES[facility.facility] || DEFAULT_RULES);
+      document.getElementById("rulesContentBody").innerHTML = rulesHtml;
+
+      document.getElementById("agreeRulesCheckbox").checked = false;
+      toggleProceedButton();
+      document.getElementById("rulesModal").style.display = "flex";
+    }
+
+    function closeRulesModal() {
+      document.getElementById("rulesModal").style.display = "none";
+      pendingFacility = null;
+    }
+
+    function toggleProceedButton() {
+      const isChecked = document.getElementById("agreeRulesCheckbox").checked;
+      const proceedBtn = document.getElementById("proceedBtn");
+      proceedBtn.disabled = !isChecked;
+    }
+
+    function confirmRulesAndProceed() {
+      if (!pendingFacility) return;
+      const chosen = pendingFacility;
+      closeRulesModal();
+      openFacility(chosen);
+    }
+
     function showPage(pageToShow) {
       [facilityPage, bookingPage, detailsPage, successPage].forEach(p => p.classList.toggle("active", p === pageToShow));
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     function openFacility(facility) {
-      if (maintenanceMode) {
-        alert("🛠️ System Under Maintenance: Online facility bookings are currently paused.");
-        return;
-      }
-      if (facility.status !== "ACTIVE") return;
       selectedFacility = facility;
       selectedFacilityName.textContent = facility.facility;
       selectedFacilityHours.textContent = "Operating hours: " + facility.openingTime + " – " + facility.closingTime;
