@@ -4,147 +4,211 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>KK5 Facility Booking</title>
-
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --bg: #f2f5f3; --surface: #fff; --ink: #13201b; --muted: #5b6b64; --line: #dbe3de;
+      --accent: #0e6b58; --accent-strong: #0a5446; --accent-soft: #e3f2ed;
+      --warn: #a24b00; --warn-soft: #fff4e5; --warn-line: #f5cf9f;
+      --danger: #b42318; --danger-soft: #fdecea; --danger-line: #f5c2bd;
+      --font-head: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+      --font-body: "Figtree", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --r-sm: 8px; --r-md: 12px; --r-lg: 20px;
+      --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 24px; --s-6: 40px;
+      --shadow: 0 1px 2px rgba(19,32,27,.05), 0 8px 24px -12px rgba(19,32,27,.18);
+    }
     * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-      background: #f5f7fa;
-      color: #1f2937;
-    }
-    .container { width: 100%; max-width: 1000px; margin: 0 auto; padding: 32px 20px 60px; }
-    .header { margin-bottom: 30px; }
-    .header h1 { margin: 0 0 8px; font-size: 32px; font-weight: 700; color: #111827; }
-    .header p { margin: 0; color: #6b7280; font-size: 15px; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; font-family: var(--font-body); background: var(--bg); color: var(--ink); line-height: 1.55; -webkit-font-smoothing: antialiased; }
+    h1, h2, h3 { font-family: var(--font-head); letter-spacing: -.02em; line-height: 1.15; margin: 0; }
+    :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+    .container { width: 100%; max-width: 980px; margin: 0 auto; padding: clamp(20px, 4vw, 48px) clamp(16px, 4vw, 32px) 80px; }
+    .hidden { display: none !important; }
 
-    .support-banner {
-      background: #eff6ff; border: 1px solid #bfdbfe; padding: 12px 16px;
-      border-radius: 10px; margin-bottom: 16px; color: #1e40af; font-size: 14px; font-weight: 500;
-    }
+    /* Header */
+    .header { display: flex; align-items: center; gap: var(--s-4); margin-bottom: var(--s-5); }
+    .brand { flex: none; width: 52px; height: 52px; border-radius: var(--r-md); background: var(--accent); color: #fff; display: grid; place-items: center; font: 700 20px var(--font-head); letter-spacing: -.03em; }
+    .header h1 { font-size: clamp(26px, 4vw, 38px); }
+    .header p { margin: 2px 0 0; color: var(--muted); font-size: 15px; }
 
-    .rules-banner {
-      background: #fefce8; border: 1px solid #fde047; padding: 14px 18px;
-      border-radius: 10px; margin-bottom: 20px; color: #854d0e; font-size: 13px; line-height: 1.6;
-    }
+    /* Stepper */
+    .steps { list-style: none; display: flex; gap: var(--s-2); margin: 0 0 var(--s-5); padding: 0; counter-reset: step; }
+    .steps li { flex: 1; display: flex; align-items: center; gap: var(--s-2); padding-top: var(--s-3); border-top: 3px solid var(--line); font-size: 13px; font-weight: 600; color: var(--muted); counter-increment: step; }
+    .steps li::before { content: counter(step); flex: none; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; background: var(--line); color: var(--muted); }
+    .steps li.current { border-color: var(--accent); color: var(--ink); }
+    .steps li.current::before { background: var(--accent); color: #fff; }
+    .steps li.done { border-color: var(--accent); color: var(--accent-strong); }
+    .steps li.done::before { content: "✓"; background: var(--accent-soft); color: var(--accent-strong); }
+
+    /* Notices */
+    .support-line { display: flex; flex-wrap: wrap; gap: var(--s-1) var(--s-3); align-items: center; font-size: 14px; color: var(--muted); margin-bottom: var(--s-3); }
+    .support-line a { color: var(--accent-strong); font-weight: 600; text-decoration: none; }
+    .support-line a:hover { text-decoration: underline; }
+    .rules-banner { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); margin-bottom: var(--s-5); font-size: 14px; }
+    .rules-banner summary { cursor: pointer; padding: var(--s-3) var(--s-4); font-weight: 600; list-style: none; display: flex; justify-content: space-between; align-items: center; border-radius: var(--r-md); }
+    .rules-banner summary::-webkit-details-marker { display: none; }
+    .rules-banner summary::after { content: "+"; font-size: 20px; color: var(--accent); line-height: 1; }
+    .rules-banner[open] summary::after { content: "–"; }
+    .rules-banner ul { margin: 0; padding: 0 var(--s-4) var(--s-4) 36px; color: #33433c; }
+    .rules-banner li + li { margin-top: 6px; }
+    .rules-banner code { background: var(--accent-soft); padding: 1px 6px; border-radius: 4px; font-size: 13px; }
+    .message { padding: var(--s-3) var(--s-4); border-radius: var(--r-md); font-size: 14px; margin-bottom: var(--s-4); }
+    .message.error { background: var(--danger-soft); border: 1px solid var(--danger-line); color: var(--danger); }
+    .message.loading { background: var(--accent-soft); border: 1px solid #bfe0d5; color: var(--accent-strong); }
+    #maintenanceBanner { background: var(--warn-soft); border-color: var(--warn-line); color: var(--warn); }
 
     .page { display: none; }
     .page.active { display: block; }
+    @media (prefers-reduced-motion: no-preference) { .page.active { animation: enter .25s ease-out; } }
+    @keyframes enter { from { opacity: 0; transform: translateY(6px); } }
 
-    .facility-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
-    .facility-card {
-      background: white; border: 1px solid #e5e7eb; border-radius: 14px; padding: 22px;
-      min-height: 150px; cursor: pointer; transition: transform .15s ease, box-shadow .15s ease;
-      display: flex; flex-direction: column; justify-content: space-between;
-    }
-    .facility-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.07); }
-    .facility-card.inactive { cursor: not-allowed; background: #f8fafc; opacity: .85; }
-    .facility-name { font-size: 18px; font-weight: 650; color: #111827; }
-    .facility-hours { margin-top: 8px; font-size: 14px; color: #6b7280; }
-    .facility-notice { margin-top: 8px; font-size: 13px; color: #b91c1c; font-weight: 500; background: #fef2f2; padding: 6px 10px; border-radius: 6px; border: 1px solid #fecaca; }
-    .facility-status { margin-top: 12px; font-size: 12px; font-weight: 700; }
-    .facility-status.available { color: #15803d; }
-    .facility-status.unavailable { color: #b91c1c; }
+    /* Facilities */
+    .facility-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--s-4); }
+    .facility-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: var(--s-5); min-height: 160px; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; gap: var(--s-4); box-shadow: var(--shadow); transition: border-color .15s, transform .15s; }
+    .facility-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .facility-card.inactive { cursor: not-allowed; background: #f7f8f7; box-shadow: none; }
+    .facility-card.inactive:hover { border-color: var(--line); transform: none; }
+    .facility-card.inactive .facility-name { color: var(--muted); }
+    .facility-name { font: 600 20px/1.2 var(--font-head); letter-spacing: -.015em; }
+    .facility-hours { margin-top: 6px; font-size: 14px; color: var(--muted); }
+    .facility-notice { margin-top: var(--s-3); font-size: 13px; color: var(--warn); background: var(--warn-soft); padding: 6px 10px; border-radius: var(--r-sm); border: 1px solid var(--warn-line); }
+    .facility-status { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 99px; }
+    .facility-status::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+    .facility-status.available { color: var(--accent-strong); background: var(--accent-soft); }
+    .facility-status.unavailable { color: var(--danger); background: var(--danger-soft); }
 
-    .back-button { border: none; background: transparent; padding: 0; margin-bottom: 20px; color: #2563eb; font-size: 14px; font-weight: 600; cursor: pointer; }
+    /* Panels */
+    .back-button { border: none; background: transparent; padding: var(--s-1) 0; margin-bottom: var(--s-4); color: var(--accent-strong); font: 600 14px var(--font-body); cursor: pointer; }
     .back-button:hover { text-decoration: underline; }
+    .facility-header, .booking-panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: clamp(18px, 3vw, 28px); box-shadow: var(--shadow); }
+    .facility-header { margin-bottom: var(--s-4); }
+    .facility-header h2 { font-size: clamp(24px, 3.5vw, 30px); margin-bottom: 6px; }
+    .facility-header p { margin: 0; color: var(--muted); font-size: 14px; }
 
-    .facility-header, .booking-panel { background: white; border: 1px solid #e5e7eb; border-radius: 14px; padding: 24px; }
-    .facility-header { margin-bottom: 18px; }
-    .facility-header h2 { margin: 0 0 8px; font-size: 26px; color: #111827; }
-    .facility-header p { margin: 0; color: #6b7280; font-size: 14px; }
-
-    .form-group { margin-bottom: 20px; }
-    .form-group label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600; color: #374151; }
-    input, select, textarea { width: 100%; border: 1px solid #d1d5db; border-radius: 9px; padding: 10px 12px; background: white; color: #111827; font-size: 15px; outline: none; }
+    /* Forms */
+    .form-group { margin-bottom: 0; }
+    .form-group label { display: block; margin-bottom: 6px; font-size: 14px; font-weight: 600; }
+    input, select, textarea { width: 100%; border: 1px solid #c4cfc9; border-radius: var(--r-sm); padding: 10px 12px; background: #fff; color: var(--ink); font: 16px var(--font-body); }
     input, select { height: 46px; }
-    textarea { resize: vertical; min-height: 80px; }
+    textarea { resize: vertical; min-height: 96px; }
+    input:focus, textarea:focus { outline: 3px solid var(--accent-soft); border-color: var(--accent); }
+    input:disabled, textarea:disabled { background: #f3f5f4; color: var(--muted); }
+    .date-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-4); }
+    .booking-summary { margin: var(--s-4) 0 0; padding: var(--s-3) var(--s-4); background: var(--accent-soft); border-radius: var(--r-sm); color: var(--accent-strong); font-size: 14px; font-weight: 500; }
+    #bookingForm { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-4); }
+    #bookingForm .form-group:has(textarea), #submissionMessage, #bookingForm .submit-button { grid-column: 1 / -1; }
+    .disclaimer-banner { background: var(--warn-soft); border: 1px solid var(--warn-line); padding: var(--s-3) var(--s-4); border-radius: var(--r-md); margin-bottom: var(--s-5); font-size: 13px; color: var(--warn); }
 
-    .date-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    .booking-summary { margin: 4px 0 20px; padding: 14px 16px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; color: #1e40af; font-size: 14px; }
+    /* Availability */
+    .availability-title { font-size: 18px; margin: var(--s-5) 0 var(--s-1); }
+    .availability-hint { font-size: 14px; color: var(--muted); margin: 0 0 var(--s-3); }
+    .legend { display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-4); margin: 0 0 var(--s-4); padding: 0; list-style: none; font-size: 12px; color: var(--muted); }
+    .legend li { display: flex; align-items: center; gap: 6px; }
+    .legend i { width: 14px; height: 14px; border-radius: 4px; border: 1px solid #c4cfc9; background: #fff; }
+    .legend .l-sel { background: var(--accent); border-color: var(--accent); }
+    .legend .l-pend { background: var(--warn-soft); border: 1px dashed #e0a35c; }
+    .legend .l-book { background: repeating-linear-gradient(135deg, #e6eae8 0 3px, #f3f5f4 3px 6px); }
+    .day-availability-box { border: 1px solid var(--line); border-radius: var(--r-md); padding: var(--s-4); margin-bottom: var(--s-3); background: #fbfcfb; }
+    .day-title { font: 600 15px var(--font-head); margin-bottom: var(--s-3); }
+    .availability-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: var(--s-2); }
+    .slot { border: 1px solid #c4cfc9; background: #fff; color: var(--ink); border-radius: var(--r-sm); padding: 10px 4px; min-height: 44px; text-align: center; font: 500 13px var(--font-body); font-variant-numeric: tabular-nums; cursor: pointer; transition: background .12s, border-color .12s; }
+    .slot:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-soft); }
+    .slot.selected { border-color: var(--accent); background: var(--accent); color: #fff; font-weight: 700; }
+    .slot.booked { cursor: not-allowed; border-color: #e3e8e5; color: #8b9893; text-decoration: line-through; background: repeating-linear-gradient(135deg, #e6eae8 0 3px, #f3f5f4 3px 6px); }
+    .slot.pending { cursor: not-allowed; background: var(--warn-soft); border: 1px dashed #e0a35c; color: var(--warn); }
 
-    .day-availability-box { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px; margin-bottom: 14px; }
-    .day-title { font-weight: 650; color: #374151; margin-bottom: 10px; font-size: 14px; }
-    .availability-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(115px, 1fr)); gap: 8px; }
-    .slot { border: 1px solid #d1d5db; background: white; border-radius: 6px; padding: 8px 6px; text-align: center; font-size: 12px; cursor: pointer; }
-    .slot:hover { border-color: #2563eb; background: #eff6ff; }
-    .slot.selected { border-color: #2563eb; background: #2563eb; color: white; font-weight: 600; }
-    .slot.booked { cursor: not-allowed; background: #f3f4f6; color: #9ca3af; }
-    .slot.pending { cursor: not-allowed; background: #fff7ed; color: #c2410c; }
+    /* Sticky action bar */
+    .action-bar { position: sticky; bottom: var(--s-3); z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); margin-top: var(--s-4); padding: var(--s-3) var(--s-3) var(--s-3) var(--s-5); background: var(--ink); color: #fff; border-radius: var(--r-lg); box-shadow: 0 12px 32px -8px rgba(19,32,27,.45); }
+    .selection-live-banner { font-size: 14px; }
+    .selection-live-banner strong { display: block; font-size: 12px; font-weight: 600; opacity: .7; }
 
-    .selection-live-banner {
-      background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: 12px 16px;
-      border-radius: 10px; font-size: 14px; font-weight: 500; margin-bottom: 16px;
-    }
+    .continue-button, .submit-button { min-height: 48px; padding: 0 var(--s-5); border: none; border-radius: var(--r-md); background: var(--accent); color: #fff; font: 700 15px var(--font-body); cursor: pointer; transition: background .15s; }
+    .continue-button:hover:not(:disabled), .submit-button:hover:not(:disabled) { background: var(--accent-strong); }
+    .continue-button:disabled, .submit-button:disabled { background: #cfd8d3; color: #6b7a73; cursor: not-allowed; }
+    .action-bar .continue-button { background: #fff; color: var(--ink); flex: none; }
+    .action-bar .continue-button:hover:not(:disabled) { background: var(--accent-soft); }
+    .action-bar .continue-button:disabled { background: rgba(255,255,255,.14); color: rgba(255,255,255,.5); }
+    .submit-button { width: 100%; }
+    .btn-secondary { background: #e8edea !important; color: var(--ink) !important; }
+    .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.35); border-top-color: #fff; border-radius: 50%; animation: spin .8s linear infinite; vertical-align: -3px; margin-right: 8px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    .disclaimer-banner {
-      background: #fffbeb; border: 1px solid #fde68a; padding: 12px 16px;
-      border-radius: 10px; margin-bottom: 20px; font-size: 13px; color: #92400e; line-height: 1.5;
-    }
+    /* Success */
+    .success-panel { max-width: 620px; margin: 0 auto; }
+    .success-mark { width: 56px; height: 56px; border-radius: 50%; background: var(--accent); color: #fff; display: grid; place-items: center; font-size: 28px; margin: 0 auto var(--s-4); }
+    .success-panel h2 { text-align: center; font-size: 28px; }
+    .success-panel > p { text-align: center; color: var(--muted); font-size: 15px; margin: var(--s-2) 0 var(--s-5); }
+    .receipt { background: #fbfcfb; border: 1px solid var(--line); border-radius: var(--r-md); padding: var(--s-4); margin-bottom: var(--s-5); display: grid; grid-template-columns: max-content 1fr; gap: 8px var(--s-4); font-size: 14px; }
+    .receipt dt { color: var(--muted); }
+    .receipt dd { margin: 0; font-weight: 500; overflow-wrap: anywhere; }
+    .receipt ul { margin: 0; padding-left: 18px; }
+    #confBookingId { color: var(--accent-strong); font-weight: 700; }
 
-    /* RULES MODAL STYLES */
-    #rulesModal {
-      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(3px); z-index: 9999;
-      justify-content: center; align-items: center; padding: 16px;
-    }
-    .modal-box {
-      background: white; border-radius: 14px; max-width: 550px; width: 100%; padding: 24px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: flex; flex-direction: column; gap: 16px;
-      max-height: 90vh; overflow-y: auto;
-    }
-    .rules-body {
-      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px;
-      font-size: 13px; color: #334155; line-height: 1.6;
-    }
+    /* Modal */
+    #rulesModal { display: none; position: fixed; inset: 0; background: rgba(19,32,27,.55); backdrop-filter: blur(3px); z-index: 9999; justify-content: center; align-items: center; padding: var(--s-4); }
+    .modal-box { background: #fff; border-radius: var(--r-lg); max-width: 560px; width: 100%; padding: var(--s-5); box-shadow: 0 24px 48px -12px rgba(0,0,0,.3); display: flex; flex-direction: column; gap: var(--s-4); max-height: 90vh; overflow-y: auto; }
+    .modal-box h3 { font-size: 22px; margin-bottom: 4px; }
+    .modal-box .sub { font-size: 14px; color: var(--muted); margin: 0; }
+    .rules-body { background: #f6f8f7; border: 1px solid var(--line); border-radius: var(--r-md); padding: var(--s-4); font-size: 14px; line-height: 1.6; }
+    .agree { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .agree input { width: 20px; height: 20px; flex: none; margin-top: 1px; accent-color: var(--accent); }
+    .modal-actions { display: flex; gap: var(--s-3); border-top: 1px solid var(--line); padding-top: var(--s-4); }
+    .modal-actions button { flex: 1; }
 
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    .spinner {
-      display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255, 255, 255, 0.3);
-      border-radius: 50%; border-top-color: #fff; animation: spin 0.8s ease infinite;
-      vertical-align: middle; margin-right: 8px;
-    }
+    /* Toast */
+    #toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px); max-width: min(92vw, 460px); background: var(--ink); color: #fff; padding: 12px 18px; border-radius: var(--r-md); font-size: 14px; box-shadow: 0 12px 32px -8px rgba(0,0,0,.4); opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 10000; }
+    #toast.show { opacity: 1; transform: translate(-50%, 0); }
 
-    .continue-button, .submit-button { width: 100%; min-height: 48px; margin-top: 18px; border: none; border-radius: 9px; background: #111827; color: white; font-size: 15px; font-weight: 600; cursor: pointer; }
-    .continue-button:disabled, .submit-button:disabled { background: #d1d5db; cursor: not-allowed; }
-    .message { padding: 18px; border-radius: 10px; font-size: 14px; margin-bottom: 18px; }
-    .message.error { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; }
-    .message.loading { background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; }
-    .hidden { display: none !important; }
+    @media (max-width: 640px) {
+      .steps li span { display: none; }
+      .steps li.current span { display: inline; }
+      .date-row, #bookingForm { grid-template-columns: 1fr; }
+      .availability-grid { grid-template-columns: repeat(3, 1fr); }
+      .action-bar { padding-left: var(--s-4); }
+      .action-bar .continue-button { padding: 0 var(--s-4); }
+      .receipt { grid-template-columns: 1fr; gap: 2px; }
+      .receipt dd { margin-bottom: 8px; }
+    }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } html { scroll-behavior: auto; } }
   </style>
 </head>
 
 <body>
   <main class="container">
     <header class="header">
-      <h1>KK5 Facility Booking</h1>
-      <p>Select a facility to view its availability and make a booking directly.</p>
+      <div class="brand" aria-hidden="true">KK5</div>
+      <div>
+        <h1>Facility booking</h1>
+        <p>Pick a facility, choose your time, and send a request.</p>
+      </div>
     </header>
 
-    <div class="support-banner">
-      💡 Need help or manual bookings? Contact <strong>JTKD Teknikal (Fateh)</strong> at <strong>0104563287</strong>.
-    </div>
+    <ol class="steps" id="steps" aria-label="Booking progress">
+      <li class="current" aria-current="step"><span>Facility</span></li>
+      <li><span>Date &amp; time</span></li>
+      <li><span>Your details</span></li>
+    </ol>
 
-    <!-- BOOKING RULES BANNER -->
-    <div class="rules-banner">
-      📌 <strong>Booking Rules & Guidelines:</strong>
-      <ul style="margin: 6px 0 0 20px; padding: 0;">
-        <li>Bookings must be made at least <strong>2 days in advance</strong>.</li>
-        <li>Maximum booking limit is <strong>3 hours per day</strong> per user.</li>
-        <li>You must use your official UM student or staff email (ending with <code>@siswa.um.edu.my</code> or <code>@um.edu.my</code>).</li>
-        <li>The Residential College management reserves the right to prioritize official college and student activities for any facility applications.</li>
+    <p class="support-line">Need help or a manual booking? <a href="tel:0104563287">JTKD Teknikal (Fateh) · 010-456 3287</a></p>
+
+    <details class="rules-banner">
+      <summary>Booking rules &amp; guidelines</summary>
+      <ul>
+        <li>Book at least <strong>2 days in advance</strong>.</li>
+        <li>Maximum <strong>3 hours per day</strong> per user.</li>
+        <li>Use your official UM email (<code>@siswa.um.edu.my</code> or <code>@um.edu.my</code>).</li>
+        <li>The Residential College management reserves the right to prioritise official college and student activities for any facility applications.</li>
       </ul>
-    </div>
+    </details>
 
-    <div id="maintenanceBanner" class="message error hidden" style="background:#fff7ed; border-color:#fed7aa; color:#9a3412;"></div>
+    <div id="maintenanceBanner" class="message error hidden"></div>
     <div id="errorMessage" class="message error hidden" role="alert"></div>
 
     <!-- FACILITY SELECTION -->
     <section id="facilityPage" class="page active">
-      <div id="facilityLoading" class="message loading">Loading facilities...</div>
+      <div id="facilityLoading" class="message loading" role="status">Loading facilities…</div>
       <div id="facilityGrid" class="facility-grid"></div>
     </section>
 
@@ -159,7 +223,7 @@
       <div class="booking-panel">
         <div class="date-row">
           <div class="form-group">
-            <label for="startDate">Start date (At least 2 days in advance)</label>
+            <label for="startDate">Start date <span style="font-weight:400;color:var(--muted)">(2+ days ahead)</span></label>
             <input type="date" id="startDate" required>
           </div>
           <div class="form-group">
@@ -171,17 +235,23 @@
         <div id="bookingSummary" class="booking-summary hidden"></div>
 
         <div class="availability-section">
-          <h3 class="availability-title">Select Time Slots per Day (Max 3 hours/day)</h3>
-          <p style="font-size:13px;color:#6b7280;margin-bottom:14px;">Each button represents a 30-minute block. You can select up to 6 blocks (3 hours) per day.</p>
-          
-          <div id="selectionLiveBanner" class="selection-live-banner hidden">
-            ✨ <strong>Selected Time:</strong> <span id="liveSelectionSummaryText">None</span>
-          </div>
-
+          <h3 class="availability-title">Choose your time slots</h3>
+          <p class="availability-hint">Each button is 30 minutes. Select up to 6 per day (3 hours).</p>
+          <ul class="legend" aria-label="Slot colour key">
+            <li><i></i>Available</li>
+            <li><i class="l-sel"></i>Selected</li>
+            <li><i class="l-pend"></i>Pending approval</li>
+            <li><i class="l-book"></i>Booked / past</li>
+          </ul>
           <div id="availabilityContainer"></div>
         </div>
+      </div>
 
-        <button type="button" id="continueButton" class="continue-button" onclick="showDetailsForm()" disabled>Continue to booking details</button>
+      <div class="action-bar">
+        <div id="selectionLiveBanner" class="selection-live-banner" aria-live="polite">
+          <strong>Your selection</strong><span id="liveSelectionSummaryText">No time selected</span>
+        </div>
+        <button type="button" id="continueButton" class="continue-button" onclick="showDetailsForm()" disabled>Continue</button>
       </div>
     </section>
 
@@ -189,78 +259,71 @@
     <section id="detailsPage" class="page">
       <button type="button" class="back-button" onclick="goBackToBooking()">← Back to date &amp; time</button>
       <div class="facility-header">
-        <h2>Enter Booking Details</h2>
+        <h2>Your details</h2>
         <p id="summaryReviewText">Review your slots and provide your contact information.</p>
       </div>
 
       <div class="booking-panel">
         <div class="disclaimer-banner">
-          <strong>⚠️ Notice:</strong> The Residential College management reserves the right to prioritize official college and student activities for any facility applications.
+          The Residential College management reserves the right to prioritise official college and student activities for any facility applications.
         </div>
 
         <form id="bookingForm">
-          <div class="form-group"><label for="bookerName">Booker Name</label><input type="text" id="bookerName" required maxlength="120" placeholder="Full Name"></div>
-          <div class="form-group"><label for="matricNumber">Matric Number</label><input type="text" id="matricNumber" required maxlength="40" placeholder="e.g. 24001958"></div>
-          <div class="form-group"><label for="email">Email (UM Student Email)</label><input type="email" id="email" required maxlength="254" placeholder="username@siswa.um.edu.my"></div>
-          <div class="form-group"><label for="phone">Phone Number</label><input type="tel" id="phone" required maxlength="30" placeholder="0104563287"></div>
-          <div class="form-group"><label for="organisation">Organisation / Bureau</label><input type="text" id="organisation" required maxlength="120" placeholder="e.g. JTK, KEP"></div>
-          <div class="form-group"><label for="purpose">Purpose / Usage</label><textarea id="purpose" required maxlength="2000" placeholder="Describe what the facility will be used for..."></textarea></div>
+          <div class="form-group"><label for="bookerName">Full name</label><input type="text" id="bookerName" required maxlength="120" placeholder="As on your matric card" autocomplete="name"></div>
+          <div class="form-group"><label for="matricNumber">Matric number</label><input type="text" id="matricNumber" required maxlength="40" placeholder="e.g. 24001958"></div>
+          <div class="form-group"><label for="email">UM email</label><input type="email" id="email" required maxlength="254" placeholder="username@siswa.um.edu.my" autocomplete="email"></div>
+          <div class="form-group"><label for="phone">Phone number</label><input type="tel" id="phone" required maxlength="30" placeholder="0104563287" autocomplete="tel"></div>
+          <div class="form-group"><label for="organisation">Organisation / bureau</label><input type="text" id="organisation" required maxlength="120" placeholder="e.g. JTK, KEP"></div>
+          <div class="form-group"><label for="purpose">Purpose</label><textarea id="purpose" required maxlength="2000" placeholder="What will you use the facility for?"></textarea></div>
 
           <div id="submissionMessage" class="message hidden" role="status"></div>
-          <button type="submit" id="submitButton" class="submit-button">Submit Booking Request</button>
+          <button type="submit" id="submitButton" class="submit-button">Submit booking request</button>
         </form>
       </div>
     </section>
 
     <!-- SUCCESS -->
     <section id="successPage" class="page">
-      <div class="booking-panel" style="text-align:left;max-width:600px;margin:0 auto;padding:30px;">
-        <h2 style="color:#166534;margin-bottom:8px;text-align:center;">Booking Request Submitted!</h2>
-        <p style="color:#4b5563;font-size:14px;text-align:center;margin-bottom:20px;">Your booking is currently marked as <strong>PENDING</strong> and a confirmation email has been dispatched.</p>
-        
-        <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:16px;font-size:14px;margin-bottom:20px;">
-          <p style="margin:6px 0;"><strong>Booking ID:</strong> <span id="confBookingId" style="color:#2563eb;font-weight:600;"></span></p>
-          <p style="margin:6px 0;"><strong>Facility:</strong> <span id="confFacility"></span></p>
-          <p style="margin:6px 0;"><strong>Booker Name:</strong> <span id="confName"></span></p>
-          <p style="margin:6px 0;"><strong>Email:</strong> <span id="confEmail"></span></p>
-          <p style="margin:6px 0;"><strong>Organisation:</strong> <span id="confOrg"></span></p>
-          <p style="margin:6px 0;"><strong>Purpose:</strong> <span id="confPurpose"></span></p>
-          <div style="margin-top:12px;">
-            <strong>Requested Slots:</strong>
-            <ul id="confSlotsList" style="margin:6px 0 0 20px;padding:0;color:#374151;"></ul>
-          </div>
-        </div>
+      <div class="booking-panel success-panel">
+        <div class="success-mark" aria-hidden="true">✓</div>
+        <h2>Request submitted</h2>
+        <p>Your booking is <strong>pending</strong> approval. A confirmation email is on its way.</p>
 
-        <button type="button" class="continue-button" style="max-width:240px;margin:0 auto;" onclick="location.reload()">Make Another Booking</button>
+        <dl class="receipt">
+          <dt>Booking ID</dt><dd id="confBookingId"></dd>
+          <dt>Facility</dt><dd id="confFacility"></dd>
+          <dt>Name</dt><dd id="confName"></dd>
+          <dt>Email</dt><dd id="confEmail"></dd>
+          <dt>Organisation</dt><dd id="confOrg"></dd>
+          <dt>Purpose</dt><dd id="confPurpose"></dd>
+          <dt>Slots</dt><dd><ul id="confSlotsList"></ul></dd>
+        </dl>
+
+        <button type="button" class="continue-button" style="width:100%" onclick="location.reload()">Make another booking</button>
       </div>
     </section>
   </main>
 
-  <!-- FACILITY RULES & TERMS MODAL -->
+  <!-- FACILITY RULES MODAL -->
   <div id="rulesModal">
-    <div class="modal-box">
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="rulesFacilityTitle">
       <div>
-        <h3 id="rulesFacilityTitle" style="margin:0 0 4px; font-size:18px; color:#0f172a;">Facility Rules & Regulations</h3>
-        <p style="font-size:13px; color:#64748b; margin:0;">Please read the terms carefully before booking.</p>
+        <h3 id="rulesFacilityTitle">Facility rules</h3>
+        <p class="sub">Read these before you book.</p>
       </div>
-
-      <div id="rulesContentBody" class="rules-body">
-        <!-- Injected Rules HTML -->
-      </div>
-
-      <div style="display:flex; align-items:flex-start; gap:10px;">
-        <input type="checkbox" id="agreeRulesCheckbox" style="width:18px; height:18px; margin-top:2px; cursor:pointer;" onchange="toggleProceedButton()">
-        <label for="agreeRulesCheckbox" style="font-size:13px; font-weight:600; color:#0f172a; cursor:pointer; text-transform:none; letter-spacing:normal;">
-          I have read, understood, and agree to follow all the rules and regulations stated above for this facility.
-        </label>
-      </div>
-
-      <div style="display:flex; gap:10px; border-top:1px solid #e2e8f0; padding-top:14px;">
-        <button type="button" class="continue-button" style="background:#e2e8f0; color:#334155; margin-top:0;" onclick="closeRulesModal()">Cancel</button>
-        <button type="button" id="proceedBtn" class="continue-button" style="background:#111827; margin-top:0;" disabled onclick="confirmRulesAndProceed()">Proceed to Booking</button>
+      <div id="rulesContentBody" class="rules-body"></div>
+      <label class="agree" for="agreeRulesCheckbox">
+        <input type="checkbox" id="agreeRulesCheckbox" onchange="toggleProceedButton()">
+        <span>I have read and agree to follow the rules for this facility.</span>
+      </label>
+      <div class="modal-actions">
+        <button type="button" class="continue-button btn-secondary" onclick="closeRulesModal()">Cancel</button>
+        <button type="button" id="proceedBtn" class="continue-button" disabled onclick="confirmRulesAndProceed()">Continue to booking</button>
       </div>
     </div>
   </div>
+
+  <div id="toast" role="status" aria-live="polite"></div>
 
   <script>
     "use strict";
@@ -436,10 +499,14 @@
         const isInactive = facility.status !== "ACTIVE";
         const card = document.createElement("div");
         card.className = "facility-card" + (isInactive ? " inactive" : "");
+        card.tabIndex = 0;
+        card.setAttribute("role", "button");
+        if (isInactive) card.setAttribute("aria-disabled", "true");
+        card.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); card.click(); } });
         
         card.addEventListener("click", () => {
           if (maintenanceMode) {
-            alert("🛠️ System Under Maintenance: Online facility bookings are currently paused. Please try again later or contact JTKD Teknikal.");
+            toast("🛠️ System Under Maintenance: Online facility bookings are currently paused. Please try again later or contact JTKD Teknikal.");
             return;
           }
           if (isInactive) return;
@@ -467,7 +534,7 @@
 
         const status = document.createElement("div");
         status.className = "facility-status " + (isInactive ? "unavailable" : "available");
-        status.textContent = isInactive ? "UNAVAILABLE" : "AVAILABLE";
+        status.textContent = isInactive ? "Unavailable" : "Available";
 
         card.appendChild(cardContent);
         card.appendChild(status);
@@ -487,6 +554,7 @@
       document.getElementById("agreeRulesCheckbox").checked = false;
       toggleProceedButton();
       document.getElementById("rulesModal").style.display = "flex";
+      document.getElementById("agreeRulesCheckbox").focus();
     }
 
     function closeRulesModal() {
@@ -507,8 +575,27 @@
       openFacility(chosen);
     }
 
+    let toastTimer;
+    function toast(msg) {
+      const el = document.getElementById("toast");
+      el.textContent = msg.replace(/^🛠️\s*/, "");
+      el.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove("show"), 4500);
+    }
+
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape" && document.getElementById("rulesModal").style.display === "flex") closeRulesModal();
+    });
+
     function showPage(pageToShow) {
       [facilityPage, bookingPage, detailsPage, successPage].forEach(p => p.classList.toggle("active", p === pageToShow));
+      const idx = [facilityPage, bookingPage, detailsPage, successPage].indexOf(pageToShow);
+      document.querySelectorAll("#steps li").forEach((li, i) => {
+        li.classList.toggle("current", i === idx);
+        li.classList.toggle("done", i < idx);
+        if (i === idx) li.setAttribute("aria-current", "step"); else li.removeAttribute("aria-current");
+      });
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
@@ -536,7 +623,7 @@
       startDate.value = ""; endDate.value = "";
       availabilityContainer.innerHTML = "";
       bookingSummary.className = "booking-summary hidden";
-      selectionLiveBanner.classList.add("hidden");
+      liveSelectionSummaryText.textContent = "No time selected";
       continueButton.disabled = true;
     }
 
@@ -559,7 +646,7 @@
       selectedSlotsByDate = {};
       if (!selectedStartDate || !selectedEndDate) return;
       if (selectedEndDate < selectedStartDate) {
-        alert("End date cannot be before start date.");
+        toast("End date cannot be before start date.");
         endDate.value = selectedStartDate; 
         selectedEndDate = selectedStartDate; 
         return;
@@ -570,7 +657,7 @@
     });
 
     async function loadAvailability() {
-      availabilityContainer.innerHTML = "<div class='message loading'>Loading availability...</div>";
+      availabilityContainer.innerHTML = "<div class='message loading'>Loading availability…</div>";
       try {
         const data = await fetchGviz("Bookings");
         currentBookingsByDate = parseBookingsForRange(data, selectedFacility.facility, selectedStartDate, selectedEndDate);
@@ -680,7 +767,7 @@
       } else {
         const maxSlotsPerDay = (MAX_HOURS_PER_DAY * 60) / SLOT_INTERVAL;
         if (selectedSlotsByDate[dateKey].length >= maxSlotsPerDay) {
-          alert(`You can only select a maximum of ${MAX_HOURS_PER_DAY} hours per day.`);
+          toast(`You can only select a maximum of ${MAX_HOURS_PER_DAY} hours per day.`);
           return;
         }
         selectedSlotsByDate[dateKey].push({ start: startStr, end: endStr });
@@ -707,14 +794,12 @@
       }
 
       if (totalSlots === 0) {
-        selectionLiveBanner.classList.add("hidden");
-        liveSelectionSummaryText.textContent = "None";
+        liveSelectionSummaryText.textContent = "No time selected";
         return;
       }
 
       const totalHours = (totalSlots * SLOT_INTERVAL) / 60;
-      liveSelectionSummaryText.textContent = totalSlots + " slot(s) selected (" + totalHours + " hour(s) total)";
-      selectionLiveBanner.classList.remove("hidden");
+      liveSelectionSummaryText.textContent = totalSlots + (totalSlots === 1 ? " slot" : " slots") + " · " + totalHours + (totalHours === 1 ? " hour" : " hours");
     }
 
     function showDetailsForm() {
@@ -729,12 +814,12 @@
 
       const emailInput = document.getElementById("email").value.trim().toLowerCase();
       if (!emailInput.endsWith("@siswa.um.edu.my") && !emailInput.endsWith("@um.edu.my")) {
-        alert("Please use your official UM student or staff email address (ending with @siswa.um.edu.my or @um.edu.my).");
+        toast("Please use your official UM student or staff email address (ending with @siswa.um.edu.my or @um.edu.my).");
         return;
       }
 
       submitButton.disabled = true;
-      submitButton.innerHTML = '<span class="spinner"></span> Submitting booking request...';
+      submitButton.innerHTML = '<span class="spinner"></span> Sending request…';
       const formInputs = bookingForm.querySelectorAll("input, textarea");
       formInputs.forEach(input => input.disabled = true);
       document.getElementById("submissionMessage").classList.add("hidden");
@@ -796,7 +881,7 @@
         slotsList.innerHTML = "";
         submittedDateSlotsCache.forEach(slot => {
           const li = document.createElement("li");
-          li.textContent = slot.date + " (" + slot.startTime + " - " + slot.endTime + ")";
+          li.textContent = formatDateForDisplay(parseDateOnly(slot.date)) + ", " + slot.startTime + " – " + slot.endTime;
           slotsList.appendChild(li);
         });
 
@@ -809,7 +894,7 @@
 
         formInputs.forEach(input => input.disabled = false);
         submitButton.disabled = false;
-        submitButton.textContent = "Submit Booking Request";
+        submitButton.textContent = "Submit booking request";
       }
     }
 
