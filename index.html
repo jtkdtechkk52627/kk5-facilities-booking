@@ -422,7 +422,7 @@
     const SLOT_INTERVAL = 30;
     const DEFAULT_MAX_HOURS_PER_DAY = 3;
 
-    // Customize Personal Use rules per venue here.
+    // Fallback Personal Use rules used when sheet values are blank.
     // - disabled: true -> blocks Personal use booking for that venue with `reason`.
     // - startTime / endTime -> restricts Personal use slots to this HH:MM window (e.g. "19:00" to "23:00").
     // - maxHoursPerDay -> daily cap in hours (default 3).
@@ -441,7 +441,6 @@
       "Gelanggang Takraw/Badminton 2": { disabled: false, startTime: "19:00", endTime: "23:00", maxHoursPerDay: 3 },
       "Gelanggang Takraw/Badminton 3": { disabled: false, startTime: "19:00", endTime: "23:00", maxHoursPerDay: 3 },
 
-      // Example custom timings / disabled venues for Personal use (adjust as needed):
       "Gym": { disabled: false, startTime: "08:00", endTime: "23:00", maxHoursPerDay: 2 },
       "Ballroom": { disabled: true, reason: "Not available for personal bookings.", maxHoursPerDay: 3 },
       "Bilik Kaca": { disabled: true, reason: "Reserved for college / committee activities.", maxHoursPerDay: 3 },
@@ -460,15 +459,6 @@
     let maintenanceMode = false;
     let submittedDateSlotsCache = [];
 
-    const SPECIFIC_RULES = {
-      "Bilik Kaca": `
-        <strong>📌 Bilik Kaca Usage Guidelines:</strong>
-        <ul style="margin: 6px 0 0 16px; padding: 0;">
-          <li>Bilik Kaca is prioritised for college activity use.</li>
-          <li>For external use, email your bookings to jtk_kk5@um.edu.my</li>
-        </ul>
-      `
-    };
 
     const DEFAULT_RULES = `
       <strong>📌 Standard Facility Regulations:</strong>
@@ -476,7 +466,6 @@
         <li>Maintain cleanliness and orderliness at all times.</li>
         <li>Respect facility property and report any damages immediately to JTK/JKP.</li>
         <li>Bookings are strictly non-transferable to other individuals or groups.</li>
-        <li>Contact Fateh (JTKD Teknikal) 0104563287 for any inquiries.</li>
       </ul>
     `;
 
@@ -507,24 +496,39 @@
     document.addEventListener("DOMContentLoaded", initializeApp);
     bookingForm.addEventListener("submit", submitBooking);
 
+    function parseBooleanValue(value, defaultValue) {
+      if (value === "" || value === null || value === undefined) return defaultValue;
+      if (typeof value === "boolean") return value;
+      const cleaned = String(value).trim().toLowerCase();
+      if (["false", "0", "no", "n", "disabled", "off"].includes(cleaned)) return false;
+      if (["true", "1", "yes", "y", "enabled", "on"].includes(cleaned)) return true;
+      return defaultValue;
+    }
+
     function getPersonalPolicyForFacility(facilityObj) {
       const name = String(facilityObj && facilityObj.facility ? facilityObj.facility : "").trim();
       const lower = name.toLowerCase();
 
+      let fallback = {
+        disabled: false,
+        reason: "Not available for personal bookings.",
+        startTime: null,
+        endTime: null,
+        maxHoursPerDay: DEFAULT_MAX_HOURS_PER_DAY
+      };
+
       const exactKey = Object.keys(PERSONAL_FACILITY_RULES).find(k => k.toLowerCase() === lower);
       if (exactKey) {
         const cfg = PERSONAL_FACILITY_RULES[exactKey];
-        return {
+        fallback = {
           disabled: Boolean(cfg.disabled),
           reason: cfg.reason || "Not available for personal bookings.",
           startTime: cfg.startTime || null,
           endTime: cfg.endTime || null,
           maxHoursPerDay: cfg.maxHoursPerDay || DEFAULT_MAX_HOURS_PER_DAY
         };
-      }
-
-      if (lower.includes("gelanggang") || lower.includes("court")) {
-        return {
+      } else if (lower.includes("gelanggang") || lower.includes("court")) {
+        fallback = {
           disabled: false,
           reason: "",
           startTime: "19:00",
@@ -533,12 +537,27 @@
         };
       }
 
+      if (!facilityObj) return fallback;
+
+      const hasSheetEnabled =
+        facilityObj.personalEnabled !== undefined &&
+        facilityObj.personalEnabled !== null &&
+        String(facilityObj.personalEnabled).trim() !== "";
+
+      const enabled = hasSheetEnabled
+        ? parseBooleanValue(facilityObj.personalEnabled, !fallback.disabled)
+        : !fallback.disabled;
+
+      const sheetStart = String(facilityObj.personalStart || "").trim();
+      const sheetEnd = String(facilityObj.personalEnd || "").trim();
+      const rawMax = Number(facilityObj.personalMaxHours);
+
       return {
-        disabled: false,
-        reason: "",
-        startTime: null,
-        endTime: null,
-        maxHoursPerDay: DEFAULT_MAX_HOURS_PER_DAY
+        disabled: !enabled,
+        reason: !enabled ? fallback.reason : "",
+        startTime: sheetStart || (hasSheetEnabled ? null : fallback.startTime),
+        endTime: sheetEnd || (hasSheetEnabled ? null : fallback.endTime),
+        maxHoursPerDay: (!isNaN(rawMax) && rawMax > 0) ? rawMax : fallback.maxHoursPerDay
       };
     }
 
@@ -697,7 +716,11 @@
             closingTime: item.closing,
             status: String(item.status || "ACTIVE").toUpperCase(),
             notice: item.notice || "",
-            rules: item.rules || ""
+            rules: item.rules || "",
+            personalEnabled: item.personalEnabled,
+            personalStart: item.personalStart || "",
+            personalEnd: item.personalEnd || "",
+            personalMaxHours: item.personalMaxHours
           }));
         } else {
           const data = await fetchGviz("Facilities");
@@ -733,8 +756,23 @@
         const status = String(getCellValue(cells[3]) || "ACTIVE").trim().toUpperCase();
         const notice = String(getCellValue(cells[4]) || "").trim();
         const rules = String(getCellValue(cells[5]) || "").trim();
+        const personalEnabled = String(getCellValue(cells[6]) || "").trim();
+        const personalStart = normalizeSheetTime(cells[7]);
+        const personalEnd = normalizeSheetTime(cells[8]);
+        const personalMaxHours = String(getCellValue(cells[9]) || "").trim();
         if (!facility || facility.toLowerCase() === "facility") return null;
-        return { facility, openingTime, closingTime, status: status === "ACTIVE" ? "ACTIVE" : "INACTIVE", notice, rules };
+        return {
+          facility,
+          openingTime,
+          closingTime,
+          status: status === "ACTIVE" ? "ACTIVE" : "INACTIVE",
+          notice,
+          rules,
+          personalEnabled,
+          personalStart,
+          personalEnd,
+          personalMaxHours
+        };
       }).filter(Boolean);
     }
 
