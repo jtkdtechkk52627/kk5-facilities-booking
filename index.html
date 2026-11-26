@@ -83,7 +83,17 @@
     @media (prefers-reduced-motion: no-preference) { .page.active { animation: enter .25s ease-out; } }
     @keyframes enter { from { opacity: 0; transform: translateY(6px); } }
 
+    /* Category Filter Tabs */
+    .category-tabs { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-bottom: var(--s-4); }
+    .category-tab { border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 99px; padding: 8px 16px; font: 600 14px var(--font-body); cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: background .15s, border-color .15s, color .15s; }
+    .category-tab:hover { border-color: var(--accent); background: var(--accent-soft); }
+    .category-tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .category-count { font-size: 12px; font-weight: 700; padding: 1px 8px; border-radius: 99px; background: rgba(19,32,27,.08); }
+    .category-tab.active .category-count { background: rgba(255,255,255,.22); color: #fff; }
+
     /* Facilities */
+    .facility-group { margin-bottom: var(--s-5); }
+    .facility-group-heading { font-size: 18px; margin-bottom: var(--s-3); color: var(--ink); display: flex; align-items: center; gap: 8px; }
     .facility-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--s-4); }
     .facility-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: var(--s-5); min-height: 160px; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; gap: var(--s-4); box-shadow: var(--shadow); transition: border-color .15s, transform .15s; }
     .facility-card:hover { border-color: var(--accent); transform: translateY(-2px); }
@@ -274,7 +284,18 @@
       <!-- FACILITY SELECTION -->
       <section id="facilityPage" class="page active">
         <div id="facilityLoading" class="message loading" role="status">Loading facilities…</div>
-        <div id="facilityGrid" class="facility-grid"></div>
+        <div id="categoryTabs" class="category-tabs hidden" role="tablist" aria-label="Filter venues by category">
+          <button type="button" class="category-tab active" data-category="all" role="tab" aria-selected="true" onclick="selectFacilityCategory('all')">
+            All venues <span id="countAll" class="category-count">0</span>
+          </button>
+          <button type="button" class="category-tab" data-category="sports" role="tab" aria-selected="false" onclick="selectFacilityCategory('sports')">
+            Sports facilities <span id="countSports" class="category-count">0</span>
+          </button>
+          <button type="button" class="category-tab" data-category="recreational" role="tab" aria-selected="false" onclick="selectFacilityCategory('recreational')">
+            Recreational rooms <span id="countRecreational" class="category-count">0</span>
+          </button>
+        </div>
+        <div id="facilityGrid"></div>
       </section>
 
       <!-- DATE AND TIME SELECTION -->
@@ -422,11 +443,14 @@
     const SLOT_INTERVAL = 30;
     const DEFAULT_MAX_HOURS_PER_DAY = 3;
 
+    // Explicit category overrides if needed ("sports" or "recreational").
+    // Otherwise venues with "gelanggang", "court", or "gym" default to "sports",
+    // and rooms/halls/spaces default to "recreational".
+    const FACILITY_CATEGORY_OVERRIDES = {
+      "Gym": "sports"
+    };
+
     // Fallback Personal Use rules used when sheet values are blank.
-    // - disabled: true -> blocks Personal use booking for that venue with `reason`.
-    // - startTime / endTime -> restricts Personal use slots to this HH:MM window (e.g. "19:00" to "23:00").
-    // - maxHoursPerDay -> daily cap in hours (default 3).
-    // Any court ("gelanggang" or "court") not listed explicitly defaults to 19:00–23:00 and 3 hrs/day.
     const PERSONAL_FACILITY_RULES = {
       "Gelanggang Futsal": { disabled: false, startTime: "19:00", endTime: "23:00", maxHoursPerDay: 3 },
       "Gelanggang Bola Keranjang": { disabled: false, startTime: "19:00", endTime: "23:00", maxHoursPerDay: 3 },
@@ -449,6 +473,7 @@
     };
 
     let bookingMode = null; // "personal" | "college" | "external"
+    let activeCategoryFilter = "all"; // "all" | "sports" | "recreational"
     let facilities = [];
     let selectedFacility = null;
     let pendingFacility = null;
@@ -459,6 +484,15 @@
     let maintenanceMode = false;
     let submittedDateSlotsCache = [];
 
+    const SPECIFIC_RULES = {
+      "Bilik Kaca": `
+        <strong>📌 Bilik Kaca Usage Guidelines:</strong>
+        <ul style="margin: 6px 0 0 16px; padding: 0;">
+          <li>Bilik Kaca is prioritised for college activity use.</li>
+          <li>For external use, email your bookings to jtk_kk5@um.edu.my</li>
+        </ul>
+      `
+    };
 
     const DEFAULT_RULES = `
       <strong>📌 Standard Facility Regulations:</strong>
@@ -466,6 +500,7 @@
         <li>Maintain cleanliness and orderliness at all times.</li>
         <li>Respect facility property and report any damages immediately to JTK/JKP.</li>
         <li>Bookings are strictly non-transferable to other individuals or groups.</li>
+        <li>Contact Fateh (JTKD Teknikal) 0104563287 for any inquiries.</li>
       </ul>
     `;
 
@@ -476,6 +511,7 @@
     const detailsPage = document.getElementById("detailsPage");
     const successPage = document.getElementById("successPage");
 
+    const categoryTabsEl = document.getElementById("categoryTabs");
     const facilityGrid = document.getElementById("facilityGrid");
     const facilityLoading = document.getElementById("facilityLoading");
     const selectedFacilityName = document.getElementById("selectedFacilityName");
@@ -495,6 +531,51 @@
 
     document.addEventListener("DOMContentLoaded", initializeApp);
     bookingForm.addEventListener("submit", submitBooking);
+
+    function normalizeCategoryValue(rawCategory, facilityName, jkp) {
+      const cat = String(rawCategory || "").trim().toLowerCase();
+      if (["sports", "sport", "sukan", "court", "courts"].includes(cat)) return "sports";
+      if (["recreational", "recreation", "room", "rooms", "recreational rooms", "rekreasi"].includes(cat)) return "recreational";
+
+      const name = String(facilityName || "").trim();
+      const overrideKey = Object.keys(FACILITY_CATEGORY_OVERRIDES).find(k => k.toLowerCase() === name.toLowerCase());
+      if (overrideKey) return FACILITY_CATEGORY_OVERRIDES[overrideKey];
+
+      const lowerName = name.toLowerCase();
+      const lowerJkp = String(jkp || "").trim().toLowerCase();
+      if (lowerName.includes("gelanggang") || lowerName.includes("court") || lowerName.includes("gym") || lowerJkp === "sukrea") {
+        return "sports";
+      }
+      return "recreational";
+    }
+
+    function getFacilityCategory(facilityObj) {
+      return normalizeCategoryValue(
+        facilityObj && facilityObj.category,
+        facilityObj && facilityObj.facility,
+        facilityObj && facilityObj.jkp
+      );
+    }
+
+    function selectFacilityCategory(category) {
+      activeCategoryFilter = category;
+      document.querySelectorAll(".category-tab").forEach(tab => {
+        const isActive = tab.dataset.category === category;
+        tab.classList.toggle("active", isActive);
+        tab.setAttribute("aria-selected", isActive ? "true" : "false");
+      });
+      renderFacilities();
+    }
+
+    function updateCategoryCounts() {
+      const sportsCount = facilities.filter(f => getFacilityCategory(f) === "sports").length;
+      const recCount = facilities.filter(f => getFacilityCategory(f) === "recreational").length;
+
+      document.getElementById("countAll").textContent = facilities.length;
+      document.getElementById("countSports").textContent = sportsCount;
+      document.getElementById("countRecreational").textContent = recCount;
+      categoryTabsEl.classList.toggle("hidden", facilities.length === 0);
+    }
 
     function parseBooleanValue(value, defaultValue) {
       if (value === "" || value === null || value === undefined) return defaultValue;
@@ -622,6 +703,7 @@
       modeGate.classList.add("hidden");
       bookingWorkflow.classList.remove("hidden");
       showPage(facilityPage);
+      updateCategoryCounts();
       renderFacilities();
     }
 
@@ -712,6 +794,8 @@
         if (result.success && Array.isArray(result.data)) {
           facilities = result.data.map(item => ({
             facility: item.name,
+            jkp: item.jkp || "",
+            category: item.category || "",
             openingTime: item.opening,
             closingTime: item.closing,
             status: String(item.status || "ACTIVE").toUpperCase(),
@@ -726,11 +810,13 @@
           const data = await fetchGviz("Facilities");
           facilities = parseFacilities(data);
         }
+        updateCategoryCounts();
         renderFacilities();
       } catch (error) {
         try {
           const data = await fetchGviz("Facilities");
           facilities = parseFacilities(data);
+          updateCategoryCounts();
           renderFacilities();
         } catch (err) {
           errorMessage.textContent = "Failed to load facilities. " + error.message;
@@ -760,9 +846,12 @@
         const personalStart = normalizeSheetTime(cells[7]);
         const personalEnd = normalizeSheetTime(cells[8]);
         const personalMaxHours = String(getCellValue(cells[9]) || "").trim();
+        const category = String(getCellValue(cells[10]) || "").trim();
         if (!facility || facility.toLowerCase() === "facility") return null;
         return {
           facility,
+          jkp: "",
+          category,
           openingTime,
           closingTime,
           status: status === "ACTIVE" ? "ACTIVE" : "INACTIVE",
@@ -776,66 +865,96 @@
       }).filter(Boolean);
     }
 
+    function buildFacilityCard(facility) {
+      const modeRule = getEffectiveModeRestriction(facility);
+      const isInactive = facility.status !== "ACTIVE" || modeRule.disabled;
+      const card = document.createElement("div");
+      card.className = "facility-card" + (isInactive ? " inactive" : "");
+      card.tabIndex = 0;
+      card.setAttribute("role", "button");
+      if (isInactive) card.setAttribute("aria-disabled", "true");
+      card.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); card.click(); } });
+
+      card.addEventListener("click", () => {
+        if (maintenanceMode) {
+          toast("🛠️ System Under Maintenance: Online facility bookings are currently paused. Please try again later or contact JTKD Teknikal.");
+          return;
+        }
+        if (facility.status !== "ACTIVE") return;
+        if (modeRule.disabled) {
+          toast(modeRule.reason || "This facility is not available for this booking type.");
+          return;
+        }
+        triggerFacilityRulesModal(facility);
+      });
+
+      const name = document.createElement("div");
+      name.className = "facility-name";
+      name.textContent = facility.facility;
+
+      const hours = document.createElement("div");
+      hours.className = "facility-hours";
+      if (modeRule.windowLabel) {
+        hours.textContent = "Personal window: " + modeRule.windowLabel;
+      } else {
+        hours.textContent = facility.openingTime && facility.closingTime ? "Open " + facility.openingTime + " – " + facility.closingTime : "";
+      }
+
+      const cardContent = document.createElement("div");
+      cardContent.appendChild(name);
+      cardContent.appendChild(hours);
+
+      const extraNotice = facility.status === "ACTIVE" && modeRule.disabled && modeRule.reason
+        ? modeRule.reason
+        : facility.notice;
+
+      if (extraNotice) {
+        const noticeDiv = document.createElement("div");
+        noticeDiv.className = "facility-notice";
+        noticeDiv.textContent = "⚠️ " + extraNotice;
+        cardContent.appendChild(noticeDiv);
+      }
+
+      const status = document.createElement("div");
+      status.className = "facility-status " + (isInactive ? "unavailable" : "available");
+      status.textContent = isInactive ? "Unavailable" : "Available";
+
+      card.appendChild(cardContent);
+      card.appendChild(status);
+      return card;
+    }
+
+    function appendGroupSection(container, titleText, items) {
+      if (!items.length) return;
+      const section = document.createElement("div");
+      section.className = "facility-group";
+
+      const heading = document.createElement("h3");
+      heading.className = "facility-group-heading";
+      heading.textContent = `${titleText} (${items.length})`;
+      section.appendChild(heading);
+
+      const grid = document.createElement("div");
+      grid.className = "facility-grid";
+      items.forEach(facility => grid.appendChild(buildFacilityCard(facility)));
+      section.appendChild(grid);
+
+      container.appendChild(section);
+    }
+
     function renderFacilities() {
       facilityGrid.innerHTML = "";
-      facilities.forEach(facility => {
-        const modeRule = getEffectiveModeRestriction(facility);
-        const isInactive = facility.status !== "ACTIVE" || modeRule.disabled;
-        const card = document.createElement("div");
-        card.className = "facility-card" + (isInactive ? " inactive" : "");
-        card.tabIndex = 0;
-        card.setAttribute("role", "button");
-        if (isInactive) card.setAttribute("aria-disabled", "true");
-        card.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); card.click(); } });
+      const sportsItems = facilities.filter(f => getFacilityCategory(f) === "sports");
+      const recreationalItems = facilities.filter(f => getFacilityCategory(f) === "recreational");
 
-        card.addEventListener("click", () => {
-          if (maintenanceMode) {
-            toast("🛠️ System Under Maintenance: Online facility bookings are currently paused. Please try again later or contact JTKD Teknikal.");
-            return;
-          }
-          if (facility.status !== "ACTIVE") return;
-          if (modeRule.disabled) {
-            toast(modeRule.reason || "This facility is not available for this booking type.");
-            return;
-          }
-          triggerFacilityRulesModal(facility);
-        });
-
-        const name = document.createElement("div");
-        name.className = "facility-name";
-        name.textContent = facility.facility;
-
-        const hours = document.createElement("div");
-        hours.className = "facility-hours";
-        if (modeRule.windowLabel) {
-          hours.textContent = "Personal window: " + modeRule.windowLabel;
-        } else {
-          hours.textContent = facility.openingTime && facility.closingTime ? "Open " + facility.openingTime + " – " + facility.closingTime : "";
-        }
-
-        const cardContent = document.createElement("div");
-        cardContent.appendChild(name);
-        cardContent.appendChild(hours);
-
-        const extraNotice = facility.status === "ACTIVE" && modeRule.disabled && modeRule.reason
-          ? modeRule.reason
-          : facility.notice;
-
-        if (extraNotice) {
-          const noticeDiv = document.createElement("div");
-          noticeDiv.className = "facility-notice";
-          noticeDiv.textContent = "⚠️ " + extraNotice;
-          cardContent.appendChild(noticeDiv);
-        }
-
-        const status = document.createElement("div");
-        status.className = "facility-status " + (isInactive ? "unavailable" : "available");
-        status.textContent = isInactive ? "Unavailable" : "Available";
-
-        card.appendChild(cardContent);
-        card.appendChild(status);
-        facilityGrid.appendChild(card);
-      });
+      if (activeCategoryFilter === "all") {
+        appendGroupSection(facilityGrid, "Sports facilities", sportsItems);
+        appendGroupSection(facilityGrid, "Recreational rooms", recreationalItems);
+      } else if (activeCategoryFilter === "sports") {
+        appendGroupSection(facilityGrid, "Sports facilities", sportsItems);
+      } else if (activeCategoryFilter === "recreational") {
+        appendGroupSection(facilityGrid, "Recreational rooms", recreationalItems);
+      }
     }
 
     // --- RULES MODAL HANDLERS ---
