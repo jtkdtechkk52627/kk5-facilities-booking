@@ -232,7 +232,7 @@
           <div>
             <span class="mode-badge">Option 1</span>
             <h3 class="mode-title" style="margin-top:10px">Personal use</h3>
-            <p class="mode-desc">Courts default to 7:00 PM – 11:00 PM (max 3 hrs/day). Other venues follow custom per-venue rules or may be restricted.</p>
+            <p class="mode-desc">For individual or casual recreational sessions by KK5 residents. Eligible courts and spaces follow personal booking hours and daily limits.</p>
           </div>
           <span class="link-btn">Continue with Personal use →</span>
         </button>
@@ -241,7 +241,7 @@
           <div>
             <span class="mode-badge">Option 2</span>
             <h3 class="mode-title" style="margin-top:10px">KK5 College activity</h3>
-            <p class="mode-desc">For official KK5 student/college activities. No 7–11 PM window restriction across available venues.</p>
+            <p class="mode-desc">For official KK5 college programs, bureau meetings, and student-led activities.</p>
           </div>
           <span class="link-btn">Continue with College activity →</span>
         </button>
@@ -443,14 +443,10 @@
     const SLOT_INTERVAL = 30;
     const DEFAULT_MAX_HOURS_PER_DAY = 3;
 
-    // Explicit category overrides if needed ("sports" or "recreational").
-    // Otherwise venues with "gelanggang", "court", or "gym" default to "sports",
-    // and rooms/halls/spaces default to "recreational".
     const FACILITY_CATEGORY_OVERRIDES = {
       "Gym": "sports"
     };
 
-    // Fallback Personal Use rules used when sheet values are blank.
     const PERSONAL_FACILITY_RULES = {
       "Gelanggang Futsal": { disabled: false, startTime: "19:00", endTime: "23:00", maxHoursPerDay: 3 },
       "Gelanggang Bola Keranjang": { disabled: false, startTime: "19:00", endTime: "23:00", maxHoursPerDay: 3 },
@@ -651,17 +647,19 @@
           startMin: p.startTime ? parseTimeToMinutes(p.startTime) : null,
           endMin: p.endTime ? parseTimeToMinutes(p.endTime) : null,
           windowLabel: p.startTime && p.endTime ? `${p.startTime} – ${p.endTime}` : null,
-          maxHoursPerDay: p.maxHoursPerDay
+          maxHoursPerDay: p.maxHoursPerDay,
+          unrestrictedHours: false
         };
       }
-      // "college": no restriction on booking timings or daily cap on slot picker
+      // "college": 2 days prior still applies; full 00:00 - 24:00 slot access
       return {
         disabled: false,
         reason: "",
         startMin: null,
         endMin: null,
-        windowLabel: null,
-        maxHoursPerDay: null
+        windowLabel: "00:00 – 24:00 (24 hours)",
+        maxHoursPerDay: null,
+        unrestrictedHours: true
       };
     }
 
@@ -691,10 +689,10 @@
         `;
       } else {
         modeLabel.textContent = "KK5 College activity";
-        modeSummary.textContent = "No 19:00–23:00 timing restriction across available facilities.";
+        modeSummary.textContent = "Official KK5 college programs, bureau meetings, and student-led activities.";
         rulesList.innerHTML = `
           <li>Book at least <strong>2 days in advance</strong>.</li>
-          <li>For KK5 College activities, there is <strong>no 19:00–23:00 booking timing restriction</strong> within facility operating hours.</li>
+          <li>For official KK5 College activities, full 24-hour slot access (00:00 – 24:00) is available.</li>
           <li>Use your official UM email (<code>@siswa.um.edu.my</code> or <code>@um.edu.my</code>).</li>
           <li>The Residential College management reserves the right to prioritise official college and student activities for any facility applications.</li>
         `;
@@ -894,7 +892,9 @@
 
       const hours = document.createElement("div");
       hours.className = "facility-hours";
-      if (modeRule.windowLabel) {
+      if (bookingMode === "college") {
+        hours.textContent = "College hours: 00:00 – 24:00 (24 hours)";
+      } else if (modeRule.windowLabel) {
         hours.textContent = "Personal window: " + modeRule.windowLabel;
       } else {
         hours.textContent = facility.openingTime && facility.closingTime ? "Open " + facility.openingTime + " – " + facility.closingTime : "";
@@ -971,7 +971,7 @@
         const capNote = modeRule.maxHoursPerDay ? ` (max <strong>${modeRule.maxHoursPerDay} hrs/day</strong>)` : "";
         rulesHtml += `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--line)"><strong>Personal Use Rule:</strong> ${timingNote}${capNote}.</div>`;
       } else if (bookingMode === "college") {
-        rulesHtml += `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--line)"><strong>KK5 College Activity:</strong> No 19:00–23:00 timing restriction applies.</div>`;
+        rulesHtml += `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--line)"><strong>KK5 College Activity:</strong> Book at least 2 days in advance; full <strong>00:00 – 24:00</strong> slot access applies.</div>`;
       }
       document.getElementById("rulesContentBody").innerHTML = rulesHtml;
 
@@ -1029,20 +1029,26 @@
       selectedFacility = facility;
       const modeRule = getEffectiveModeRestriction(facility);
       selectedFacilityName.textContent = facility.facility;
-      selectedFacilityHours.textContent = modeRule.windowLabel
-        ? `Facility hours: ${facility.openingTime} – ${facility.closingTime} · Personal window: ${modeRule.windowLabel}`
-        : `Operating hours: ${facility.openingTime} – ${facility.closingTime}`;
+
+      if (bookingMode === "college") {
+        selectedFacilityHours.textContent = "College hours: 00:00 – 24:00 (24 hours)";
+      } else if (modeRule.windowLabel) {
+        selectedFacilityHours.textContent = `Facility hours: ${facility.openingTime} – ${facility.closingTime} · Personal window: ${modeRule.windowLabel}`;
+      } else {
+        selectedFacilityHours.textContent = `Operating hours: ${facility.openingTime} – ${facility.closingTime}`;
+      }
 
       const hintEl = document.getElementById("availabilityHintText");
       if (bookingMode === "personal" && modeRule.maxHoursPerDay) {
         const maxSlots = (modeRule.maxHoursPerDay * 60) / SLOT_INTERVAL;
         hintEl.textContent = `Each button is 30 minutes. Select up to ${maxSlots} per day (${modeRule.maxHoursPerDay} hours).`;
       } else {
-        hintEl.textContent = "Each button is 30 minutes. Select your desired slots within operating hours.";
+        hintEl.textContent = "Each button is 30 minutes. Full 24-hour slots (00:00 – 24:00) are available.";
       }
 
       resetBookingState();
 
+      // 2 days prior rule still enforced for both Personal and KK5 College bookings
       const minDate = new Date();
       minDate.setDate(minDate.getDate() + 2);
       const minDateStr = formatDateObject(minDate);
@@ -1130,9 +1136,9 @@
 
     function renderAvailabilityMatrix() {
       availabilityContainer.innerHTML = "";
-      const openMin = parseTimeToMinutes(selectedFacility.openingTime);
-      const closeMin = parseTimeToMinutes(selectedFacility.closingTime);
       const modeRule = getEffectiveModeRestriction(selectedFacility);
+      const openMin = modeRule.unrestrictedHours ? 0 : parseTimeToMinutes(selectedFacility.openingTime);
+      const closeMin = modeRule.unrestrictedHours ? 24 * 60 : parseTimeToMinutes(selectedFacility.closingTime);
       const dates = getDatesBetween(parseDateOnly(selectedStartDate), parseDateOnly(selectedEndDate));
       const now = new Date();
 
@@ -1386,7 +1392,9 @@
     }
     function parseTimeToMinutes(t) {
       if (!t) return null;
-      const p = String(t).split(":");
+      const str = String(t).trim();
+      if (str === "24:00" || str === "24:00:00") return 24 * 60;
+      const p = str.split(":");
       return p.length >= 2 ? Number(p[0]) * 60 + Number(p[1]) : null;
     }
     function minutesToTimeStr(m) {
