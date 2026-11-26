@@ -33,6 +33,25 @@
     .header h1 { font-size: clamp(26px, 4vw, 38px); }
     .header p { margin: 2px 0 0; color: var(--muted); font-size: 15px; }
 
+    /* Mode Selector */
+    .mode-gate { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: clamp(20px, 3.5vw, 32px); box-shadow: var(--shadow); margin-bottom: var(--s-5); }
+    .mode-gate h2 { font-size: clamp(22px, 3vw, 28px); margin-bottom: 6px; }
+    .mode-gate > p { margin: 0 0 var(--s-4); color: var(--muted); font-size: 15px; }
+    .mode-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: var(--s-4); }
+    .mode-card { text-align: left; background: #fbfcfb; border: 2px solid var(--line); border-radius: var(--r-md); padding: var(--s-4) var(--s-5); cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; gap: var(--s-3); font: inherit; color: var(--ink); transition: border-color .15s, background .15s, transform .15s; }
+    .mode-card:hover { border-color: var(--accent); background: var(--accent-soft); transform: translateY(-2px); }
+    .mode-card.active { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 3px var(--accent-soft); }
+    .mode-card.external-card:hover { border-color: var(--warn); background: var(--warn-soft); }
+    .mode-badge { align-self: flex-start; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 99px; background: var(--line); color: var(--ink); }
+    .mode-card.active .mode-badge { background: var(--accent); color: #fff; }
+    .mode-card.external-card .mode-badge { background: var(--warn-soft); color: var(--warn); border: 1px solid var(--warn-line); }
+    .mode-title { font: 700 18px/1.25 var(--font-head); margin-bottom: 4px; }
+    .mode-desc { font-size: 13px; color: var(--muted); margin: 0; }
+
+    .mode-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s-3); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: var(--s-3) var(--s-4); margin-bottom: var(--s-4); font-size: 14px; }
+    .mode-bar strong { color: var(--accent-strong); }
+    .link-btn { background: none; border: none; padding: 0; color: var(--accent-strong); font: 600 13px var(--font-body); cursor: pointer; text-decoration: underline; }
+
     /* Stepper */
     .steps { list-style: none; display: flex; gap: var(--s-2); margin: 0 0 var(--s-5); padding: 0; counter-reset: step; }
     .steps li { flex: 1; display: flex; align-items: center; gap: var(--s-2); padding-top: var(--s-3); border-top: 3px solid var(--line); font-size: 13px; font-weight: 600; color: var(--muted); counter-increment: step; }
@@ -146,16 +165,20 @@
     .receipt ul { margin: 0; padding-left: 18px; }
     #confBookingId { color: var(--accent-strong); font-weight: 700; }
 
-    /* Modal */
-    #rulesModal { display: none; position: fixed; inset: 0; background: rgba(19,32,27,.55); backdrop-filter: blur(3px); z-index: 9999; justify-content: center; align-items: center; padding: var(--s-4); }
+    /* Modals */
+    .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(19,32,27,.55); backdrop-filter: blur(3px); z-index: 9999; justify-content: center; align-items: center; padding: var(--s-4); }
+    .modal-backdrop.open { display: flex; }
     .modal-box { background: #fff; border-radius: var(--r-lg); max-width: 560px; width: 100%; padding: var(--s-5); box-shadow: 0 24px 48px -12px rgba(0,0,0,.3); display: flex; flex-direction: column; gap: var(--s-4); max-height: 90vh; overflow-y: auto; }
     .modal-box h3 { font-size: 22px; margin-bottom: 4px; }
     .modal-box .sub { font-size: 14px; color: var(--muted); margin: 0; }
     .rules-body { background: #f6f8f7; border: 1px solid var(--line); border-radius: var(--r-md); padding: var(--s-4); font-size: 14px; line-height: 1.6; }
+    .email-callout { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s-3); background: var(--warn-soft); border: 1px solid var(--warn-line); border-radius: var(--r-md); padding: var(--s-3) var(--s-4); }
+    .email-callout a { font-weight: 700; font-size: 16px; color: var(--ink); text-decoration: none; }
+    .email-callout a:hover { text-decoration: underline; }
     .agree { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
     .agree input { width: 20px; height: 20px; flex: none; margin-top: 1px; accent-color: var(--accent); }
-    .modal-actions { display: flex; gap: var(--s-3); border-top: 1px solid var(--line); padding-top: var(--s-4); }
-    .modal-actions button { flex: 1; }
+    .modal-actions { display: flex; gap: var(--s-3); border-top: 1px solid var(--line); padding-top: var(--s-4); flex-wrap: wrap; }
+    .modal-actions button, .modal-actions a.modal-link-btn { flex: 1; text-align: center; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
 
     /* Toast */
     #toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px); max-width: min(92vw, 460px); background: var(--ink); color: #fff; padding: 12px 18px; border-radius: var(--r-md); font-size: 14px; box-shadow: 0 12px 32px -8px rgba(0,0,0,.4); opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 10000; }
@@ -181,132 +204,197 @@
       <div class="brand" aria-hidden="true">KK5</div>
       <div>
         <h1>Facility booking</h1>
-        <p>Pick a facility, choose your time, and send a request.</p>
+        <p>Select your booking category to view eligible venues and rules.</p>
       </div>
     </header>
-
-    <ol class="steps" id="steps" aria-label="Booking progress">
-      <li class="current" aria-current="step"><span>Facility</span></li>
-      <li><span>Date &amp; time</span></li>
-      <li><span>Your details</span></li>
-    </ol>
-
-    <p class="support-line">Need help or a manual booking? <a href="tel:0104563287">JTKD Teknikal (Fateh) · 010-456 3287</a></p>
-
-    <details class="rules-banner">
-      <summary>Booking rules &amp; guidelines</summary>
-      <ul>
-        <li>Book at least <strong>2 days in advance</strong>.</li>
-        <li>Maximum <strong>3 hours per day</strong> per user.</li>
-        <li>Use your official UM email (<code>@siswa.um.edu.my</code> or <code>@um.edu.my</code>).</li>
-        <li>The Residential College management reserves the right to prioritise official college and student activities for any facility applications.</li>
-      </ul>
-    </details>
 
     <div id="maintenanceBanner" class="message error hidden"></div>
     <div id="errorMessage" class="message error hidden" role="alert"></div>
 
-    <!-- FACILITY SELECTION -->
-    <section id="facilityPage" class="page active">
-      <div id="facilityLoading" class="message loading" role="status">Loading facilities…</div>
-      <div id="facilityGrid" class="facility-grid"></div>
-    </section>
-
-    <!-- DATE AND TIME SELECTION -->
-    <section id="bookingPage" class="page">
-      <button type="button" class="back-button" onclick="goBackToFacilities()">← Back to facilities</button>
-      <div class="facility-header">
-        <h2 id="selectedFacilityName">Facility</h2>
-        <p id="selectedFacilityHours">Operating hours</p>
+    <!-- OPTION SELECTION UPON OPENING -->
+    <section id="modeGate" class="mode-gate" aria-labelledby="modeGateTitle">
+      <div class="mode-gate-head">
+        <h2 id="modeGateTitle">How will you be using the facility?</h2>
+        <p>Choose an option below. Different booking types have different timing windows, daily limits, and application procedures.</p>
       </div>
-
-      <div class="booking-panel">
-        <div class="date-row">
-          <div class="form-group">
-            <label for="startDate">Start date <span style="font-weight:400;color:var(--muted)">(2+ days ahead)</span></label>
-            <input type="date" id="startDate" required>
+      <div class="mode-grid">
+        <button type="button" class="mode-card" data-mode="personal" onclick="selectBookingMode('personal')">
+          <div>
+            <span class="mode-badge">Option 1</span>
+            <h3 class="mode-title" style="margin-top:10px">Personal use</h3>
+            <p class="mode-desc">Courts default to 7:00 PM – 11:00 PM (max 3 hrs/day). Other venues follow custom per-venue rules or may be restricted.</p>
           </div>
-          <div class="form-group">
-            <label for="endDate">End date</label>
-            <input type="date" id="endDate" required>
+          <span class="link-btn">Continue with Personal use →</span>
+        </button>
+
+        <button type="button" class="mode-card" data-mode="college" onclick="selectBookingMode('college')">
+          <div>
+            <span class="mode-badge">Option 2</span>
+            <h3 class="mode-title" style="margin-top:10px">KK5 College activity</h3>
+            <p class="mode-desc">For official KK5 student/college activities. No 7–11 PM window restriction across available venues.</p>
+          </div>
+          <span class="link-btn">Continue with College activity →</span>
+        </button>
+
+        <button type="button" class="mode-card external-card" data-mode="external" onclick="selectBookingMode('external')">
+          <div>
+            <span class="mode-badge">Option 3</span>
+            <h3 class="mode-title" style="margin-top:10px">External / Non-KK5 Activity</h3>
+            <p class="mode-desc">External or non-KK5 requests are handled via email rather than self-service online slots.</p>
+          </div>
+          <span class="link-btn" style="color:var(--warn)">Email jtk_kk5@um.edu.my →</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- BOOKING WORKFLOW (HIDDEN UNTIL OPTION 1 OR 2 IS CHOSEN) -->
+    <div id="bookingWorkflow" class="hidden">
+      <div class="mode-bar">
+        <div>Booking type: <strong id="activeModeLabel">—</strong> · <span id="activeModeSummary" style="color:var(--muted)"></span></div>
+        <button type="button" class="link-btn" onclick="changeBookingMode()">Change option</button>
+      </div>
+
+      <ol class="steps" id="steps" aria-label="Booking progress">
+        <li class="current" aria-current="step"><span>Facility</span></li>
+        <li><span>Date &amp; time</span></li>
+        <li><span>Your details</span></li>
+      </ol>
+
+      <p class="support-line">Need help or a manual booking? <a href="tel:0104563287">JTKD Teknikal (Fateh) · 010-456 3287</a></p>
+
+      <details class="rules-banner">
+        <summary>Booking rules &amp; guidelines</summary>
+        <ul id="generalRulesList">
+          <li>Book at least <strong>2 days in advance</strong>.</li>
+          <li>Use your official UM email (<code>@siswa.um.edu.my</code> or <code>@um.edu.my</code>).</li>
+          <li>The Residential College management reserves the right to prioritise official college and student activities for any facility applications.</li>
+        </ul>
+      </details>
+
+      <!-- FACILITY SELECTION -->
+      <section id="facilityPage" class="page active">
+        <div id="facilityLoading" class="message loading" role="status">Loading facilities…</div>
+        <div id="facilityGrid" class="facility-grid"></div>
+      </section>
+
+      <!-- DATE AND TIME SELECTION -->
+      <section id="bookingPage" class="page">
+        <button type="button" class="back-button" onclick="goBackToFacilities()">← Back to facilities</button>
+        <div class="facility-header">
+          <h2 id="selectedFacilityName">Facility</h2>
+          <p id="selectedFacilityHours">Operating hours</p>
+        </div>
+
+        <div class="booking-panel">
+          <div class="date-row">
+            <div class="form-group">
+              <label for="startDate">Start date <span style="font-weight:400;color:var(--muted)">(2+ days ahead)</span></label>
+              <input type="date" id="startDate" required>
+            </div>
+            <div class="form-group">
+              <label for="endDate">End date</label>
+              <input type="date" id="endDate" required>
+            </div>
+          </div>
+
+          <div id="bookingSummary" class="booking-summary hidden"></div>
+
+          <div class="availability-section">
+            <h3 class="availability-title">Choose your time slots</h3>
+            <p id="availabilityHintText" class="availability-hint">Each button is 30 minutes.</p>
+            <ul class="legend" aria-label="Slot colour key">
+              <li><i></i>Available</li>
+              <li><i class="l-sel"></i>Selected</li>
+              <li><i class="l-pend"></i>Pending approval</li>
+              <li><i class="l-book"></i>Booked / past / restricted</li>
+            </ul>
+            <div id="availabilityContainer"></div>
           </div>
         </div>
 
-        <div id="bookingSummary" class="booking-summary hidden"></div>
-
-        <div class="availability-section">
-          <h3 class="availability-title">Choose your time slots</h3>
-          <p class="availability-hint">Each button is 30 minutes. Select up to 6 per day (3 hours).</p>
-          <ul class="legend" aria-label="Slot colour key">
-            <li><i></i>Available</li>
-            <li><i class="l-sel"></i>Selected</li>
-            <li><i class="l-pend"></i>Pending approval</li>
-            <li><i class="l-book"></i>Booked / past</li>
-          </ul>
-          <div id="availabilityContainer"></div>
+        <div class="action-bar">
+          <div id="selectionLiveBanner" class="selection-live-banner" aria-live="polite">
+            <strong>Your selection</strong><span id="liveSelectionSummaryText">No time selected</span>
+          </div>
+          <button type="button" id="continueButton" class="continue-button" onclick="showDetailsForm()" disabled>Continue</button>
         </div>
-      </div>
+      </section>
 
-      <div class="action-bar">
-        <div id="selectionLiveBanner" class="selection-live-banner" aria-live="polite">
-          <strong>Your selection</strong><span id="liveSelectionSummaryText">No time selected</span>
-        </div>
-        <button type="button" id="continueButton" class="continue-button" onclick="showDetailsForm()" disabled>Continue</button>
-      </div>
-    </section>
-
-    <!-- BOOKING DETAILS -->
-    <section id="detailsPage" class="page">
-      <button type="button" class="back-button" onclick="goBackToBooking()">← Back to date &amp; time</button>
-      <div class="facility-header">
-        <h2>Your details</h2>
-        <p id="summaryReviewText">Review your slots and provide your contact information.</p>
-      </div>
-
-      <div class="booking-panel">
-        <div class="disclaimer-banner">
-          The Residential College management reserves the right to prioritise official college and student activities for any facility applications.
+      <!-- BOOKING DETAILS -->
+      <section id="detailsPage" class="page">
+        <button type="button" class="back-button" onclick="goBackToBooking()">← Back to date &amp; time</button>
+        <div class="facility-header">
+          <h2>Your details</h2>
+          <p id="summaryReviewText">Review your slots and provide your contact information.</p>
         </div>
 
-        <form id="bookingForm">
-          <div class="form-group"><label for="bookerName">Full name</label><input type="text" id="bookerName" required maxlength="120" placeholder="As on your matric card" autocomplete="name"></div>
-          <div class="form-group"><label for="matricNumber">Matric number</label><input type="text" id="matricNumber" required maxlength="40" placeholder="e.g. 24001958"></div>
-          <div class="form-group"><label for="email">UM email</label><input type="email" id="email" required maxlength="254" placeholder="username@siswa.um.edu.my" autocomplete="email"></div>
-          <div class="form-group"><label for="phone">Phone number</label><input type="tel" id="phone" required maxlength="30" placeholder="0104563287" autocomplete="tel"></div>
-          <div class="form-group"><label for="organisation">Organisation / bureau</label><input type="text" id="organisation" required maxlength="120" placeholder="e.g. JTK, KEP"></div>
-          <div class="form-group"><label for="purpose">Purpose</label><textarea id="purpose" required maxlength="2000" placeholder="What will you use the facility for?"></textarea></div>
+        <div class="booking-panel">
+          <div class="disclaimer-banner">
+            The Residential College management reserves the right to prioritise official college and student activities for any facility applications.
+          </div>
 
-          <div id="submissionMessage" class="message hidden" role="status"></div>
-          <button type="submit" id="submitButton" class="submit-button">Submit booking request</button>
-        </form>
-      </div>
-    </section>
+          <form id="bookingForm">
+            <div class="form-group"><label for="bookerName">Full name</label><input type="text" id="bookerName" required maxlength="120" placeholder="As on your matric card" autocomplete="name"></div>
+            <div class="form-group"><label for="matricNumber">Matric number</label><input type="text" id="matricNumber" required maxlength="40" placeholder="e.g. 24001958"></div>
+            <div class="form-group"><label for="email">UM email</label><input type="email" id="email" required maxlength="254" placeholder="username@siswa.um.edu.my" autocomplete="email"></div>
+            <div class="form-group"><label for="phone">Phone number</label><input type="tel" id="phone" required maxlength="30" placeholder="0104563287" autocomplete="tel"></div>
+            <div class="form-group"><label for="organisation">Organisation / bureau</label><input type="text" id="organisation" required maxlength="120" placeholder="e.g. JTK, KEP"></div>
+            <div class="form-group"><label for="purpose">Purpose</label><textarea id="purpose" required maxlength="2000" placeholder="What will you use the facility for?"></textarea></div>
 
-    <!-- SUCCESS -->
-    <section id="successPage" class="page">
-      <div class="booking-panel success-panel">
-        <div class="success-mark" aria-hidden="true">✓</div>
-        <h2>Request submitted</h2>
-        <p>Your booking is <strong>pending</strong> approval. A confirmation email is on its way.</p>
+            <div id="submissionMessage" class="message hidden" role="status"></div>
+            <button type="submit" id="submitButton" class="submit-button">Submit booking request</button>
+          </form>
+        </div>
+      </section>
 
-        <dl class="receipt">
-          <dt>Booking ID</dt><dd id="confBookingId"></dd>
-          <dt>Facility</dt><dd id="confFacility"></dd>
-          <dt>Name</dt><dd id="confName"></dd>
-          <dt>Email</dt><dd id="confEmail"></dd>
-          <dt>Organisation</dt><dd id="confOrg"></dd>
-          <dt>Purpose</dt><dd id="confPurpose"></dd>
-          <dt>Slots</dt><dd><ul id="confSlotsList"></ul></dd>
-        </dl>
+      <!-- SUCCESS -->
+      <section id="successPage" class="page">
+        <div class="booking-panel success-panel">
+          <div class="success-mark" aria-hidden="true">✓</div>
+          <h2>Request submitted</h2>
+          <p>Your booking is <strong>pending</strong> approval. A confirmation email is on its way.</p>
 
-        <button type="button" class="continue-button" style="width:100%" onclick="location.reload()">Make another booking</button>
-      </div>
-    </section>
+          <dl class="receipt">
+            <dt>Booking ID</dt><dd id="confBookingId"></dd>
+            <dt>Category</dt><dd id="confMode"></dd>
+            <dt>Facility</dt><dd id="confFacility"></dd>
+            <dt>Name</dt><dd id="confName"></dd>
+            <dt>Email</dt><dd id="confEmail"></dd>
+            <dt>Organisation</dt><dd id="confOrg"></dd>
+            <dt>Purpose</dt><dd id="confPurpose"></dd>
+            <dt>Slots</dt><dd><ul id="confSlotsList"></ul></dd>
+          </dl>
+
+          <button type="button" class="continue-button" style="width:100%" onclick="location.reload()">Make another booking</button>
+        </div>
+      </section>
+    </div>
   </main>
 
+  <!-- EXTERNAL / NON-KK5 POPUP MODAL -->
+  <div id="externalModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="externalModalTitle">
+    <div class="modal-box">
+      <div>
+        <h3 id="externalModalTitle">External / Non-KK5 Activity</h3>
+        <p class="sub">Online slot booking is for Personal use and KK5 College activities only.</p>
+      </div>
+      <div class="rules-body">
+        To request a facility for an <strong>External / Non-KK5 Activity</strong>, please email your event details (facility, date, time, organisation, and proposal/purpose) directly to our team:
+      </div>
+      <div class="email-callout">
+        <a id="externalMailtoLink" href="mailto:jtk_kk5@um.edu.my?subject=KK5%20Facility%20Booking%20Inquiry%20(External%20%2F%20Non-KK5)">jtk_kk5@um.edu.my</a>
+        <button type="button" class="continue-button btn-secondary" style="min-height:38px;padding:0 14px;font-size:13px" onclick="copyExternalEmail()">Copy email</button>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="continue-button btn-secondary" onclick="closeExternalModal()">Close</button>
+        <a class="continue-button modal-link-btn" href="mailto:jtk_kk5@um.edu.my?subject=KK5%20Facility%20Booking%20Inquiry%20(External%20%2F%20Non-KK5)">Open email app</a>
+      </div>
+    </div>
+  </div>
+
   <!-- FACILITY RULES MODAL -->
-  <div id="rulesModal">
-    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="rulesFacilityTitle">
+  <div id="rulesModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="rulesFacilityTitle">
+    <div class="modal-box">
       <div>
         <h3 id="rulesFacilityTitle">Facility rules</h3>
         <p class="sub">Read these before you book.</p>
@@ -330,9 +418,38 @@
 
     const PUBLIC_SHEET_ID = "1rR-bPyZnT0jT3vkSPSRxKvmv6FfFoiuwU9Ll3tOUVRY";
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxRV6Oj4qyHsgyNq2gmsmAWXO2_1c0fBNRgs6JBiSU3Qv6F0afe9KafwxzrAajJHD9m/exec";
+    const EXTERNAL_EMAIL = "jtk_kk5@um.edu.my";
     const SLOT_INTERVAL = 30;
-    const MAX_HOURS_PER_DAY = 3;
+    const DEFAULT_MAX_HOURS_PER_DAY = 3;
 
+    // Customize Personal Use rules per venue here.
+    // - disabled: true -> blocks Personal use booking for that venue with `reason`.
+    // - startTime / endTime -> restricts Personal use slots to this HH:MM window (e.g. "19:00" to "23:00").
+    // - maxHoursPerDay -> daily cap in hours (default 3).
+    // Any court ("gelanggang" or "court") not listed explicitly defaults to 19:00–23:00 and 3 hrs/day.
+    const PERSONAL_FACILITY_RULES = {
+      "Gelanggang Futsal": { disabled: false, startTime: "19:00", endTime: "23:00", maxHoursPerDay: 3 },
+      "Gelanggang Bola Keranjang": { disabled: false, startTime: "19:00", endTime: "23:00", maxHoursPerDay: 3 },
+      "Gelanggang Bola Jaring": { disabled: false, startTime: "19:00", endTime: "23:00", maxHoursPerDay: 3 },
+      "Gelanggang Bola Baling": { disabled: false, startTime: "19:00", endTime: "23:00", maxHoursPerDay: 3 },
+      "Gelanggang Bola Tampar (Bawah)": { disabled: false, startTime: "19:00", endTime: "23:00", maxHoursPerDay: 3 },
+      "Gelanggang Bola Tampar (Atas)": { disabled: false, startTime: "19:00", endTime: "23:00", maxHoursPerDay: 3 },
+      "Gelanggang Pickleball 1": { disabled: false, startTime: "19:00", endTime: "23:00", maxHoursPerDay: 3 },
+      "Gelanggang Pickleball 2": { disabled: false, startTime: "19:00", endTime: "23:00", maxHoursPerDay: 3 },
+      "Gelanggang Skuasy": { disabled: false, startTime: "19:00", endTime: "23:00", maxHoursPerDay: 3 },
+      "Gelanggang Takraw/Badminton 1": { disabled: false, startTime: "19:00", endTime: "23:00", maxHoursPerDay: 3 },
+      "Gelanggang Takraw/Badminton 2": { disabled: false, startTime: "19:00", endTime: "23:00", maxHoursPerDay: 3 },
+      "Gelanggang Takraw/Badminton 3": { disabled: false, startTime: "19:00", endTime: "23:00", maxHoursPerDay: 3 },
+
+      // Example custom timings / disabled venues for Personal use (adjust as needed):
+      "Gym": { disabled: false, startTime: "08:00", endTime: "23:00", maxHoursPerDay: 2 },
+      "Ballroom": { disabled: true, reason: "Not available for personal bookings.", maxHoursPerDay: 3 },
+      "Bilik Kaca": { disabled: true, reason: "Reserved for college / committee activities.", maxHoursPerDay: 3 },
+      "Bilik JTK": { disabled: true, reason: "Reserved for JTK / college activities.", maxHoursPerDay: 3 },
+      "Bilik Band": { disabled: false, startTime: "19:00", endTime: "22:00", maxHoursPerDay: 2 }
+    };
+
+    let bookingMode = null; // "personal" | "college" | "external"
     let facilities = [];
     let selectedFacility = null;
     let pendingFacility = null;
@@ -343,13 +460,12 @@
     let maintenanceMode = false;
     let submittedDateSlotsCache = [];
 
-    // Specific fallback rules dictionary mapped by facility name
     const SPECIFIC_RULES = {
       "Bilik Kaca": `
         <strong>📌 Bilik Kaca Usage Guidelines:</strong>
         <ul style="margin: 6px 0 0 16px; padding: 0;">
           <li>Bilik Kaca is prioritised for college activity use.</li>
-          <li>For external use, email your bookings to kk5@um.edu.my</li>
+          <li>For external use, email your bookings to jtk_kk5@um.edu.my</li>
         </ul>
       `
     };
@@ -364,6 +480,8 @@
       </ul>
     `;
 
+    const modeGate = document.getElementById("modeGate");
+    const bookingWorkflow = document.getElementById("bookingWorkflow");
     const facilityPage = document.getElementById("facilityPage");
     const bookingPage = document.getElementById("bookingPage");
     const detailsPage = document.getElementById("detailsPage");
@@ -378,7 +496,6 @@
     const endDate = document.getElementById("endDate");
     const availabilityContainer = document.getElementById("availabilityContainer");
     const bookingSummary = document.getElementById("bookingSummary");
-    const selectionLiveBanner = document.getElementById("selectionLiveBanner");
     const liveSelectionSummaryText = document.getElementById("liveSelectionSummaryText");
     const continueButton = document.getElementById("continueButton");
     const errorMessage = document.getElementById("errorMessage");
@@ -389,6 +506,134 @@
 
     document.addEventListener("DOMContentLoaded", initializeApp);
     bookingForm.addEventListener("submit", submitBooking);
+
+    function getPersonalPolicyForFacility(facilityObj) {
+      const name = String(facilityObj && facilityObj.facility ? facilityObj.facility : "").trim();
+      const lower = name.toLowerCase();
+
+      const exactKey = Object.keys(PERSONAL_FACILITY_RULES).find(k => k.toLowerCase() === lower);
+      if (exactKey) {
+        const cfg = PERSONAL_FACILITY_RULES[exactKey];
+        return {
+          disabled: Boolean(cfg.disabled),
+          reason: cfg.reason || "Not available for personal bookings.",
+          startTime: cfg.startTime || null,
+          endTime: cfg.endTime || null,
+          maxHoursPerDay: cfg.maxHoursPerDay || DEFAULT_MAX_HOURS_PER_DAY
+        };
+      }
+
+      if (lower.includes("gelanggang") || lower.includes("court")) {
+        return {
+          disabled: false,
+          reason: "",
+          startTime: "19:00",
+          endTime: "23:00",
+          maxHoursPerDay: DEFAULT_MAX_HOURS_PER_DAY
+        };
+      }
+
+      return {
+        disabled: false,
+        reason: "",
+        startTime: null,
+        endTime: null,
+        maxHoursPerDay: DEFAULT_MAX_HOURS_PER_DAY
+      };
+    }
+
+    function getEffectiveModeRestriction(facilityObj) {
+      if (bookingMode === "personal") {
+        const p = getPersonalPolicyForFacility(facilityObj);
+        return {
+          disabled: p.disabled,
+          reason: p.reason,
+          startMin: p.startTime ? parseTimeToMinutes(p.startTime) : null,
+          endMin: p.endTime ? parseTimeToMinutes(p.endTime) : null,
+          windowLabel: p.startTime && p.endTime ? `${p.startTime} – ${p.endTime}` : null,
+          maxHoursPerDay: p.maxHoursPerDay
+        };
+      }
+      // "college": no restriction on booking timings or daily cap on slot picker
+      return {
+        disabled: false,
+        reason: "",
+        startMin: null,
+        endMin: null,
+        windowLabel: null,
+        maxHoursPerDay: null
+      };
+    }
+
+    function selectBookingMode(mode) {
+      document.querySelectorAll(".mode-card").forEach(card => {
+        card.classList.toggle("active", card.dataset.mode === mode);
+      });
+
+      if (mode === "external") {
+        openExternalModal();
+        return;
+      }
+
+      bookingMode = mode;
+      const modeLabel = document.getElementById("activeModeLabel");
+      const modeSummary = document.getElementById("activeModeSummary");
+      const rulesList = document.getElementById("generalRulesList");
+
+      if (mode === "personal") {
+        modeLabel.textContent = "Personal use";
+        modeSummary.textContent = "Courts bookable 19:00–23:00 (max 3 hrs/day); other venues follow per-venue settings.";
+        rulesList.innerHTML = `
+          <li>Book at least <strong>2 days in advance</strong>.</li>
+          <li>For Personal use, courts are bookable <strong>19:00 – 23:00</strong> with a <strong>3-hour max per day</strong>; other venues follow their individual personal-use rule.</li>
+          <li>Use your official UM email (<code>@siswa.um.edu.my</code> or <code>@um.edu.my</code>).</li>
+          <li>The Residential College management reserves the right to prioritise official college and student activities for any facility applications.</li>
+        `;
+      } else {
+        modeLabel.textContent = "KK5 College activity";
+        modeSummary.textContent = "No 19:00–23:00 timing restriction across available facilities.";
+        rulesList.innerHTML = `
+          <li>Book at least <strong>2 days in advance</strong>.</li>
+          <li>For KK5 College activities, there is <strong>no 19:00–23:00 booking timing restriction</strong> within facility operating hours.</li>
+          <li>Use your official UM email (<code>@siswa.um.edu.my</code> or <code>@um.edu.my</code>).</li>
+          <li>The Residential College management reserves the right to prioritise official college and student activities for any facility applications.</li>
+        `;
+      }
+
+      modeGate.classList.add("hidden");
+      bookingWorkflow.classList.remove("hidden");
+      showPage(facilityPage);
+      renderFacilities();
+    }
+
+    function changeBookingMode() {
+      selectedFacility = null;
+      pendingFacility = null;
+      resetBookingState();
+      bookingWorkflow.classList.add("hidden");
+      modeGate.classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function openExternalModal() {
+      document.getElementById("externalModal").classList.add("open");
+    }
+
+    function closeExternalModal() {
+      document.getElementById("externalModal").classList.remove("open");
+      if (!bookingMode) {
+        document.querySelectorAll(".mode-card").forEach(c => c.classList.remove("active"));
+      }
+    }
+
+    async function copyExternalEmail() {
+      try {
+        await navigator.clipboard.writeText(EXTERNAL_EMAIL);
+        toast("Copied " + EXTERNAL_EMAIL);
+      } catch (e) {
+        toast("Email: " + EXTERNAL_EMAIL);
+      }
+    }
 
     async function fetchGviz(sheetName) {
       const cacheBuster = new Date().getTime();
@@ -444,7 +689,7 @@
           body: JSON.stringify({ action: "getPublicFacilities", t: new Date().getTime() })
         });
         const result = await response.json();
-        
+
         if (result.success && Array.isArray(result.data)) {
           facilities = result.data.map(item => ({
             facility: item.name,
@@ -496,20 +741,25 @@
     function renderFacilities() {
       facilityGrid.innerHTML = "";
       facilities.forEach(facility => {
-        const isInactive = facility.status !== "ACTIVE";
+        const modeRule = getEffectiveModeRestriction(facility);
+        const isInactive = facility.status !== "ACTIVE" || modeRule.disabled;
         const card = document.createElement("div");
         card.className = "facility-card" + (isInactive ? " inactive" : "");
         card.tabIndex = 0;
         card.setAttribute("role", "button");
         if (isInactive) card.setAttribute("aria-disabled", "true");
         card.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); card.click(); } });
-        
+
         card.addEventListener("click", () => {
           if (maintenanceMode) {
             toast("🛠️ System Under Maintenance: Online facility bookings are currently paused. Please try again later or contact JTKD Teknikal.");
             return;
           }
-          if (isInactive) return;
+          if (facility.status !== "ACTIVE") return;
+          if (modeRule.disabled) {
+            toast(modeRule.reason || "This facility is not available for this booking type.");
+            return;
+          }
           triggerFacilityRulesModal(facility);
         });
 
@@ -519,16 +769,24 @@
 
         const hours = document.createElement("div");
         hours.className = "facility-hours";
-        hours.textContent = facility.openingTime && facility.closingTime ? "Open " + facility.openingTime + " – " + facility.closingTime : "";
+        if (modeRule.windowLabel) {
+          hours.textContent = "Personal window: " + modeRule.windowLabel;
+        } else {
+          hours.textContent = facility.openingTime && facility.closingTime ? "Open " + facility.openingTime + " – " + facility.closingTime : "";
+        }
 
         const cardContent = document.createElement("div");
         cardContent.appendChild(name);
         cardContent.appendChild(hours);
 
-        if (facility.notice) {
+        const extraNotice = facility.status === "ACTIVE" && modeRule.disabled && modeRule.reason
+          ? modeRule.reason
+          : facility.notice;
+
+        if (extraNotice) {
           const noticeDiv = document.createElement("div");
           noticeDiv.className = "facility-notice";
-          noticeDiv.textContent = "⚠️ " + facility.notice;
+          noticeDiv.textContent = "⚠️ " + extraNotice;
           cardContent.appendChild(noticeDiv);
         }
 
@@ -545,27 +803,35 @@
     // --- RULES MODAL HANDLERS ---
     function triggerFacilityRulesModal(facility) {
       pendingFacility = facility;
+      const modeRule = getEffectiveModeRestriction(facility);
       document.getElementById("rulesFacilityTitle").textContent = `Rules: ${facility.facility}`;
 
-      // Use rules from sheet if available, else look up in dictionary, else use default
       let rulesHtml = facility.rules ? facility.rules : (SPECIFIC_RULES[facility.facility] || DEFAULT_RULES);
+      if (bookingMode === "personal") {
+        const timingNote = modeRule.windowLabel
+          ? `Allowed Personal hours: <strong>${modeRule.windowLabel}</strong>`
+          : `Allowed Personal hours: within facility hours`;
+        const capNote = modeRule.maxHoursPerDay ? ` (max <strong>${modeRule.maxHoursPerDay} hrs/day</strong>)` : "";
+        rulesHtml += `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--line)"><strong>Personal Use Rule:</strong> ${timingNote}${capNote}.</div>`;
+      } else if (bookingMode === "college") {
+        rulesHtml += `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--line)"><strong>KK5 College Activity:</strong> No 19:00–23:00 timing restriction applies.</div>`;
+      }
       document.getElementById("rulesContentBody").innerHTML = rulesHtml;
 
       document.getElementById("agreeRulesCheckbox").checked = false;
       toggleProceedButton();
-      document.getElementById("rulesModal").style.display = "flex";
+      document.getElementById("rulesModal").classList.add("open");
       document.getElementById("agreeRulesCheckbox").focus();
     }
 
     function closeRulesModal() {
-      document.getElementById("rulesModal").style.display = "none";
+      document.getElementById("rulesModal").classList.remove("open");
       pendingFacility = null;
     }
 
     function toggleProceedButton() {
       const isChecked = document.getElementById("agreeRulesCheckbox").checked;
-      const proceedBtn = document.getElementById("proceedBtn");
-      proceedBtn.disabled = !isChecked;
+      document.getElementById("proceedBtn").disabled = !isChecked;
     }
 
     function confirmRulesAndProceed() {
@@ -585,7 +851,10 @@
     }
 
     document.addEventListener("keydown", e => {
-      if (e.key === "Escape" && document.getElementById("rulesModal").style.display === "flex") closeRulesModal();
+      if (e.key === "Escape") {
+        if (document.getElementById("rulesModal").classList.contains("open")) closeRulesModal();
+        if (document.getElementById("externalModal").classList.contains("open")) closeExternalModal();
+      }
     });
 
     function showPage(pageToShow) {
@@ -601,10 +870,22 @@
 
     function openFacility(facility) {
       selectedFacility = facility;
+      const modeRule = getEffectiveModeRestriction(facility);
       selectedFacilityName.textContent = facility.facility;
-      selectedFacilityHours.textContent = "Operating hours: " + facility.openingTime + " – " + facility.closingTime;
+      selectedFacilityHours.textContent = modeRule.windowLabel
+        ? `Facility hours: ${facility.openingTime} – ${facility.closingTime} · Personal window: ${modeRule.windowLabel}`
+        : `Operating hours: ${facility.openingTime} – ${facility.closingTime}`;
+
+      const hintEl = document.getElementById("availabilityHintText");
+      if (bookingMode === "personal" && modeRule.maxHoursPerDay) {
+        const maxSlots = (modeRule.maxHoursPerDay * 60) / SLOT_INTERVAL;
+        hintEl.textContent = `Each button is 30 minutes. Select up to ${maxSlots} per day (${modeRule.maxHoursPerDay} hours).`;
+      } else {
+        hintEl.textContent = "Each button is 30 minutes. Select your desired slots within operating hours.";
+      }
+
       resetBookingState();
-      
+
       const minDate = new Date();
       minDate.setDate(minDate.getDate() + 2);
       const minDateStr = formatDateObject(minDate);
@@ -647,8 +928,8 @@
       if (!selectedStartDate || !selectedEndDate) return;
       if (selectedEndDate < selectedStartDate) {
         toast("End date cannot be before start date.");
-        endDate.value = selectedStartDate; 
-        selectedEndDate = selectedStartDate; 
+        endDate.value = selectedStartDate;
+        selectedEndDate = selectedStartDate;
         return;
       }
       updateBookingSummary();
@@ -694,8 +975,8 @@
       availabilityContainer.innerHTML = "";
       const openMin = parseTimeToMinutes(selectedFacility.openingTime);
       const closeMin = parseTimeToMinutes(selectedFacility.closingTime);
+      const modeRule = getEffectiveModeRestriction(selectedFacility);
       const dates = getDatesBetween(parseDateOnly(selectedStartDate), parseDateOnly(selectedEndDate));
-
       const now = new Date();
 
       dates.forEach(dateObj => {
@@ -720,6 +1001,18 @@
           slot.type = "button";
           slot.className = "slot";
           slot.textContent = slotStart + " – " + slotEnd;
+
+          const outsideAllowedWindow =
+            (modeRule.startMin !== null && m < modeRule.startMin) ||
+            (modeRule.endMin !== null && (m + SLOT_INTERVAL) > modeRule.endMin);
+
+          if (outsideAllowedWindow) {
+            slot.classList.add("booked");
+            slot.disabled = true;
+            slot.title = `Not available for ${bookingMode === "personal" ? "Personal use" : "this selection"} (${modeRule.windowLabel || "restricted time"})`;
+            grid.appendChild(slot);
+            continue;
+          }
 
           const slotDateTime = new Date(dateKey + "T" + slotStart + ":00");
           if (slotDateTime < now) {
@@ -760,22 +1053,25 @@
     function toggleSlot(dateKey, startStr, endStr, slotElement) {
       if (!selectedSlotsByDate[dateKey]) selectedSlotsByDate[dateKey] = [];
       const idx = selectedSlotsByDate[dateKey].findIndex(s => s.start === startStr);
-      
+      const modeRule = getEffectiveModeRestriction(selectedFacility);
+
       if (idx > -1) {
         selectedSlotsByDate[dateKey].splice(idx, 1);
         slotElement.classList.remove("selected");
       } else {
-        const maxSlotsPerDay = (MAX_HOURS_PER_DAY * 60) / SLOT_INTERVAL;
-        if (selectedSlotsByDate[dateKey].length >= maxSlotsPerDay) {
-          toast(`You can only select a maximum of ${MAX_HOURS_PER_DAY} hours per day.`);
-          return;
+        if (modeRule.maxHoursPerDay) {
+          const maxSlotsPerDay = (modeRule.maxHoursPerDay * 60) / SLOT_INTERVAL;
+          if (selectedSlotsByDate[dateKey].length >= maxSlotsPerDay) {
+            toast(`You can only select a maximum of ${modeRule.maxHoursPerDay} hours per day.`);
+            return;
+          }
         }
         selectedSlotsByDate[dateKey].push({ start: startStr, end: endStr });
         slotElement.classList.add("selected");
       }
 
       let active = false;
-      for (const k in selectedSlotsByDate) { 
+      for (const k in selectedSlotsByDate) {
         if (selectedSlotsByDate[k] && selectedSlotsByDate[k].length > 0) {
           active = true;
           break;
@@ -803,7 +1099,8 @@
     }
 
     function showDetailsForm() {
-      summaryReviewText.textContent = "Facility: " + selectedFacility.facility + " | Period: " + selectedStartDate + " to " + selectedEndDate;
+      const modeText = bookingMode === "personal" ? "Personal use" : "KK5 College activity";
+      summaryReviewText.textContent = `${modeText} · Facility: ${selectedFacility.facility} | Period: ${selectedStartDate} to ${selectedEndDate}`;
       showPage(detailsPage);
     }
 
@@ -845,11 +1142,15 @@
 
       submittedDateSlotsCache = dateSlots;
 
+      const modeLabelText = bookingMode === "personal" ? "Personal use" : "KK5 College activity";
+      const rawPurpose = document.getElementById("purpose").value.trim();
+
       const payload = {
         action: "submitBooking",
+        bookingType: bookingMode,
         dateSlots: dateSlots,
         facility: selectedFacility.facility,
-        purpose: document.getElementById("purpose").value.trim(),
+        purpose: `[${modeLabelText}] ${rawPurpose}`,
         bookerName: document.getElementById("bookerName").value.trim(),
         matricNumber: document.getElementById("matricNumber").value.trim(),
         email: emailInput,
@@ -871,11 +1172,12 @@
         }
 
         document.getElementById("confBookingId").textContent = result.bookingId;
+        document.getElementById("confMode").textContent = modeLabelText;
         document.getElementById("confFacility").textContent = payload.facility;
         document.getElementById("confName").textContent = payload.bookerName;
         document.getElementById("confEmail").textContent = payload.email;
         document.getElementById("confOrg").textContent = payload.organisation;
-        document.getElementById("confPurpose").textContent = payload.purpose;
+        document.getElementById("confPurpose").textContent = rawPurpose;
 
         const slotsList = document.getElementById("confSlotsList");
         slotsList.innerHTML = "";
@@ -907,7 +1209,7 @@
       }
       return parseDateOnly(cell.f || cell.v);
     }
-    
+
     function formatDateObject(d) {
       const year = d.getFullYear();
       const month = String(d.getMonth() + 1).padStart(2, '0');
