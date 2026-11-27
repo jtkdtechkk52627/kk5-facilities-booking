@@ -1,2303 +1,681 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>*kk5 — Facility Booking</title>
-  <style>
-    :root {
-      --bg: #F7F6F2;          /* Warm off-white */
-      --surface: #FFFFFF;     /* Pure white cards */
-      --surface-alt: #EFECE6; /* Soft recessed surface */
-      --black: #0B0B0B;       /* Deep ink black */
-      --red: #D90404;         /* Crimson red */
-      --red-hover: #B80303;
-      --red-soft: rgba(217, 4, 4, 0.08);
-      --muted: #595854;       /* High-contrast secondary gray */
-      --line: rgba(11, 11, 11, 0.11);
-      --line-strong: rgba(11, 11, 11, 0.22);
-      --font-sans: Arial, "Helvetica Neue", Helvetica, sans-serif;
-      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      --r-sm: 10px;
-      --r-md: 14px;
-      --r-lg: 22px;
-      --shadow-card: 0 2px 12px rgba(11, 11, 11, 0.04), 0 1px 2px rgba(11, 11, 11, 0.03);
-      --shadow-hover: 0 12px 28px rgba(11, 11, 11, 0.08), 0 2px 6px rgba(11, 11, 11, 0.04);
-      --shadow-float: 0 20px 40px rgba(11, 11, 11, 0.18);
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>*kk5 — Facility Booking</title>
+<style>
+:root{--bg:#F7F6F2;--surface:#fff;--alt:#EFECE6;--ink:#0B0B0B;--red:#D90404;--red-dk:#B80303;--red-soft:rgba(217,4,4,.08);--muted:#595854;--line:rgba(11,11,11,.12);--line2:rgba(11,11,11,.22);--mono:ui-monospace,Menlo,Consolas,monospace;--r:12px;--rl:20px;--shadow:0 2px 12px rgba(11,11,11,.05);--lift:0 12px 28px rgba(11,11,11,.1)}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:flex;flex-direction:column;font:15px/1.45 Arial,"Helvetica Neue",sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+h1,h2,h3{margin:0;line-height:1.1;letter-spacing:-.03em}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+.hidden{display:none!important}
+main{flex:1;width:100%;max-width:940px;margin:0 auto;padding:clamp(28px,5vw,56px) clamp(16px,4vw,32px) 40px}
+footer{padding:20px;text-align:center;font-size:12px;color:var(--muted)}
+footer a{color:var(--red);font-weight:700;text-decoration:none}
+header{margin-bottom:32px}
+header h1{font-size:clamp(38px,6vw,58px);letter-spacing:-.04em}
+header p{margin:10px 0 0;color:var(--muted)}
+#star{padding:0;border:0;background:none;color:var(--red);font:inherit;transition:transform .18s}
+#star:hover{transform:scale(1.14) rotate(12deg)}
 
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
+.msg{margin-bottom:16px;padding:12px 16px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--muted);font-size:13px;font-weight:700}
+.msg.err{background:var(--red);border-color:var(--red);color:#fff}
+.page{display:none}
+.page.active{display:block;animation:in .22s cubic-bezier(.2,.8,.2,1)}
+@keyframes in{from{opacity:0;transform:translateY(5px)}}
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      font-family: var(--font-sans);
-      background-color: var(--bg);
-      color: var(--black);
-      line-height: 1.45;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.card{padding:22px;border:1px solid var(--line);border-radius:var(--rl);background:var(--surface);box-shadow:var(--shadow);color:inherit;text-align:left;transition:transform .2s,box-shadow .2s,border-color .2s}
+.card:hover:not(.off){transform:translateY(-2px);box-shadow:var(--lift);border-color:var(--ink)}
+.mode h3{margin-bottom:6px;font-size:20px}
+.mode p{margin:0;font-size:14px;color:var(--muted)}
+.mode b{color:var(--red)}
+.fac{display:flex;flex-direction:column;gap:4px;min-height:104px}
+.fac.off{background:var(--alt);box-shadow:none;opacity:.72;cursor:not-allowed}
+.name{font-size:17px;font-weight:700;line-height:1.25}
+.hours{font-size:13px;color:var(--muted)}
+.note{align-self:flex-start;margin-top:8px;padding:6px 10px;border-radius:8px;background:var(--red-soft);color:var(--red);font-size:12px;font-weight:700}
 
-    h1, h2, h3 {
-      letter-spacing: -0.03em;
-      line-height: 1.08;
-      margin: 0;
-    }
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;padding:14px 18px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);box-shadow:var(--shadow);font-size:14px}
+.link{padding:0;border:0;background:none;color:var(--red);font-size:13px;font-weight:700;text-decoration:underline;text-underline-offset:3px}
+.steps{display:flex;gap:12px;margin:0 0 22px;padding:0;list-style:none;counter-reset:s}
+.steps li{flex:1;display:flex;align-items:center;gap:9px;padding-top:12px;border-top:3px solid var(--line);color:var(--muted);font-size:13px;font-weight:700;counter-increment:s}
+.steps li:before{content:counter(s);flex:none;display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--line);font-size:12px}
+.steps .current{border-color:var(--red);color:var(--ink)}
+.steps .current:before{background:var(--red);color:#fff}
+.steps .done{border-color:var(--ink);color:var(--ink)}
+.steps .done:before{content:"✓";background:var(--ink);color:#fff}
 
-    :focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
-    .hidden { display: none !important; }
+.tabs{display:inline-flex;flex-wrap:wrap;gap:4px;margin-bottom:22px;padding:4px;border-radius:var(--r);background:var(--alt)}
+.tabs button{padding:8px 16px;border:0;border-radius:10px;background:none;color:var(--muted);font-size:13px;font-weight:700}
+.tabs button:hover{color:var(--ink)}
+.tabs .active{background:var(--ink);color:#fff}
 
-    /* FROSTED TOP BAR */
-    .top-nav {
-      position: sticky;
-      top: 0;
-      z-index: 30;
-      background: rgba(247, 246, 242, 0.88);
-      backdrop-filter: saturate(180%) blur(18px);
-      -webkit-backdrop-filter: saturate(180%) blur(18px);
-      border-bottom: 1px solid var(--line);
-      padding: 13px 24px;
-    }
-    .top-nav-inner {
-      max-width: 940px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      font-size: 12px;
-    }
-    .nav-brand {
-      font-weight: 700;
-      font-size: 15px;
-      color: var(--black);
-      letter-spacing: -0.03em;
-    }
-    .nav-brand .asterisk-trigger { color: var(--red); }
-    .nav-note {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--muted);
-    }
-    .nav-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--red);
-    }
+.back{margin-bottom:16px;padding:8px 14px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font-size:13px;font-weight:700}
+.back:hover{background:var(--ink);color:#fff}
+.head{margin-bottom:16px;padding:clamp(20px,3vw,28px);border-radius:var(--rl);background:var(--ink);color:#fff}
+.head h2{font-size:clamp(22px,3.2vw,30px)}
+.head p{margin:5px 0 0;font-size:13px;opacity:.8}
+.panel{padding:clamp(20px,3vw,28px);border:1px solid var(--line);border-radius:var(--rl);background:var(--surface);box-shadow:var(--shadow)}
 
-    /* CLICKABLE ASTERISK TRIGGER */
-    .asterisk-trigger {
-      color: var(--red);
-      cursor: pointer;
-      display: inline-block;
-      transition: transform 0.18s ease, opacity 0.15s ease;
-      user-select: none;
-    }
-    .asterisk-trigger:hover {
-      transform: scale(1.14) rotate(12deg);
-    }
+label{display:block;margin-bottom:6px;font-size:12px;font-weight:700}
+input,textarea{width:100%;height:46px;padding:10px 13px;border:1px solid var(--line2);border-radius:10px;background:var(--bg);color:inherit;font:inherit;transition:border-color .15s,box-shadow .15s}
+textarea{height:auto;min-height:92px;resize:vertical}
+input:focus,textarea:focus{outline:0;background:var(--surface);border-color:var(--red);box-shadow:0 0 0 3px var(--red-soft)}
+input:disabled,textarea:disabled{background:var(--alt);color:var(--muted)}
+.two,.form{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.wide{grid-column:1/-1}
 
-    /* FULL RED EASTER EGG PAGE (ALL LOWERCASE) */
-    .red-manifesto-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      z-index: 99999;
-      background-color: var(--red);
-      color: #FFFFFF;
-      padding: clamp(28px, 6vw, 64px);
-      flex-direction: column;
-      justify-content: space-between;
-      text-transform: lowercase;
-      animation: fadeRed 0.2s ease-out;
-    }
-    .red-manifesto-overlay.open {
-      display: flex;
-    }
-    @keyframes fadeRed {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    .red-manifesto-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 13px;
-      font-weight: 700;
-      text-transform: lowercase;
-      letter-spacing: 0.03em;
-    }
-    .red-close-btn {
-      background: rgba(255, 255, 255, 0.16);
-      border: 1px solid rgba(255, 255, 255, 0.35);
-      color: #FFFFFF;
-      font-family: inherit;
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: lowercase;
-      letter-spacing: 0.03em;
-      padding: 8px 14px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.15s, color 0.15s;
-    }
-    .red-close-btn:hover {
-      background: #FFFFFF;
-      color: var(--red);
-    }
-    .red-manifesto-words {
-      margin: auto 0;
-      display: flex;
-      flex-direction: column;
-      gap: clamp(8px, 2vw, 18px);
-      text-transform: lowercase;
-    }
-    .red-manifesto-words span {
-      font-size: clamp(48px, 11vw, 112px);
-      font-weight: 700;
-      line-height: 0.96;
-      letter-spacing: -0.045em;
-      text-transform: lowercase;
-      color: #FFFFFF;
-    }
-    .red-manifesto-foot {
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: lowercase;
-      letter-spacing: 0.04em;
-      color: rgba(255, 255, 255, 0.85);
-    }
+.hint{margin:18px 0 10px;font-size:13px;color:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin:0 0 4px;padding:9px 14px;list-style:none;border-radius:10px;background:var(--bg);color:var(--muted);font-size:12px;font-weight:700}
+.legend li{display:flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;border:1px solid var(--line2);border-radius:3px;background:var(--surface)}
+.legend .sel{background:var(--red);border-color:var(--red)}
+.legend .pend{border:1.5px dashed var(--ink)}
+.legend .off{background:var(--alt);border-color:transparent}
+.day{margin-top:12px;padding:16px;border-radius:var(--r);background:var(--bg)}
+.day .cap{margin-bottom:12px;font-size:13px;font-weight:700}
+.slotgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:7px}
+.slot{min-height:42px;padding:9px 4px;border:1px solid var(--line2);border-radius:10px;background:var(--surface);color:var(--ink);font:600 12px var(--mono);transition:background .12s,color .12s}
+.slot:hover:not(:disabled,.sel){background:var(--ink);color:#fff}
+.slot.sel{background:var(--red);border-color:var(--red);color:#fff}
+.slot.off{border-color:transparent;background:rgba(11,11,11,.05);color:#8E8D88;text-decoration:line-through;cursor:not-allowed}
+.slot.pend{border:1px dashed var(--ink);cursor:not-allowed}
 
-    .container {
-      flex: 1;
-      width: 100%;
-      max-width: 940px;
-      margin: 0 auto;
-      padding: clamp(32px, 5vw, 56px) clamp(16px, 4vw, 32px) 64px;
-      display: flex;
-      flex-direction: column;
-    }
+.actions{position:sticky;bottom:16px;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:20px;padding:12px 14px 12px 20px;border-radius:var(--r);background:var(--ink);color:#fff;box-shadow:0 20px 40px rgba(11,11,11,.18)}
+.actions small{display:block;font-size:11px;opacity:.7}
+.actions span{font-weight:700}
+.btn{min-height:46px;padding:0 22px;border:0;border-radius:10px;background:var(--red);color:#fff;font-size:14px;font-weight:700;transition:background .15s,transform .12s}
+.btn:hover:not(:disabled){background:var(--red-dk)}
+.btn:active:not(:disabled){transform:scale(.98)}
+.btn:disabled{background:var(--alt);color:var(--muted);cursor:not-allowed}
+.btn.ghost{background:var(--alt);color:var(--ink)}
+.btn.ghost:hover{background:var(--ink);color:#fff}
+.btn.sm{min-height:34px;padding:0 14px;font-size:12px}
+.btn.wide{width:100%}
+.spin{display:inline-block;width:14px;height:14px;margin-right:8px;vertical-align:-2px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
 
-    /* CLEAN HERO */
-    .header {
-      margin-bottom: 34px;
-    }
-    .header-eyebrow {
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--red);
-      margin-bottom: 8px;
-    }
-    .header h1 {
-      font-size: clamp(38px, 6vw, 58px);
-      font-weight: 700;
-      color: var(--black);
-      letter-spacing: -0.04em;
-    }
-    .header h1 .asterisk-trigger {
-      margin-right: 2px;
-    }
-    .header p {
-      margin: 10px 0 0;
-      color: var(--muted);
-      font-size: 16px;
-    }
+.done{max-width:540px;margin:0 auto}
+.tick{display:grid;place-items:center;width:42px;height:42px;margin-bottom:14px;border-radius:10px;background:var(--red);color:#fff;font-size:20px;font-weight:700}
+.done h2{font-size:26px}
+.done>p{margin:6px 0 20px;font-size:14px;color:var(--muted)}
+dl{display:grid;grid-template-columns:max-content 1fr;gap:10px 18px;margin:0 0 20px;padding:18px;border-radius:var(--r);background:var(--bg);font-size:13px}
+dt{align-self:center;color:var(--muted);font-weight:700}
+dd{margin:0;font-weight:700;overflow-wrap:anywhere}
+dd ul{margin:0;padding-left:16px}
+#cId{color:var(--red);font-family:var(--mono)}
 
-    /* MODE GATE */
-    .mode-gate {
-      margin-bottom: 32px;
-    }
-    .mode-gate h2 {
-      font-size: 13px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--muted);
-      margin-bottom: 14px;
-    }
-    .mode-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(255px, 1fr));
-      gap: 14px;
-    }
-    .mode-card {
-      text-align: left;
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: var(--r-lg);
-      padding: 24px;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 22px;
-      font: inherit;
-      color: var(--black);
-      box-shadow: var(--shadow-card);
-      transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s ease, border-color 0.2s ease;
-    }
-    .mode-card:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-hover);
-      border-color: var(--black);
-    }
-    .mode-card.active {
-      border-color: var(--black);
-      box-shadow: 0 0 0 1px var(--black), var(--shadow-hover);
-    }
-    .mode-index {
-      display: block;
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--muted);
-    }
-    .mode-card.external-card .mode-index {
-      color: var(--red);
-    }
-    .mode-title {
-      font-size: 20px;
-      font-weight: 700;
-      margin: 8px 0 6px;
-    }
-    .mode-desc {
-      font-size: 14px;
-      color: var(--muted);
-      margin: 0;
-    }
-    .link-btn {
-      background: none;
-      border: none;
-      padding: 0;
-      color: var(--black);
-      font-family: inherit;
-      font-weight: 700;
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      transition: color 0.15s;
-    }
-    .mode-card:hover .link-btn { color: var(--red); }
+.modal{display:none;position:fixed;inset:0;z-index:9000;align-items:center;justify-content:center;padding:16px;background:rgba(11,11,11,.5);backdrop-filter:blur(8px)}
+.modal.open{display:flex}
+.box{display:flex;flex-direction:column;gap:14px;width:100%;max-width:480px;max-height:90vh;overflow:auto;padding:26px;border-radius:var(--rl);background:var(--surface);box-shadow:0 20px 40px rgba(11,11,11,.18)}
+.box h3{font-size:20px}
+.box p{margin:0;font-size:14px;color:var(--muted)}
+.rules,.mail{padding:14px 16px;border-radius:var(--r);background:var(--bg);font-size:13px;line-height:1.6}
+.rules ul{margin:6px 0 0;padding-left:18px}
+.mail{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
+.mail a{color:var(--red);font:700 13px var(--mono);text-decoration:none}
+.agree{display:flex;align-items:flex-start;gap:10px;margin:0;font-size:13px;cursor:pointer}
+.agree input{flex:none;width:17px;height:17px;margin-top:2px;accent-color:var(--red)}
+.row{display:flex;gap:10px}
+.row .btn{flex:1}
 
-    /* WORKFLOW HEADER SECTION (MATCHING REFERENCE SCREENSHOT) */
-    .mode-bar {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px 16px;
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: var(--r-md);
-      padding: 14px 18px;
-      margin-bottom: 18px;
-      font-size: 14px;
-      box-shadow: var(--shadow-card);
-    }
-    .mode-bar-text {
-      color: var(--black);
-    }
-    .mode-bar-text strong {
-      font-weight: 700;
-      color: var(--black);
-    }
-    .mode-bar-text .mode-policy {
-      color: var(--muted);
-    }
-    .mode-bar .change-link {
-      background: none;
-      border: none;
-      padding: 0;
-      color: var(--red);
-      font-family: inherit;
-      font-size: 13px;
-      font-weight: 700;
-      text-decoration: underline;
-      text-underline-offset: 3px;
-      cursor: pointer;
-    }
-    .mode-bar .change-link:hover {
-      color: var(--red-hover);
-    }
+.manifesto{display:none;position:fixed;inset:0;z-index:9999;flex-direction:column;justify-content:space-between;padding:clamp(28px,6vw,64px);background:var(--red);color:#fff;font-weight:700;text-transform:lowercase;animation:in .2s}
+.manifesto.open{display:flex}
+.mtop{display:flex;align-items:center;justify-content:space-between;font-size:13px}
+.mtop button{padding:8px 14px;border:1px solid rgba(255,255,255,.35);border-radius:8px;background:rgba(255,255,255,.16);color:#fff;font-size:12px;text-transform:lowercase}
+.mtop button:hover{background:#fff;color:var(--red)}
+.mwords{display:flex;flex-direction:column;gap:clamp(8px,2vw,18px);margin:auto 0}
+.mwords span{font-size:clamp(48px,11vw,112px);line-height:.96;letter-spacing:-.045em}
+.mfoot{font-size:12px;opacity:.85}
 
-    /* FULL-WIDTH 3-COLUMN TOP-BORDERED STEPPER */
-    .steps {
-      list-style: none;
-      display: flex;
-      gap: 12px;
-      margin: 0 0 22px;
-      padding: 0;
-      counter-reset: step;
-    }
-    .steps li {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      padding-top: 12px;
-      border-top: 3px solid rgba(11, 11, 11, 0.14);
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--muted);
-      counter-increment: step;
-      transition: border-color 0.2s, color 0.2s;
-    }
-    .steps li::before {
-      content: counter(step);
-      flex: none;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      font-size: 12px;
-      font-weight: 700;
-      background: rgba(11, 11, 11, 0.1);
-      color: var(--muted);
-    }
-    .steps li.current {
-      border-color: var(--red);
-      color: var(--black);
-    }
-    .steps li.current::before {
-      background: var(--red);
-      color: #FFFFFF;
-    }
-    .steps li.done {
-      border-color: var(--black);
-      color: var(--black);
-    }
-    .steps li.done::before {
-      content: "✓";
-      background: var(--black);
-      color: #FFFFFF;
-    }
+#toast{position:fixed;left:50%;bottom:26px;z-index:10000;max-width:min(92vw,440px);padding:11px 18px;border-radius:10px;background:var(--ink);color:#fff;font-size:13px;font-weight:700;opacity:0;transform:translate(-50%,16px);pointer-events:none;transition:opacity .2s,transform .2s}
+#toast.show{opacity:1;transform:translate(-50%,0)}
 
-    /* SUPPORT LINE & RULES ACCORDION */
-    .support-line {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px 10px;
-      align-items: center;
-      font-size: 14px;
-      color: var(--muted);
-      margin: 0 0 14px;
-    }
-    .support-line a {
-      color: var(--black);
-      font-weight: 700;
-      text-decoration: none;
-    }
-    .support-line a:hover {
-      color: var(--red);
-      text-decoration: underline;
-    }
-
-    .rules-banner {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: var(--r-md);
-      margin-bottom: 24px;
-      font-size: 14px;
-      box-shadow: var(--shadow-card);
-      overflow: hidden;
-    }
-    .rules-banner summary {
-      cursor: pointer;
-      padding: 14px 18px;
-      font-weight: 700;
-      font-size: 14px;
-      color: var(--black);
-      list-style: none;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .rules-banner summary::-webkit-details-marker { display: none; }
-    .rules-banner summary::after {
-      content: "+";
-      font-size: 20px;
-      font-weight: 700;
-      line-height: 1;
-      color: var(--red);
-    }
-    .rules-banner[open] summary { border-bottom: 1px solid var(--line); }
-    .rules-banner[open] summary::after { content: "–"; }
-    .rules-banner ul {
-      margin: 0;
-      padding: 14px 20px 16px 36px;
-      color: var(--black);
-      line-height: 1.6;
-    }
-    .rules-banner li + li { margin-top: 6px; }
-    .rules-banner code {
-      background: var(--surface-alt);
-      padding: 2px 6px;
-      border-radius: 5px;
-      font-family: var(--font-mono);
-      font-size: 12px;
-      color: var(--black);
-    }
-
-    .message {
-      padding: 13px 16px;
-      border-radius: var(--r-md);
-      font-size: 13px;
-      font-weight: 700;
-      margin-bottom: 18px;
-    }
-    .message.error { background: var(--red); color: var(--surface); }
-    .message.loading { background: var(--surface); border: 1px solid var(--line); color: var(--muted); }
-    #maintenanceBanner { background: var(--red); color: var(--surface); }
-
-    .page { display: none; }
-    .page.active { display: block; animation: smoothEnter 0.22s cubic-bezier(0.2, 0.8, 0.2, 1); }
-    @keyframes smoothEnter {
-      from { opacity: 0; transform: translateY(5px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* SEGMENTED FILTER TABS */
-    .category-tabs {
-      display: inline-flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      padding: 4px;
-      background: var(--surface-alt);
-      border-radius: var(--r-md);
-      margin-bottom: 24px;
-    }
-    .category-tab {
-      border: none;
-      background: transparent;
-      color: var(--muted);
-      border-radius: var(--r-sm);
-      padding: 8px 14px;
-      font-family: inherit;
-      font-weight: 700;
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      transition: background-color 0.16s, color 0.16s;
-    }
-    .category-tab:hover { color: var(--black); }
-    .category-tab.active {
-      background: var(--black);
-      color: var(--surface);
-    }
-    .category-count {
-      font-size: 11px;
-      font-weight: 700;
-      opacity: 0.8;
-    }
-    .category-tab.active .category-count {
-      color: #FF6B6B;
-      opacity: 1;
-    }
-
-    /* FACILITY CARDS */
-    .facility-group { margin-bottom: 32px; }
-    .facility-group-heading {
-      font-size: 14px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--black);
-      margin-bottom: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .facility-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(265px, 1fr));
-      gap: 14px;
-    }
-    .facility-card {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: var(--r-lg);
-      padding: 20px;
-      min-height: 152px;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 16px;
-      box-shadow: var(--shadow-card);
-      transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s ease, border-color 0.2s ease;
-    }
-    .facility-card:hover:not(.inactive) {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-hover);
-      border-color: var(--black);
-    }
-    .facility-card.inactive {
-      cursor: not-allowed;
-      background: var(--surface-alt);
-      box-shadow: none;
-      opacity: 0.72;
-    }
-    .facility-name {
-      font-size: 17px;
-      font-weight: 700;
-      line-height: 1.25;
-      color: var(--black);
-    }
-    .facility-hours {
-      margin-top: 4px;
-      font-size: 13px;
-      color: var(--muted);
-    }
-    .facility-notice {
-      margin-top: 10px;
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--red);
-      background: var(--red-soft);
-      padding: 6px 10px;
-      border-radius: var(--r-sm);
-    }
-    .facility-status {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .facility-status::before {
-      content: "";
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: currentColor;
-    }
-    .facility-status.available {
-      color: var(--black);
-    }
-    .facility-card:hover:not(.inactive) .facility-status.available {
-      color: var(--red);
-    }
-    .facility-status.unavailable {
-      color: var(--muted);
-    }
-
-    /* PANELS & FORMS */
-    .back-button {
-      border: 1px solid var(--line);
-      background: var(--surface);
-      border-radius: var(--r-sm);
-      padding: 8px 14px;
-      margin-bottom: 16px;
-      color: var(--black);
-      font-family: inherit;
-      font-weight: 700;
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      cursor: pointer;
-      box-shadow: var(--shadow-card);
-      transition: background-color 0.15s, color 0.15s;
-    }
-    .back-button:hover { background: var(--black); color: var(--surface); }
-
-    .facility-header {
-      background: var(--black);
-      color: var(--surface);
-      border-radius: var(--r-lg);
-      padding: clamp(20px, 3vw, 28px);
-      margin-bottom: 16px;
-    }
-    .facility-header h2 {
-      font-size: clamp(22px, 3.2vw, 30px);
-      font-weight: 700;
-      color: var(--surface);
-    }
-    .facility-header p {
-      margin: 5px 0 0;
-      color: rgba(255, 255, 255, 0.8);
-      font-size: 13px;
-    }
-
-    .booking-panel {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: var(--r-lg);
-      padding: clamp(20px, 3vw, 28px);
-      box-shadow: var(--shadow-card);
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 6px;
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: var(--black);
-    }
-    input, select, textarea {
-      width: 100%;
-      border: 1px solid var(--line-strong);
-      border-radius: var(--r-sm);
-      padding: 10px 13px;
-      background: var(--bg);
-      color: var(--black);
-      font-family: inherit;
-      font-size: 15px;
-      transition: border-color 0.15s, background-color 0.15s, box-shadow 0.15s;
-    }
-    input, select { height: 46px; }
-    textarea { resize: vertical; min-height: 92px; }
-    input:focus, textarea:focus {
-      outline: none;
-      background: var(--surface);
-      border-color: var(--red);
-      box-shadow: 0 0 0 3px var(--red-soft);
-    }
-    input:disabled, textarea:disabled { background: var(--surface-alt); color: var(--muted); }
-
-    .date-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-    }
-    .booking-summary {
-      margin: 16px 0 0;
-      padding: 10px 14px;
-      background: var(--surface-alt);
-      border-radius: var(--r-sm);
-      color: var(--black);
-      font-size: 13px;
-      font-weight: 700;
-    }
-
-    #bookingForm {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-    #bookingForm .form-group:has(textarea),
-    #submissionMessage,
-    #bookingForm .submit-button { grid-column: 1 / -1; }
-
-    .disclaimer-banner {
-      background: var(--red-soft);
-      border-radius: var(--r-sm);
-      padding: 12px 14px;
-      margin-bottom: 20px;
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--black);
-    }
-
-    /* TIME SLOT GRID */
-    .availability-title {
-      font-size: 14px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      margin: 24px 0 3px;
-    }
-    .availability-hint {
-      font-size: 13px;
-      color: var(--muted);
-      margin: 0 0 14px;
-    }
-    .legend {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px 18px;
-      margin: 0 0 16px;
-      padding: 9px 14px;
-      background: var(--bg);
-      border-radius: var(--r-sm);
-      list-style: none;
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: var(--muted);
-    }
-    .legend li { display: flex; align-items: center; gap: 6px; }
-    .legend i {
-      width: 12px;
-      height: 12px;
-      border-radius: 3px;
-      border: 1px solid var(--line-strong);
-      background: var(--surface);
-    }
-    .legend .l-sel { background: var(--red); border-color: var(--red); }
-    .legend .l-pend { background: var(--surface); border: 1.5px dashed var(--black); }
-    .legend .l-book { background: var(--surface-alt); border-color: transparent; }
-
-    .day-availability-box {
-      background: var(--bg);
-      border-radius: var(--r-md);
-      padding: 16px;
-      margin-bottom: 12px;
-    }
-    .day-title {
-      font-size: 13px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
-      margin-bottom: 12px;
-    }
-    .availability-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
-      gap: 7px;
-    }
-    .slot {
-      border: 1px solid var(--line-strong);
-      background: var(--surface);
-      color: var(--black);
-      border-radius: var(--r-sm);
-      padding: 9px 4px;
-      min-height: 42px;
-      text-align: center;
-      font-family: var(--font-mono);
-      font-weight: 600;
-      font-size: 12px;
-      cursor: pointer;
-      transition: background-color 0.12s, border-color 0.12s, color 0.12s;
-    }
-    .slot:hover:not(:disabled) {
-      border-color: var(--black);
-      background: var(--black);
-      color: var(--surface);
-    }
-    .slot.selected {
-      background: var(--red);
-      border-color: var(--red);
-      color: var(--surface);
-      font-weight: 700;
-    }
-    .slot.booked {
-      cursor: not-allowed;
-      border-color: transparent;
-      color: #8E8D88;
-      text-decoration: line-through;
-      background: rgba(11, 11, 11, 0.05);
-    }
-    .slot.pending {
-      cursor: not-allowed;
-      border: 1px dashed var(--black);
-      color: var(--black);
-      background: var(--surface);
-    }
-
-    /* FLOATING ACTION BAR */
-    .action-bar {
-      position: sticky;
-      bottom: 20px;
-      z-index: 20;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      margin-top: 22px;
-      padding: 12px 16px 12px 20px;
-      background: rgba(11, 11, 11, 0.95);
-      backdrop-filter: saturate(180%) blur(18px);
-      -webkit-backdrop-filter: saturate(180%) blur(18px);
-      color: var(--surface);
-      border-radius: var(--r-md);
-      box-shadow: var(--shadow-float);
-    }
-    .selection-live-banner {
-      font-size: 14px;
-      font-weight: 700;
-    }
-    .selection-live-banner strong {
-      display: block;
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: rgba(255, 255, 255, 0.72);
-      margin-bottom: 1px;
-    }
-
-    .continue-button, .submit-button {
-      min-height: 44px;
-      padding: 0 22px;
-      border: none;
-      border-radius: var(--r-sm);
-      background: var(--red);
-      color: var(--surface);
-      font-family: inherit;
-      font-weight: 700;
-      font-size: 13px;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      cursor: pointer;
-      transition: background-color 0.15s, transform 0.12s;
-    }
-    .continue-button:hover:not(:disabled), .submit-button:hover:not(:disabled) {
-      background: var(--red-hover);
-    }
-    .continue-button:active:not(:disabled), .submit-button:active:not(:disabled) {
-      transform: scale(0.98);
-    }
-    .continue-button:disabled, .submit-button:disabled {
-      background: rgba(255, 255, 255, 0.16);
-      color: rgba(255, 255, 255, 0.45);
-      cursor: not-allowed;
-    }
-    .submit-button:disabled {
-      background: var(--surface-alt);
-      color: var(--muted);
-    }
-    .submit-button { width: 100%; min-height: 48px; }
-    .btn-secondary {
-      background: var(--surface-alt) !important;
-      color: var(--black) !important;
-    }
-    .btn-secondary:hover {
-      background: var(--black) !important;
-      color: var(--surface) !important;
-    }
-
-    .spinner {
-      display: inline-block;
-      width: 14px;
-      height: 14px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-top-color: var(--surface);
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      vertical-align: -2px;
-      margin-right: 8px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* RECEIPT */
-    .success-panel {
-      max-width: 540px;
-      margin: 0 auto;
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: var(--r-lg);
-      padding: clamp(24px, 4vw, 36px);
-      box-shadow: var(--shadow-card);
-    }
-    .success-check {
-      width: 42px;
-      height: 42px;
-      border-radius: var(--r-sm);
-      background: var(--red);
-      color: var(--surface);
-      display: grid;
-      place-items: center;
-      font-size: 20px;
-      font-weight: 700;
-      margin-bottom: 14px;
-    }
-    .success-panel h2 { font-size: 26px; font-weight: 700; }
-    .success-panel > p {
-      color: var(--muted);
-      font-size: 14px;
-      margin: 6px 0 20px;
-    }
-    .receipt {
-      background: var(--bg);
-      border-radius: var(--r-md);
-      padding: 18px;
-      margin-bottom: 20px;
-      display: grid;
-      grid-template-columns: max-content 1fr;
-      gap: 10px 18px;
-      font-size: 13px;
-    }
-    .receipt dt {
-      color: var(--muted);
-      font-weight: 700;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      align-self: center;
-    }
-    .receipt dd { margin: 0; font-weight: 700; overflow-wrap: anywhere; color: var(--black); }
-    .receipt ul { margin: 0; padding-left: 16px; }
-    #confBookingId {
-      color: var(--red);
-      font-family: var(--font-mono);
-      font-weight: 700;
-    }
-
-    /* MODALS */
-    .modal-backdrop {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(11, 11, 11, 0.48);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      z-index: 9999;
-      justify-content: center;
-      align-items: center;
-      padding: 16px;
-    }
-    .modal-backdrop.open { display: flex; }
-    .modal-box {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: var(--r-lg);
-      box-shadow: var(--shadow-float);
-      max-width: 500px;
-      width: 100%;
-      padding: 26px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-    .modal-box h3 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
-    .modal-box .sub {
-      font-size: 13px;
-      color: var(--muted);
-      margin: 0;
-    }
-    .rules-body {
-      background: var(--bg);
-      border-radius: var(--r-md);
-      padding: 14px 16px;
-      font-size: 13px;
-      line-height: 1.6;
-      color: var(--black);
-    }
-    .email-callout {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      background: var(--bg);
-      border-radius: var(--r-md);
-      padding: 12px 14px;
-    }
-    .email-callout a {
-      font-family: var(--font-mono);
-      font-weight: 700;
-      font-size: 13px;
-      color: var(--red);
-      text-decoration: none;
-    }
-    .email-callout a:hover { text-decoration: underline; }
-    .agree {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .agree input {
-      width: 17px;
-      height: 17px;
-      flex: none;
-      margin-top: 2px;
-      accent-color: var(--red);
-    }
-    .modal-actions {
-      display: flex;
-      gap: 10px;
-      padding-top: 6px;
-      flex-wrap: wrap;
-    }
-    .modal-actions button, .modal-actions a.modal-link-btn {
-      flex: 1;
-      text-align: center;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    /* TEENY TINY RED CREDIT ON FRONT PAGE (LOWERCASE, NO F9TEH) */
-    .front-credit {
-      margin-top: auto;
-      padding-top: 48px;
-      text-align: center;
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: lowercase;
-      letter-spacing: 0.04em;
-      color: var(--red);
-    }
-
-    /* TOAST */
-    #toast {
-      position: fixed;
-      left: 50%;
-      bottom: 26px;
-      transform: translate(-50%, 16px);
-      max-width: min(92vw, 440px);
-      background: var(--black);
-      color: var(--surface);
-      padding: 11px 18px;
-      border-radius: var(--r-sm);
-      font-size: 13px;
-      font-weight: 700;
-      box-shadow: var(--shadow-float);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s, transform 0.2s;
-      z-index: 10000;
-    }
-    #toast.show { opacity: 1; transform: translate(-50%, 0); }
-
-    @media (max-width: 640px) {
-      .steps li span { display: none; }
-      .steps li.current span { display: inline; }
-      .date-row, #bookingForm { grid-template-columns: 1fr; }
-      .availability-grid { grid-template-columns: repeat(2, 1fr); }
-      .action-bar { padding: 12px 14px; }
-      .receipt { grid-template-columns: 1fr; gap: 4px; }
-      .receipt dd { margin-bottom: 8px; }
-    }
-  </style>
+@media(max-width:640px){
+.steps li span{display:none}.steps .current span{display:inline}
+.two,.form{grid-template-columns:1fr}
+.slotgrid{grid-template-columns:repeat(2,1fr)}
+dl{grid-template-columns:1fr;gap:4px}dd{margin-bottom:8px}
+.actions{padding:12px 14px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
 </head>
-
 <body>
-  <!-- ALL-RED EASTER EGG PAGE (ALL LOWERCASE) -->
-  <div id="redManifestoPage" class="red-manifesto-overlay" role="dialog" aria-modal="true" aria-label="kk5 manifesto">
-    <div class="red-manifesto-top">
-      <span>*kk5 · kolej kediaman kelima</span>
-      <button type="button" class="red-close-btn" onclick="closeRedManifesto()">back</button>
+<div id="manifesto" class="manifesto" role="dialog" aria-modal="true" aria-label="kk5 manifesto">
+  <div class="mtop"><span>*kk5 · kolej kediaman kelima</span><button type="button" onclick="toggleManifesto(false)">back</button></div>
+  <div class="mwords"><span>#siap</span><span>#solid</span><span>#berhasil</span></div>
+  <div class="mfoot">jtkd teknikal · @f9teh</div>
+</div>
+
+<main>
+  <header>
+    <h1><button type="button" id="star" aria-label="Open manifesto">*</button>kk5 booking</h1>
+    <p>Book at least 2 days ahead with your UM email. College activities take priority.</p>
+  </header>
+
+  <div id="notice" class="msg err hidden" role="alert"></div>
+
+  <section id="gate">
+    <div class="grid">
+      <button type="button" class="card mode" data-mode="personal"><h3>Personal use</h3><p>Casual sessions for KK5 residents. Restricted hours apply.</p></button>
+      <button type="button" class="card mode" data-mode="college"><h3>KK5 College activity</h3><p>Official programs, bureau meetings and events. 24-hour access.</p></button>
+      <button type="button" class="card mode" data-mode="external"><h3>External / Non-KK5</h3><p>Handled by email: <b>jtk_kk5@um.edu.my</b></p></button>
     </div>
-    <div class="red-manifesto-words">
-      <span>#siap</span>
-      <span>#solid</span>
-      <span>#berhasil</span>
-    </div>
-    <div class="red-manifesto-foot">jtkd teknikal · @f9teh</div>
-  </div>
+  </section>
 
-  <!-- FROSTED TOP BAR -->
-  <nav class="top-nav" aria-label="System header">
-    <div class="top-nav-inner">
-      <div class="nav-brand"><span class="asterisk-trigger" role="button" tabindex="0" onclick="openRedManifesto()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openRedManifesto();}">*</span>kk5</div>
-      <div class="nav-note"><span class="nav-dot"></span>Book 2+ days ahead</div>
-    </div>
-  </nav>
+  <div id="flow" class="hidden">
+    <div class="bar"><span>Booking type: <b id="modeLabel"></b></span><button type="button" class="link" onclick="changeMode()">Change</button></div>
+    <ol class="steps" id="steps" aria-label="Booking progress">
+      <li class="current" aria-current="step"><span>Venue</span></li><li><span>Date &amp; time</span></li><li><span>Details</span></li>
+    </ol>
 
-  <main class="container">
-    <!-- MINIMAL HERO -->
-    <header class="header">
-      <div class="header-eyebrow">Kolej Kediaman Kelima · UM</div>
-      <h1><span class="asterisk-trigger" role="button" tabindex="0" title="Click *" onclick="openRedManifesto()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openRedManifesto();}">*</span>kk5 booking</h1>
-      <p>Choose your booking type to view available venues.</p>
-    </header>
+    <section id="facilityPage" class="page active">
+      <div id="loading" class="msg" role="status">Loading venues…</div>
+      <div id="tabs" class="tabs hidden" aria-label="Filter venues">
+        <button type="button" class="active" data-cat="all">All</button>
+        <button type="button" data-cat="sports">Sports</button>
+        <button type="button" data-cat="recreational">Rooms</button>
+      </div>
+      <div id="grid" class="grid"></div>
+    </section>
 
-    <div id="maintenanceBanner" class="message error hidden"></div>
-    <div id="errorMessage" class="message error hidden" role="alert"></div>
-
-    <!-- TIER SELECTION -->
-    <section id="modeGate" class="mode-gate" aria-labelledby="modeGateTitle">
-      <h2 id="modeGateTitle">Booking type</h2>
-      <div class="mode-grid">
-        <button type="button" class="mode-card" data-mode="personal" onclick="selectBookingMode('personal')">
-          <div>
-            <span class="mode-index">Option 01</span>
-            <h3 class="mode-title">Personal use</h3>
-            <p class="mode-desc">Casual sessions for KK5 residents. Restricted booking hours apply.</p>
-          </div>
-          <span class="link-btn">Select →</span>
-        </button>
-
-        <button type="button" class="mode-card" data-mode="college" onclick="selectBookingMode('college')">
-          <div>
-            <span class="mode-index">Option 02</span>
-            <h3 class="mode-title">KK5 College activity</h3>
-            <p class="mode-desc">Official college programs, bureau meetings, and student events (24-hour access).</p>
-          </div>
-          <span class="link-btn">Select →</span>
-        </button>
-
-        <button type="button" class="mode-card external-card" data-mode="external" onclick="selectBookingMode('external')">
-          <div>
-            <span class="mode-index">Option 03</span>
-            <h3 class="mode-title">External / Non-KK5</h3>
-            <p class="mode-desc">Handled directly via email rather than online slots.</p>
-          </div>
-          <span class="link-btn" style="color:var(--red)">Email jtk_kk5@um.edu.my →</span>
-        </button>
+    <section id="bookingPage" class="page">
+      <button type="button" class="back" onclick="showPage('facilityPage')">← Venues</button>
+      <div class="head"><h2 id="facName"></h2><p id="facHours"></p></div>
+      <div class="panel">
+        <div class="two">
+          <div><label for="startDate">Start date</label><input type="date" id="startDate" required></div>
+          <div><label for="endDate">End date</label><input type="date" id="endDate" required></div>
+        </div>
+        <p id="hint" class="hint"></p>
+        <ul class="legend" aria-label="Slot key"><li><i></i>Available</li><li><i class="sel"></i>Selected</li><li><i class="pend"></i>Pending</li><li><i class="off"></i>Unavailable</li></ul>
+        <div id="slots"></div>
+      </div>
+      <div class="actions">
+        <div aria-live="polite"><small>Selected</small><span id="selText">None</span></div>
+        <button type="button" id="next" class="btn" disabled>Continue</button>
       </div>
     </section>
 
-    <!-- BOOKING WORKFLOW (MATCHING SCREENSHOT LAYOUT) -->
-    <div id="bookingWorkflow" class="hidden">
-      <div class="mode-bar">
-        <div class="mode-bar-text">
-          Booking type: <strong id="activeModeLabel">—</strong> · <span id="activeModeSummary" class="mode-policy"></span>
-        </div>
-        <button type="button" class="change-link" onclick="changeBookingMode()">Change option</button>
+    <section id="detailsPage" class="page">
+      <button type="button" class="back" onclick="showPage('bookingPage')">← Date &amp; time</button>
+      <div class="head"><h2>Your details</h2><p id="review"></p></div>
+      <form id="form" class="panel form">
+        <div><label for="bookerName">Full name</label><input id="bookerName" required maxlength="120" placeholder="As on matric card" autocomplete="name"></div>
+        <div><label for="matricNumber">Matric number</label><input id="matricNumber" required maxlength="40" placeholder="e.g. 24001234"></div>
+        <div><label for="email">UM email</label><input type="email" id="email" required maxlength="254" placeholder="username@siswa.um.edu.my" autocomplete="email"></div>
+        <div><label for="phone">Phone</label><input type="tel" id="phone" required maxlength="30" placeholder="e.g. 0123456789" autocomplete="tel"></div>
+        <div class="wide"><label for="organisation">Organisation / bureau</label><input id="organisation" required maxlength="120" placeholder="e.g. JTK, KEP"></div>
+        <div class="wide"><label for="purpose">Purpose</label><textarea id="purpose" required maxlength="2000" placeholder="Activity or session details"></textarea></div>
+        <div id="formMsg" class="msg hidden wide" role="status"></div>
+        <button type="submit" id="submit" class="btn wide">Submit request</button>
+      </form>
+    </section>
+
+    <section id="successPage" class="page">
+      <div class="panel done">
+        <div class="tick" aria-hidden="true">✓</div>
+        <h2>Request submitted</h2>
+        <p>Status: <b>pending approval</b>. Updates go to your UM email.</p>
+        <dl><dt>Booking ID</dt><dd id="cId"></dd><dt>Venue</dt><dd id="cFac"></dd><dt>Slots</dt><dd><ul id="cSlots"></ul></dd></dl>
+        <button type="button" class="btn wide" onclick="location.reload()">Book another</button>
       </div>
+    </section>
+  </div>
+</main>
 
-      <ol class="steps" id="steps" aria-label="Booking progress">
-        <li class="current" aria-current="step"><span>Facility</span></li>
-        <li><span>Date &amp; time</span></li>
-        <li><span>Your details</span></li>
-      </ol>
+<footer>Kolej Kediaman Kelima, UM · <a href="tel:0104563287">Help: 010-456 3287 (jtkd teknikal)</a></footer>
 
-      <p class="support-line">Need help or a manual booking? <a href="tel:0104563287">JTKD Teknikal (Fateh) · 010-456 3287</a></p>
-
-      <details class="rules-banner">
-        <summary>Booking rules &amp; guidelines</summary>
-        <ul id="generalRulesList">
-          <li>Book at least <strong>2 days in advance</strong>.</li>
-          <li>Use an official UM email (<code>@siswa.um.edu.my</code> or <code>@um.edu.my</code>).</li>
-          <li>College management reserves the right to prioritise official college activities.</li>
-        </ul>
-      </details>
-
-      <!-- FACILITY SELECTION -->
-      <section id="facilityPage" class="page active">
-        <div id="facilityLoading" class="message loading" role="status">Loading venues…</div>
-        <div id="categoryTabs" class="category-tabs hidden" role="tablist" aria-label="Filter venues by category">
-          <button type="button" class="category-tab active" data-category="all" role="tab" aria-selected="true" onclick="selectFacilityCategory('all')">
-            All <span id="countAll" class="category-count">0</span>
-          </button>
-          <button type="button" class="category-tab" data-category="sports" role="tab" aria-selected="false" onclick="selectFacilityCategory('sports')">
-            Sports <span id="countSports" class="category-count">0</span>
-          </button>
-          <button type="button" class="category-tab" data-category="recreational" role="tab" aria-selected="false" onclick="selectFacilityCategory('recreational')">
-            Rooms <span id="countRecreational" class="category-count">0</span>
-          </button>
-        </div>
-        <div id="facilityGrid"></div>
-      </section>
-
-      <!-- DATE AND TIME SELECTION -->
-      <section id="bookingPage" class="page">
-        <button type="button" class="back-button" onclick="goBackToFacilities()">← Venues</button>
-        <div class="facility-header">
-          <h2 id="selectedFacilityName">Facility</h2>
-          <p id="selectedFacilityHours">Operating hours</p>
-        </div>
-
-        <div class="booking-panel">
-          <div class="date-row">
-            <div class="form-group">
-              <label for="startDate">Start date</label>
-              <input type="date" id="startDate" required>
-            </div>
-            <div class="form-group">
-              <label for="endDate">End date</label>
-              <input type="date" id="endDate" required>
-            </div>
-          </div>
-
-          <div id="bookingSummary" class="booking-summary hidden"></div>
-
-          <div class="availability-section">
-            <h3 class="availability-title">Time slots</h3>
-            <p id="availabilityHintText" class="availability-hint">30-minute intervals.</p>
-            <ul class="legend" aria-label="Slot colour key">
-              <li><i></i>Available</li>
-              <li><i class="l-sel"></i>Selected</li>
-              <li><i class="l-pend"></i>Pending</li>
-              <li><i class="l-book"></i>Unavailable</li>
-            </ul>
-            <div id="availabilityContainer"></div>
-          </div>
-        </div>
-
-        <div class="action-bar">
-          <div id="selectionLiveBanner" class="selection-live-banner" aria-live="polite">
-            <strong>Selected</strong><span id="liveSelectionSummaryText">None</span>
-          </div>
-          <button type="button" id="continueButton" class="continue-button" onclick="showDetailsForm()" disabled>Continue</button>
-        </div>
-      </section>
-
-      <!-- BOOKING DETAILS -->
-      <section id="detailsPage" class="page">
-        <button type="button" class="back-button" onclick="goBackToBooking()">← Date &amp; time</button>
-        <div class="facility-header">
-          <h2>Your details</h2>
-          <p id="summaryReviewText">Enter your contact details to complete the request.</p>
-        </div>
-
-        <div class="booking-panel">
-          <div class="disclaimer-banner">
-            College management reserves the right to prioritise official college and student activities.
-          </div>
-
-          <form id="bookingForm">
-            <div class="form-group"><label for="bookerName">Full name</label><input type="text" id="bookerName" required maxlength="120" placeholder="As on matric card" autocomplete="name"></div>
-            <div class="form-group"><label for="matricNumber">Matric number</label><input type="text" id="matricNumber" required maxlength="40" placeholder="e.g. 24001958"></div>
-            <div class="form-group"><label for="email">UM email</label><input type="email" id="email" required maxlength="254" placeholder="username@siswa.um.edu.my" autocomplete="email"></div>
-            <div class="form-group"><label for="phone">Phone</label><input type="tel" id="phone" required maxlength="30" placeholder="0104563287" autocomplete="tel"></div>
-            <div class="form-group"><label for="organisation">Organisation / bureau</label><input type="text" id="organisation" required maxlength="120" placeholder="e.g. JTK, KEP"></div>
-            <div class="form-group"><label for="purpose">Purpose</label><textarea id="purpose" required maxlength="2000" placeholder="Activity or session details"></textarea></div>
-
-            <div id="submissionMessage" class="message hidden" role="status"></div>
-            <button type="submit" id="submitButton" class="submit-button">Submit request</button>
-          </form>
-        </div>
-      </section>
-
-      <!-- SUCCESS -->
-      <section id="successPage" class="page">
-        <div class="success-panel">
-          <div class="success-check" aria-hidden="true">✓</div>
-          <h2>Request submitted</h2>
-          <p>Status: <strong>PENDING APPROVAL</strong>. Check your UM email for updates.</p>
-
-          <dl class="receipt">
-            <dt>Booking ID</dt><dd id="confBookingId"></dd>
-            <dt>Type</dt><dd id="confMode"></dd>
-            <dt>Venue</dt><dd id="confFacility"></dd>
-            <dt>Name</dt><dd id="confName"></dd>
-            <dt>Email</dt><dd id="confEmail"></dd>
-            <dt>Organisation</dt><dd id="confOrg"></dd>
-            <dt>Purpose</dt><dd id="confPurpose"></dd>
-            <dt>Slots</dt><dd><ul id="confSlotsList"></ul></dd>
-          </dl>
-
-          <button type="button" class="continue-button" style="width:100%" onclick="location.reload()">Book another</button>
-        </div>
-      </section>
+<div id="extModal" class="modal" role="dialog" aria-modal="true" aria-label="External booking">
+  <div class="box">
+    <h3>External / Non-KK5</h3>
+    <p>Handled by email. Send your venue, date, time, organisation and proposal to:</p>
+    <div class="mail">
+      <a href="mailto:jtk_kk5@um.edu.my?subject=KK5%20Facility%20Booking%20Inquiry%20(External%20%2F%20Non-KK5)">jtk_kk5@um.edu.my</a>
+      <button type="button" class="btn ghost sm" onclick="copyEmail()">Copy</button>
     </div>
+    <button type="button" class="btn ghost" onclick="closeModal('extModal')">Close</button>
+  </div>
+</div>
 
-    <!-- TEENY TINY RED CREDIT ON FRONT PAGE (LOWERCASE, F9TEH REMOVED) -->
-    <footer id="frontCredit" class="front-credit">jtkd teknikal</footer>
-  </main>
-
-  <!-- EXTERNAL / NON-KK5 POPUP MODAL -->
-  <div id="externalModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="externalModalTitle">
-    <div class="modal-box">
-      <div>
-        <h3 id="externalModalTitle">External / Non-KK5</h3>
-        <p class="sub">Handled via email rather than online slots.</p>
-      </div>
-      <div class="rules-body">
-        Send your venue, date, time, organisation, and proposal to:
-      </div>
-      <div class="email-callout">
-        <a id="externalMailtoLink" href="mailto:jtk_kk5@um.edu.my?subject=KK5%20Facility%20Booking%20Inquiry%20(External%20%2F%20Non-KK5)">jtk_kk5@um.edu.my</a>
-        <button type="button" class="continue-button btn-secondary" style="min-height:34px;padding:0 12px;font-size:11px" onclick="copyExternalEmail()">Copy</button>
-      </div>
-      <div class="modal-actions">
-        <button type="button" class="continue-button btn-secondary" onclick="closeExternalModal()">Close</button>
-        <a class="continue-button modal-link-btn" href="mailto:jtk_kk5@um.edu.my?subject=KK5%20Facility%20Booking%20Inquiry%20(External%20%2F%20Non-KK5)">Open email</a>
-      </div>
+<div id="rulesModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="rulesTitle">
+  <div class="box">
+    <h3 id="rulesTitle"></h3>
+    <div id="rulesBody" class="rules"></div>
+    <label class="agree"><input type="checkbox" id="agree"><span>I agree to follow these rules.</span></label>
+    <div class="row">
+      <button type="button" class="btn ghost" onclick="closeModal('rulesModal')">Cancel</button>
+      <button type="button" id="proceed" class="btn" disabled>Continue</button>
     </div>
   </div>
+</div>
 
-  <!-- FACILITY RULES MODAL -->
-  <div id="rulesModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="rulesFacilityTitle">
-    <div class="modal-box">
-      <div>
-        <h3 id="rulesFacilityTitle">Venue rules</h3>
-        <p class="sub">Review and agree before selecting slots.</p>
-      </div>
-      <div id="rulesContentBody" class="rules-body"></div>
-      <label class="agree" for="agreeRulesCheckbox">
-        <input type="checkbox" id="agreeRulesCheckbox" onchange="toggleProceedButton()">
-        <span>I agree to follow these rules.</span>
-      </label>
-      <div class="modal-actions">
-        <button type="button" class="continue-button btn-secondary" onclick="closeRulesModal()">Cancel</button>
-        <button type="button" id="proceedBtn" class="continue-button" disabled onclick="confirmRulesAndProceed()">Continue</button>
-      </div>
-    </div>
-  </div>
+<div id="toast" role="status" aria-live="polite"></div>
 
-  <div id="toast" role="status" aria-live="polite"></div>
+<script>
+"use strict";
+const SHEET_ID = "1rR-bPyZnT0jT3vkSPSRxKvmv6FfFoiuwU9Ll3tOUVRY";
+const API = "https://script.google.com/macros/s/AKfycbxRV6Oj4qyHsgyNq2gmsmAWXO2_1c0fBNRgs6JBiSU3Qv6F0afe9KafwxzrAajJHD9m/exec";
+const EMAIL = "jtk_kk5@um.edu.my", STEP = 30, DEFAULT_MAX = 3;
 
-  <script>
-    "use strict";
+// Personal-use rules. Courts ("Gelanggang…") share one rule; the sheet can override any of this.
+const COURT = { start: "19:00", end: "23:00", max: 3 };
+const PERSONAL = {
+  "gym": { start: "08:00", end: "23:00", max: 2 },
+  "ballroom": { off: "Not available for personal bookings." },
+  "bilik kaca": { off: "Reserved for college activities." },
+  "bilik jtk": { off: "Reserved for JTK / college activities." },
+  "bilik band": { start: "19:00", end: "22:00", max: 2 }
+};
+const RULES = {
+  "Bilik Kaca": `<b>Bilik Kaca</b><ul><li>Prioritised for college activities.</li><li>External bookings: email <b>${EMAIL}</b></li></ul>`
+};
+const DEFAULT_RULES = `<ul><li>Keep the venue clean and orderly.</li><li>Report any damage immediately to <b>JTK/JKP</b>.</li><li>Bookings are <b>non-transferable</b>.</li><li>Inquiries: <b>Fateh (jtkd teknikal) · 010-456 3287</b></li></ul>`;
 
-    const PUBLIC_SHEET_ID = "1rR-bPyZnT0jT3vkSPSRxKvmv6FfFoiuwU9Ll3tOUVRY";
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxRV6Oj4qyHsgyNq2gmsmAWXO2_1c0fBNRgs6JBiSU3Qv6F0afe9KafwxzrAajJHD9m/exec";
-    const EXTERNAL_EMAIL = "jtk_kk5@um.edu.my";
-    const SLOT_INTERVAL = 30;
-    const DEFAULT_MAX_HOURS_PER_DAY = 3;
+let mode = null, cat = "all", facilities = [], fac = null, pending = null;
+let start = "", end = "", booked = {}, picked = {}, maintenance = false, toastTimer;
 
-    const FACILITY_CATEGORY_OVERRIDES = {
-      "Gym": "sports"
+const $ = id => document.getElementById(id);
+const startDate = $("startDate"), endDate = $("endDate");
+const pages = ["facilityPage", "bookingPage", "detailsPage", "successPage"];
+const mk = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt) e.textContent = txt; return e; };
+
+/* ---------- helpers ---------- */
+const pad = n => String(n).padStart(2, "0");
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const hhmm = m => pad(Math.floor(m / 60)) + ":" + pad(m % 60);
+const fmtDate = d => d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+const cell = c => !c ? "" : (c.f ?? c.v ?? "");
+const tcell = c => c && c.v ? String(c.v) : "";
+function parseDate(v) { const m = String(v || "").match(/^(\d{4})-(\d{2})-(\d{2})$/); return m ? new Date(+m[1], m[2] - 1, +m[3]) : null; }
+function sheetDate(c) { if (!c) return null; const m = String(c.v || "").match(/^Date\((\d+),(\d+),(\d+)/); return m ? new Date(+m[1], +m[2], +m[3]) : parseDate(c.f || c.v); }
+function datesBetween(a, b) { const out = []; for (const d = new Date(a); d <= b; d.setDate(d.getDate() + 1)) out.push(new Date(d)); return out; }
+function toMin(t) {
+  if (!t) return null;
+  const s = String(t).trim();
+  if (/^24:00(:00)?$/.test(s)) return 1440;
+  const p = s.split(":");
+  return p.length >= 2 ? Number(p[0]) * 60 + Number(p[1]) : null;
+}
+function toast(msg) {
+  const el = $("toast");
+  el.textContent = msg; el.classList.add("show");
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove("show"), 4000);
+}
+function showNotice(msg) { $("notice").textContent = msg; $("notice").classList.remove("hidden"); }
+async function gviz(sheet) {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${encodeURIComponent(sheet)}&tqx=out:json&_ts=${Date.now()}`;
+  const res = await fetch(url, { cache: "no-store" });
+  const text = await res.text();
+  if (!res.ok) throw new Error("Google Sheets HTTP " + res.status);
+  return JSON.parse(text.slice(text.indexOf("(") + 1, text.lastIndexOf(")")));
+}
+
+/* ---------- manifesto & modals ---------- */
+function toggleManifesto(on) { $("manifesto").classList.toggle("open", on); document.body.style.overflow = on ? "hidden" : ""; }
+function closeModal(id) { $(id).classList.remove("open"); if (id === "rulesModal") pending = null; }
+async function copyEmail() {
+  try { await navigator.clipboard.writeText(EMAIL); toast("Copied " + EMAIL); }
+  catch (e) { toast("Email: " + EMAIL); }
+}
+$("star").onclick = () => toggleManifesto(true);
+addEventListener("keydown", e => {
+  if (e.key === "Escape") { toggleManifesto(false); closeModal("rulesModal"); closeModal("extModal"); }
+});
+
+/* ---------- policy ---------- */
+function parseBool(v, fallback) {
+  if (v === "" || v == null) return fallback;
+  if (typeof v === "boolean") return v;
+  const s = String(v).trim().toLowerCase();
+  if (["false", "0", "no", "n", "disabled", "off"].includes(s)) return false;
+  if (["true", "1", "yes", "y", "enabled", "on"].includes(s)) return true;
+  return fallback;
+}
+function personalPolicy(f) {
+  const key = f.facility.trim().toLowerCase();
+  const c = PERSONAL[key] || (/gelanggang|court/.test(key) ? COURT : {});
+  const hasSheet = String(f.personalEnabled ?? "").trim() !== "";
+  const enabled = hasSheet ? parseBool(f.personalEnabled, !c.off) : !c.off;
+  const max = Number(f.personalMaxHours);
+  return {
+    disabled: !enabled,
+    reason: enabled ? "" : (c.off || "Not available for personal bookings."),
+    start: String(f.personalStart || "").trim() || (hasSheet ? null : c.start || null),
+    end: String(f.personalEnd || "").trim() || (hasSheet ? null : c.end || null),
+    max: max > 0 ? max : (c.max || DEFAULT_MAX)
+  };
+}
+function rule(f) {
+  if (mode !== "personal") return { disabled: false, reason: "", startMin: null, endMin: null, label: "00:00 – 24:00 (24h)", max: null, open24: true };
+  const p = personalPolicy(f);
+  return {
+    disabled: p.disabled, reason: p.reason,
+    startMin: p.start ? toMin(p.start) : null, endMin: p.end ? toMin(p.end) : null,
+    label: p.start && p.end ? `${p.start} – ${p.end}` : null, max: p.max, open24: false
+  };
+}
+function category(f) {
+  const c = String(f.category || "").trim().toLowerCase();
+  if (["sports", "sport", "sukan", "court", "courts"].includes(c)) return "sports";
+  if (["recreational", "recreation", "room", "rooms", "recreational rooms", "rekreasi"].includes(c)) return "recreational";
+  return /gelanggang|court|gym/.test(f.facility.toLowerCase()) || String(f.jkp || "").trim().toLowerCase() === "sukrea" ? "sports" : "recreational";
+}
+
+/* ---------- mode & venue list ---------- */
+function selectMode(m) {
+  if (m === "external") return $("extModal").classList.add("open");
+  mode = m;
+  $("modeLabel").textContent = m === "personal" ? "Personal use" : "KK5 College activity";
+  $("gate").classList.add("hidden");
+  $("flow").classList.remove("hidden");
+  showPage("facilityPage");
+  renderFacilities();
+}
+function changeMode() {
+  fac = pending = null;
+  resetBooking();
+  $("flow").classList.add("hidden");
+  $("gate").classList.remove("hidden");
+  scrollTo({ top: 0, behavior: "smooth" });
+}
+document.querySelectorAll(".mode").forEach(b => b.onclick = () => selectMode(b.dataset.mode));
+$("tabs").onclick = e => {
+  const b = e.target.closest("button");
+  if (!b) return;
+  cat = b.dataset.cat;
+  [...$("tabs").children].forEach(t => t.classList.toggle("active", t === b));
+  renderFacilities();
+};
+
+async function checkMaintenance() {
+  try {
+    const d = await gviz("Settings");
+    let note = "";
+    (d.table.rows || []).forEach(r => {
+      const c = r.c || [], k = String(cell(c[0])).trim().toLowerCase().replace("_", ""), v = String(cell(c[1])).trim();
+      if (k === "maintenancemode") maintenance = /^(true|1|yes)$/i.test(v);
+      else if (k === "maintenancenotice" && v) note = v;
+    });
+    if (maintenance) showNotice("Maintenance: " + (note || "Online bookings are temporarily paused."));
+  } catch (e) { console.error("Maintenance check failed:", e); }
+}
+
+function parseFacilities(d) {
+  return ((d && d.table && d.table.rows) || []).map(r => {
+    const c = r.c || [], s = i => String(cell(c[i]) || "").trim(), name = s(0);
+    if (!name || name.toLowerCase() === "facility") return null;
+    return {
+      facility: name, jkp: "", category: s(10),
+      openingTime: tcell(c[1]), closingTime: tcell(c[2]),
+      status: (s(3) || "ACTIVE").toUpperCase() === "ACTIVE" ? "ACTIVE" : "INACTIVE",
+      notice: s(4), rules: s(5),
+      personalEnabled: s(6), personalStart: tcell(c[7]), personalEnd: tcell(c[8]), personalMaxHours: s(9)
     };
+  }).filter(Boolean);
+}
 
-    const PERSONAL_FACILITY_RULES = {
-      "Gelanggang Futsal": { disabled: false, startTime: "19:00", endTime: "23:00", maxHoursPerDay: 3 },
-      "Gelanggang Bola Keranjang": { disabled: false, startTime: "19:00", endTime: "23:00", maxHoursPerDay: 3 },
-      "Gelanggang Bola Jaring": { disabled: false, startTime: "19:00", endTime: "23:00", maxHoursPerDay: 3 },
-      "Gelanggang Bola Baling": { disabled: false, startTime: "19:00", endTime: "23:00", maxHoursPerDay: 3 },
-      "Gelanggang Bola Tampar (Bawah)": { disabled: false, startTime: "19:00", endTime: "23:00", maxHoursPerDay: 3 },
-      "Gelanggang Bola Tampar (Atas)": { disabled: false, startTime: "19:00", endTime: "23:00", maxHoursPerDay: 3 },
-      "Gelanggang Pickleball 1": { disabled: false, startTime: "19:00", endTime: "23:00", maxHoursPerDay: 3 },
-      "Gelanggang Pickleball 2": { disabled: false, startTime: "19:00", endTime: "23:00", maxHoursPerDay: 3 },
-      "Gelanggang Skuasy": { disabled: false, startTime: "19:00", endTime: "23:00", maxHoursPerDay: 3 },
-      "Gelanggang Takraw/Badminton 1": { disabled: false, startTime: "19:00", endTime: "23:00", maxHoursPerDay: 3 },
-      "Gelanggang Takraw/Badminton 2": { disabled: false, startTime: "19:00", endTime: "23:00", maxHoursPerDay: 3 },
-      "Gelanggang Takraw/Badminton 3": { disabled: false, startTime: "19:00", endTime: "23:00", maxHoursPerDay: 3 },
-
-      "Gym": { disabled: false, startTime: "08:00", endTime: "23:00", maxHoursPerDay: 2 },
-      "Ballroom": { disabled: true, reason: "Not available for personal bookings.", maxHoursPerDay: 3 },
-      "Bilik Kaca": { disabled: true, reason: "Reserved for college activities.", maxHoursPerDay: 3 },
-      "Bilik JTK": { disabled: true, reason: "Reserved for JTK / college activities.", maxHoursPerDay: 3 },
-      "Bilik Band": { disabled: false, startTime: "19:00", endTime: "22:00", maxHoursPerDay: 2 }
-    };
-
-    let bookingMode = null;
-    let activeCategoryFilter = "all";
-    let facilities = [];
-    let selectedFacility = null;
-    let pendingFacility = null;
-    let selectedStartDate = "";
-    let selectedEndDate = "";
-    let currentBookingsByDate = {};
-    let selectedSlotsByDate = {};
-    let maintenanceMode = false;
-    let submittedDateSlotsCache = [];
-
-
-    const DEFAULT_RULES = `
-      <strong>STANDARD RULES</strong>
-      <ul style="margin: 6px 0 0 16px; padding: 0;">
-        <li>Keep the venue clean and orderly at all times.</li>
-        <li>Report any damage immediately to <strong>JTK/JKP</strong>.</li>
-        <li>Bookings are <strong>non-transferable</strong>.</li>
-        <li>Inquiries: <strong>Fateh (jtkd teknikal) · 010-456 3287</strong></li>
-      </ul>
-    `;
-
-    const redManifestoPage = document.getElementById("redManifestoPage");
-    const modeGate = document.getElementById("modeGate");
-    const frontCredit = document.getElementById("frontCredit");
-    const bookingWorkflow = document.getElementById("bookingWorkflow");
-    const facilityPage = document.getElementById("facilityPage");
-    const bookingPage = document.getElementById("bookingPage");
-    const detailsPage = document.getElementById("detailsPage");
-    const successPage = document.getElementById("successPage");
-
-    const categoryTabsEl = document.getElementById("categoryTabs");
-    const facilityGrid = document.getElementById("facilityGrid");
-    const facilityLoading = document.getElementById("facilityLoading");
-    const selectedFacilityName = document.getElementById("selectedFacilityName");
-    const selectedFacilityHours = document.getElementById("selectedFacilityHours");
-
-    const startDate = document.getElementById("startDate");
-    const endDate = document.getElementById("endDate");
-    const availabilityContainer = document.getElementById("availabilityContainer");
-    const bookingSummary = document.getElementById("bookingSummary");
-    const liveSelectionSummaryText = document.getElementById("liveSelectionSummaryText");
-    const continueButton = document.getElementById("continueButton");
-    const errorMessage = document.getElementById("errorMessage");
-    const maintenanceBanner = document.getElementById("maintenanceBanner");
-    const summaryReviewText = document.getElementById("summaryReviewText");
-    const bookingForm = document.getElementById("bookingForm");
-    const submitButton = document.getElementById("submitButton");
-
-    document.addEventListener("DOMContentLoaded", initializeApp);
-    bookingForm.addEventListener("submit", submitBooking);
-
-    function openRedManifesto() {
-      redManifestoPage.classList.add("open");
-      document.body.style.overflow = "hidden";
-    }
-
-    function closeRedManifesto() {
-      redManifestoPage.classList.remove("open");
-      document.body.style.overflow = "";
-    }
-
-    function normalizeCategoryValue(rawCategory, facilityName, jkp) {
-      const cat = String(rawCategory || "").trim().toLowerCase();
-      if (["sports", "sport", "sukan", "court", "courts"].includes(cat)) return "sports";
-      if (["recreational", "recreation", "room", "rooms", "recreational rooms", "rekreasi"].includes(cat)) return "recreational";
-
-      const name = String(facilityName || "").trim();
-      const overrideKey = Object.keys(FACILITY_CATEGORY_OVERRIDES).find(k => k.toLowerCase() === name.toLowerCase());
-      if (overrideKey) return FACILITY_CATEGORY_OVERRIDES[overrideKey];
-
-      const lowerName = name.toLowerCase();
-      const lowerJkp = String(jkp || "").trim().toLowerCase();
-      if (lowerName.includes("gelanggang") || lowerName.includes("court") || lowerName.includes("gym") || lowerJkp === "sukrea") {
-        return "sports";
+async function loadFacilities() {
+  try {
+    let list = null;
+    try {
+      const res = await (await fetch(API, {
+        method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ action: "getPublicFacilities", t: Date.now() })
+      })).json();
+      if (res.success && Array.isArray(res.data)) {
+        list = res.data.map(i => ({
+          facility: i.name, jkp: i.jkp || "", category: i.category || "",
+          openingTime: i.opening, closingTime: i.closing,
+          status: String(i.status || "ACTIVE").toUpperCase(),
+          notice: i.notice || "", rules: i.rules || "",
+          personalEnabled: i.personalEnabled, personalStart: i.personalStart || "",
+          personalEnd: i.personalEnd || "", personalMaxHours: i.personalMaxHours
+        }));
       }
-      return "recreational";
-    }
+    } catch (e) { /* fall back to the sheet */ }
+    facilities = list || parseFacilities(await gviz("Facilities"));
+    renderFacilities();
+  } catch (e) {
+    showNotice("Failed to load venues. " + e.message);
+  } finally {
+    $("loading").classList.add("hidden");
+  }
+}
 
-    function getFacilityCategory(facilityObj) {
-      return normalizeCategoryValue(
-        facilityObj && facilityObj.category,
-        facilityObj && facilityObj.facility,
-        facilityObj && facilityObj.jkp
-      );
-    }
+function facilityCard(f) {
+  const r = rule(f), off = f.status !== "ACTIVE" || r.disabled;
+  const c = mk("button", "card fac" + (off ? " off" : ""));
+  c.type = "button";
+  if (off) c.setAttribute("aria-disabled", "true");
+  const hours = mode === "college" ? "00:00 – 24:00 (24h)"
+    : r.label || (f.openingTime && f.closingTime ? `${f.openingTime} – ${f.closingTime}` : "");
+  const note = f.status === "ACTIVE" && r.disabled && r.reason ? r.reason : f.notice;
+  c.append(mk("div", "name", f.facility), mk("div", "hours", hours));
+  if (note) c.append(mk("div", "note", note));
+  else if (off) c.append(mk("div", "note", "Unavailable"));
+  c.onclick = () => {
+    if (maintenance) return toast("Maintenance: online bookings are paused.");
+    if (f.status !== "ACTIVE") return;
+    if (r.disabled) return toast(r.reason || "Unavailable for this booking type.");
+    openRules(f);
+  };
+  return c;
+}
 
-    function selectFacilityCategory(category) {
-      activeCategoryFilter = category;
-      document.querySelectorAll(".category-tab").forEach(tab => {
-        const isActive = tab.dataset.category === category;
-        tab.classList.toggle("active", isActive);
-        tab.setAttribute("aria-selected", isActive ? "true" : "false");
-      });
-      renderFacilities();
-    }
+function renderFacilities() {
+  const g = $("grid");
+  g.innerHTML = "";
+  $("tabs").classList.toggle("hidden", !facilities.length);
+  const sports = facilities.filter(f => category(f) === "sports");
+  const rooms = facilities.filter(f => category(f) !== "sports");
+  (cat === "sports" ? sports : cat === "recreational" ? rooms : [...sports, ...rooms]).forEach(f => g.append(facilityCard(f)));
+}
 
-    function updateCategoryCounts() {
-      const sportsCount = facilities.filter(f => getFacilityCategory(f) === "sports").length;
-      const recCount = facilities.filter(f => getFacilityCategory(f) === "recreational").length;
+/* ---------- rules → dates → slots ---------- */
+function openRules(f) {
+  pending = f;
+  $("rulesTitle").textContent = f.facility;
+  $("rulesBody").innerHTML = f.rules || RULES[f.facility] || DEFAULT_RULES;
+  $("agree").checked = false;
+  $("proceed").disabled = true;
+  $("rulesModal").classList.add("open");
+  $("agree").focus();
+}
+$("agree").onchange = () => { $("proceed").disabled = !$("agree").checked; };
+$("proceed").onclick = () => {
+  const f = pending;
+  if (!f) return;
+  closeModal("rulesModal");
+  openFacility(f);
+};
 
-      document.getElementById("countAll").textContent = facilities.length;
-      document.getElementById("countSports").textContent = sportsCount;
-      document.getElementById("countRecreational").textContent = recCount;
-      categoryTabsEl.classList.toggle("hidden", facilities.length === 0);
-    }
+function showPage(id) {
+  const i = pages.indexOf(id);
+  pages.forEach(p => $(p).classList.toggle("active", p === id));
+  document.querySelectorAll("#steps li").forEach((li, n) => {
+    li.classList.toggle("current", n === i);
+    li.classList.toggle("done", n < i);
+    if (n === i) li.setAttribute("aria-current", "step"); else li.removeAttribute("aria-current");
+  });
+  scrollTo({ top: 0, behavior: "smooth" });
+}
 
-    function parseBooleanValue(value, defaultValue) {
-      if (value === "" || value === null || value === undefined) return defaultValue;
-      if (typeof value === "boolean") return value;
-      const cleaned = String(value).trim().toLowerCase();
-      if (["false", "0", "no", "n", "disabled", "off"].includes(cleaned)) return false;
-      if (["true", "1", "yes", "y", "enabled", "on"].includes(cleaned)) return true;
-      return defaultValue;
-    }
+function resetBooking() {
+  start = end = "";
+  booked = {}; picked = {};
+  startDate.value = endDate.value = "";
+  $("slots").innerHTML = "";
+  updateSel();
+}
 
-    function getPersonalPolicyForFacility(facilityObj) {
-      const name = String(facilityObj && facilityObj.facility ? facilityObj.facility : "").trim();
-      const lower = name.toLowerCase();
+function openFacility(f) {
+  fac = f;
+  const r = rule(f);
+  $("facName").textContent = f.facility;
+  $("facHours").textContent = mode === "college" ? "00:00 – 24:00 (24h)" : r.label ? "Window: " + r.label : `${f.openingTime} – ${f.closingTime}`;
+  $("hint").textContent = mode === "personal" && r.max ? `30-minute slots · max ${r.max}h per day.` : "30-minute slots · 24-hour access.";
+  resetBooking();
+  const min = new Date();
+  min.setDate(min.getDate() + 2);
+  startDate.min = endDate.min = ymd(min);
+  showPage("bookingPage");
+}
 
-      let fallback = {
-        disabled: false,
-        reason: "Not available for personal bookings.",
-        startTime: null,
-        endTime: null,
-        maxHoursPerDay: DEFAULT_MAX_HOURS_PER_DAY
-      };
+startDate.onchange = () => {
+  start = startDate.value;
+  if (!start) return;
+  end = endDate.value = start;
+  endDate.min = start;
+  picked = {};
+  loadSlots();
+};
+endDate.onchange = () => {
+  end = endDate.value;
+  picked = {};
+  if (!start || !end) return;
+  if (end < start) { toast("End date cannot precede start date."); end = endDate.value = start; }
+  loadSlots();
+};
 
-      const exactKey = Object.keys(PERSONAL_FACILITY_RULES).find(k => k.toLowerCase() === lower);
-      if (exactKey) {
-        const cfg = PERSONAL_FACILITY_RULES[exactKey];
-        fallback = {
-          disabled: Boolean(cfg.disabled),
-          reason: cfg.reason || "Not available for personal bookings.",
-          startTime: cfg.startTime || null,
-          endTime: cfg.endTime || null,
-          maxHoursPerDay: cfg.maxHoursPerDay || DEFAULT_MAX_HOURS_PER_DAY
-        };
-      } else if (lower.includes("gelanggang") || lower.includes("court")) {
-        fallback = {
-          disabled: false,
-          reason: "",
-          startTime: "19:00",
-          endTime: "23:00",
-          maxHoursPerDay: DEFAULT_MAX_HOURS_PER_DAY
-        };
-      }
+async function loadSlots() {
+  updateSel();
+  $("slots").innerHTML = "<div class='msg'>Loading slots…</div>";
+  try {
+    booked = parseBookings(await gviz("Bookings"));
+    renderSlots();
+  } catch (e) {
+    $("slots").innerHTML = "<div class='msg err'>Failed to load slots.</div>";
+  }
+}
 
-      if (!facilityObj) return fallback;
+function parseBookings(d) {
+  const map = {};
+  datesBetween(parseDate(start), parseDate(end)).forEach(x => { map[ymd(x)] = []; });
+  ((d && d.table && d.table.rows) || []).forEach(r => {
+    const c = r.c || [], status = String(cell(c[4])).trim().toUpperCase(), date = sheetDate(c[1]), s = tcell(c[2]), e = tcell(c[3]);
+    if (String(cell(c[0])).trim().toLowerCase() !== fac.facility.toLowerCase()) return;
+    if (!/^(PENDING|APPROVED)$/.test(status) || !date || !s || !e) return;
+    const k = ymd(date);
+    if (map[k]) map[k].push({ start: s, end: e, status });
+  });
+  return map;
+}
 
-      const hasSheetEnabled =
-        facilityObj.personalEnabled !== undefined &&
-        facilityObj.personalEnabled !== null &&
-        String(facilityObj.personalEnabled).trim() !== "";
-
-      const enabled = hasSheetEnabled
-        ? parseBooleanValue(facilityObj.personalEnabled, !fallback.disabled)
-        : !fallback.disabled;
-
-      const sheetStart = String(facilityObj.personalStart || "").trim();
-      const sheetEnd = String(facilityObj.personalEnd || "").trim();
-      const rawMax = Number(facilityObj.personalMaxHours);
-
-      return {
-        disabled: !enabled,
-        reason: !enabled ? fallback.reason : "",
-        startTime: sheetStart || (hasSheetEnabled ? null : fallback.startTime),
-        endTime: sheetEnd || (hasSheetEnabled ? null : fallback.endTime),
-        maxHoursPerDay: (!isNaN(rawMax) && rawMax > 0) ? rawMax : fallback.maxHoursPerDay
-      };
-    }
-
-    function getEffectiveModeRestriction(facilityObj) {
-      if (bookingMode === "personal") {
-        const p = getPersonalPolicyForFacility(facilityObj);
-        return {
-          disabled: p.disabled,
-          reason: p.reason,
-          startMin: p.startTime ? parseTimeToMinutes(p.startTime) : null,
-          endMin: p.endTime ? parseTimeToMinutes(p.endTime) : null,
-          windowLabel: p.startTime && p.endTime ? `${p.startTime} – ${p.endTime}` : null,
-          maxHoursPerDay: p.maxHoursPerDay,
-          unrestrictedHours: false
-        };
-      }
-      return {
-        disabled: false,
-        reason: "",
-        startMin: null,
-        endMin: null,
-        windowLabel: "00:00 – 24:00 (24h)",
-        maxHoursPerDay: null,
-        unrestrictedHours: true
-      };
-    }
-
-    function selectBookingMode(mode) {
-      document.querySelectorAll(".mode-card").forEach(card => {
-        card.classList.toggle("active", card.dataset.mode === mode);
-      });
-
-      if (mode === "external") {
-        openExternalModal();
-        return;
-      }
-
-      bookingMode = mode;
-      const modeLabel = document.getElementById("activeModeLabel");
-      const modeSummary = document.getElementById("activeModeSummary");
-      const rulesList = document.getElementById("generalRulesList");
-
-      if (mode === "personal") {
-        modeLabel.textContent = "Personal use";
-        modeSummary.textContent = "Restricted booking hours; other venues follow per-venue settings.";
-        rulesList.innerHTML = `
-          <li>Book at least <strong>2 days in advance</strong>.</li>
-          <li><strong>Restricted booking hours</strong> and daily hour limits apply per venue.</li>
-          <li>Use an official UM email (<code>@siswa.um.edu.my</code> or <code>@um.edu.my</code>).</li>
-          <li>College management reserves the right to prioritise official college activities.</li>
-        `;
+function renderSlots() {
+  const box = $("slots"), r = rule(fac), now = new Date();
+  const open = r.open24 ? 0 : toMin(fac.openingTime), close = r.open24 ? 1440 : toMin(fac.closingTime);
+  box.innerHTML = "";
+  datesBetween(parseDate(start), parseDate(end)).forEach(day => {
+    const key = ymd(day), list = booked[key] || [];
+    const wrap = mk("div", "day"), grid = mk("div", "slotgrid");
+    wrap.append(mk("div", "cap", fmtDate(day)));
+    for (let m = open; m + STEP <= close; m += STEP) {
+      const s = hhmm(m), e = hhmm(m + STEP), b = mk("button", "slot", `${s} – ${e}`);
+      b.type = "button";
+      let state = "";
+      if ((r.startMin !== null && m < r.startMin) || (r.endMin !== null && m + STEP > r.endMin) || new Date(`${key}T${s}:00`) < now) {
+        state = "off";
       } else {
-        modeLabel.textContent = "KK5 College activity";
-        modeSummary.textContent = "24-hour window (00:00 – 24:00) for official college activities.";
-        rulesList.innerHTML = `
-          <li>Book at least <strong>2 days in advance</strong>.</li>
-          <li>Full <strong>00:00 – 24:00</strong> slot access applies.</li>
-          <li>Use an official UM email (<code>@siswa.um.edu.my</code> or <code>@um.edu.my</code>).</li>
-          <li>College management reserves the right to prioritise official college activities.</li>
-        `;
+        const hit = list.find(x => { const a = toMin(x.start), z = toMin(x.end); return a !== null && z !== null && m < z && m + STEP > a; });
+        if (hit) state = hit.status === "APPROVED" ? "off" : "pend";
       }
-
-      modeGate.classList.add("hidden");
-      frontCredit.classList.add("hidden");
-      bookingWorkflow.classList.remove("hidden");
-      showPage(facilityPage);
-      updateCategoryCounts();
-      renderFacilities();
-    }
-
-    function changeBookingMode() {
-      selectedFacility = null;
-      pendingFacility = null;
-      resetBookingState();
-      bookingWorkflow.classList.add("hidden");
-      modeGate.classList.remove("hidden");
-      frontCredit.classList.remove("hidden");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
-    function openExternalModal() {
-      document.getElementById("externalModal").classList.add("open");
-    }
-
-    function closeExternalModal() {
-      document.getElementById("externalModal").classList.remove("open");
-      if (!bookingMode) {
-        document.querySelectorAll(".mode-card").forEach(c => c.classList.remove("active"));
+      if (state) { b.classList.add(state); b.disabled = true; }
+      else {
+        if ((picked[key] || []).some(x => x.start === s)) b.classList.add("sel");
+        b.onclick = () => toggleSlot(key, s, e, b);
       }
+      grid.append(b);
     }
+    wrap.append(grid);
+    box.append(wrap);
+  });
+}
 
-    async function copyExternalEmail() {
-      try {
-        await navigator.clipboard.writeText(EXTERNAL_EMAIL);
-        toast("Copied " + EXTERNAL_EMAIL);
-      } catch (e) {
-        toast("Email: " + EXTERNAL_EMAIL);
-      }
+function toggleSlot(key, s, e, btn) {
+  const list = picked[key] = picked[key] || [], i = list.findIndex(x => x.start === s), r = rule(fac);
+  if (i > -1) { list.splice(i, 1); btn.classList.remove("sel"); }
+  else {
+    if (r.max && list.length >= r.max * 60 / STEP) return toast(`Max ${r.max} hours per day.`);
+    list.push({ start: s, end: e });
+    btn.classList.add("sel");
+  }
+  updateSel();
+}
+
+function updateSel() {
+  const n = Object.values(picked).reduce((a, l) => a + l.length, 0);
+  $("next").disabled = !n;
+  $("selText").textContent = n ? `${n} ${n === 1 ? "slot" : "slots"} · ${n * STEP / 60}h` : "None";
+}
+
+$("next").onclick = () => {
+  $("review").textContent = `${mode === "personal" ? "Personal use" : "KK5 College activity"} · ${fac.facility} · ${start}${end !== start ? " to " + end : ""}`;
+  showPage("detailsPage");
+};
+
+/* ---------- submit ---------- */
+$("form").onsubmit = async ev => {
+  ev.preventDefault();
+  const btn = $("submit");
+  if (btn.disabled) return;
+  const email = $("email").value.trim().toLowerCase();
+  if (!/@(siswa\.)?um\.edu\.my$/.test(email)) return toast("Use your official UM email (@siswa.um.edu.my or @um.edu.my).");
+
+  const inputs = [...$("form").querySelectorAll("input,textarea")], lock = v => inputs.forEach(i => { i.disabled = v; });
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span>Submitting…';
+  lock(true);
+  $("formMsg").classList.add("hidden");
+
+  // Merge back-to-back 30-minute slots into blocks.
+  const dateSlots = [];
+  for (const [date, list] of Object.entries(picked)) {
+    if (!list.length) continue;
+    list.sort((a, b) => toMin(a.start) - toMin(b.start));
+    let cur = { ...list[0] };
+    for (const s of list.slice(1)) {
+      if (s.start === cur.end) cur.end = s.end;
+      else { dateSlots.push({ date, startTime: cur.start, endTime: cur.end }); cur = { ...s }; }
     }
-
-    async function fetchGviz(sheetName) {
-      const cacheBuster = new Date().getTime();
-      const url = "https://docs.google.com/spreadsheets/d/" + PUBLIC_SHEET_ID + "/gviz/tq?sheet=" + encodeURIComponent(sheetName) + "&tqx=out:json&_ts=" + cacheBuster;
-      const response = await fetch(url, { method: "GET", cache: "no-store" });
-      const text = await response.text();
-      if (!response.ok) throw new Error("Google Sheets HTTP " + response.status);
-      const firstParen = text.indexOf("(");
-      const lastParen = text.lastIndexOf(")");
-      return JSON.parse(text.substring(firstParen + 1, lastParen));
-    }
-
-    async function initializeApp() {
-      await checkMaintenanceMode();
-      await loadFacilities();
-    }
-
-    async function checkMaintenanceMode() {
-      try {
-        const data = await fetchGviz("Settings");
-        if (data && data.table && data.table.rows) {
-          data.table.rows.forEach(row => {
-            const cells = row.c || [];
-            const key = String(getCellValue(cells[0])).trim().toLowerCase();
-            const val = String(getCellValue(cells[1])).trim();
-            if (key === "maintenance_mode" || key === "maintenancemode") {
-              maintenanceMode = val.toLowerCase() === "true" || val === "1" || val.toLowerCase() === "yes";
-            } else if ((key === "maintenance_notice" || key === "maintenancenotice") && val) {
-              maintenanceBanner.textContent = val;
-            }
-          });
-        }
-        if (maintenanceMode) {
-          if (!maintenanceBanner.textContent.trim()) {
-            maintenanceBanner.innerHTML = "<strong>MAINTENANCE:</strong> Online bookings are temporarily paused.";
-          } else {
-            maintenanceBanner.innerHTML = "<strong>MAINTENANCE:</strong> " + maintenanceBanner.textContent.trim();
-          }
-          maintenanceBanner.classList.remove("hidden");
-        }
-      } catch (err) {
-        console.error("Maintenance check failed:", err);
-      }
-    }
-
-    async function loadFacilities() {
-      errorMessage.classList.add("hidden");
-      facilityLoading.classList.remove("hidden");
-      try {
-        const response = await fetch(APPS_SCRIPT_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({ action: "getPublicFacilities", t: new Date().getTime() })
-        });
-        const result = await response.json();
-
-        if (result.success && Array.isArray(result.data)) {
-          facilities = result.data.map(item => ({
-            facility: item.name,
-            jkp: item.jkp || "",
-            category: item.category || "",
-            openingTime: item.opening,
-            closingTime: item.closing,
-            status: String(item.status || "ACTIVE").toUpperCase(),
-            notice: item.notice || "",
-            rules: item.rules || "",
-            personalEnabled: item.personalEnabled,
-            personalStart: item.personalStart || "",
-            personalEnd: item.personalEnd || "",
-            personalMaxHours: item.personalMaxHours
-          }));
-        } else {
-          const data = await fetchGviz("Facilities");
-          facilities = parseFacilities(data);
-        }
-        updateCategoryCounts();
-        renderFacilities();
-      } catch (error) {
-        try {
-          const data = await fetchGviz("Facilities");
-          facilities = parseFacilities(data);
-          updateCategoryCounts();
-          renderFacilities();
-        } catch (err) {
-          errorMessage.textContent = "Failed to load venues. " + error.message;
-          errorMessage.classList.remove("hidden");
-        }
-      } finally {
-        facilityLoading.classList.add("hidden");
-      }
-    }
-
-    function getCellValue(cell) {
-      if (!cell) return "";
-      return cell.f !== undefined && cell.f !== null ? cell.f : (cell.v !== undefined && cell.v !== null ? cell.v : "");
-    }
-
-    function parseFacilities(data) {
-      if (!data || !data.table || !Array.isArray(data.table.rows)) return [];
-      return data.table.rows.map(row => {
-        const cells = row.c || [];
-        const facility = String(getCellValue(cells[0])).trim();
-        const openingTime = normalizeSheetTime(cells[1]);
-        const closingTime = normalizeSheetTime(cells[2]);
-        const status = String(getCellValue(cells[3]) || "ACTIVE").trim().toUpperCase();
-        const notice = String(getCellValue(cells[4]) || "").trim();
-        const rules = String(getCellValue(cells[5]) || "").trim();
-        const personalEnabled = String(getCellValue(cells[6]) || "").trim();
-        const personalStart = normalizeSheetTime(cells[7]);
-        const personalEnd = normalizeSheetTime(cells[8]);
-        const personalMaxHours = String(getCellValue(cells[9]) || "").trim();
-        const category = String(getCellValue(cells[10]) || "").trim();
-        if (!facility || facility.toLowerCase() === "facility") return null;
-        return {
-          facility,
-          jkp: "",
-          category,
-          openingTime,
-          closingTime,
-          status: status === "ACTIVE" ? "ACTIVE" : "INACTIVE",
-          notice,
-          rules,
-          personalEnabled,
-          personalStart,
-          personalEnd,
-          personalMaxHours
-        };
-      }).filter(Boolean);
-    }
-
-    function buildFacilityCard(facility) {
-      const modeRule = getEffectiveModeRestriction(facility);
-      const isInactive = facility.status !== "ACTIVE" || modeRule.disabled;
-      const card = document.createElement("div");
-      card.className = "facility-card" + (isInactive ? " inactive" : "");
-      card.tabIndex = 0;
-      card.setAttribute("role", "button");
-      if (isInactive) card.setAttribute("aria-disabled", "true");
-      card.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); card.click(); } });
-
-      card.addEventListener("click", () => {
-        if (maintenanceMode) {
-          toast("Maintenance: Online bookings are temporarily paused.");
-          return;
-        }
-        if (facility.status !== "ACTIVE") return;
-        if (modeRule.disabled) {
-          toast(modeRule.reason || "Unavailable for this booking type.");
-          return;
-        }
-        triggerFacilityRulesModal(facility);
-      });
-
-      const name = document.createElement("div");
-      name.className = "facility-name";
-      name.textContent = facility.facility;
-
-      const hours = document.createElement("div");
-      hours.className = "facility-hours";
-      if (bookingMode === "college") {
-        hours.textContent = "00:00 – 24:00 (24h)";
-      } else if (modeRule.windowLabel) {
-        hours.textContent = modeRule.windowLabel;
-      } else {
-        hours.textContent = facility.openingTime && facility.closingTime ? facility.openingTime + " – " + facility.closingTime : "";
-      }
-
-      const cardContent = document.createElement("div");
-      cardContent.appendChild(name);
-      cardContent.appendChild(hours);
-
-      const extraNotice = facility.status === "ACTIVE" && modeRule.disabled && modeRule.reason
-        ? modeRule.reason
-        : facility.notice;
-
-      if (extraNotice) {
-        const noticeDiv = document.createElement("div");
-        noticeDiv.className = "facility-notice";
-        noticeDiv.textContent = extraNotice;
-        cardContent.appendChild(noticeDiv);
-      }
-
-      const status = document.createElement("div");
-      status.className = "facility-status " + (isInactive ? "unavailable" : "available");
-      status.textContent = isInactive ? "Unavailable" : "Available";
-
-      card.appendChild(cardContent);
-      card.appendChild(status);
-      return card;
-    }
-
-    function appendGroupSection(container, titleText, items) {
-      if (!items.length) return;
-      const section = document.createElement("div");
-      section.className = "facility-group";
-
-      const heading = document.createElement("h3");
-      heading.className = "facility-group-heading";
-      heading.innerHTML = `<span>${titleText}</span><span style="font-size:12px;font-weight:700;color:var(--muted)">${items.length}</span>`;
-      section.appendChild(heading);
-
-      const grid = document.createElement("div");
-      grid.className = "facility-grid";
-      items.forEach(facility => grid.appendChild(buildFacilityCard(facility)));
-      section.appendChild(grid);
-
-      container.appendChild(section);
-    }
-
-    function renderFacilities() {
-      facilityGrid.innerHTML = "";
-      const sportsItems = facilities.filter(f => getFacilityCategory(f) === "sports");
-      const recreationalItems = facilities.filter(f => getFacilityCategory(f) === "recreational");
-
-      if (activeCategoryFilter === "all") {
-        appendGroupSection(facilityGrid, "Sports", sportsItems);
-        appendGroupSection(facilityGrid, "Rooms", recreationalItems);
-      } else if (activeCategoryFilter === "sports") {
-        appendGroupSection(facilityGrid, "Sports", sportsItems);
-      } else if (activeCategoryFilter === "recreational") {
-        appendGroupSection(facilityGrid, "Rooms", recreationalItems);
-      }
-    }
-
-    function triggerFacilityRulesModal(facility) {
-      pendingFacility = facility;
-      document.getElementById("rulesFacilityTitle").textContent = facility.facility;
-
-      let rulesHtml = facility.rules ? facility.rules : (SPECIFIC_RULES[facility.facility] || DEFAULT_RULES);
-      if (bookingMode === "college") {
-        rulesHtml += `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--line)"><strong>COLLEGE ACTIVITY:</strong> 00:00 – 24:00 (2+ days ahead)</div>`;
-      }
-      document.getElementById("rulesContentBody").innerHTML = rulesHtml;
-
-      document.getElementById("agreeRulesCheckbox").checked = false;
-      toggleProceedButton();
-      document.getElementById("rulesModal").classList.add("open");
-      document.getElementById("agreeRulesCheckbox").focus();
-    }
-
-    function closeRulesModal() {
-      document.getElementById("rulesModal").classList.remove("open");
-      pendingFacility = null;
-    }
-
-    function toggleProceedButton() {
-      const isChecked = document.getElementById("agreeRulesCheckbox").checked;
-      document.getElementById("proceedBtn").disabled = !isChecked;
-    }
-
-    function confirmRulesAndProceed() {
-      if (!pendingFacility) return;
-      const chosen = pendingFacility;
-      closeRulesModal();
-      openFacility(chosen);
-    }
-
-    let toastTimer;
-    function toast(msg) {
-      const el = document.getElementById("toast");
-      el.textContent = msg;
-      el.classList.add("show");
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => el.classList.remove("show"), 4000);
-    }
-
-    document.addEventListener("keydown", e => {
-      if (e.key === "Escape") {
-        if (redManifestoPage.classList.contains("open")) closeRedManifesto();
-        if (document.getElementById("rulesModal").classList.contains("open")) closeRulesModal();
-        if (document.getElementById("externalModal").classList.contains("open")) closeExternalModal();
-      }
-    });
-
-    function showPage(pageToShow) {
-      [facilityPage, bookingPage, detailsPage, successPage].forEach(p => p.classList.toggle("active", p === pageToShow));
-      const idx = [facilityPage, bookingPage, detailsPage, successPage].indexOf(pageToShow);
-      document.querySelectorAll("#steps li").forEach((li, i) => {
-        li.classList.toggle("current", i === idx);
-        li.classList.toggle("done", i < idx);
-        if (i === idx) li.setAttribute("aria-current", "step"); else li.removeAttribute("aria-current");
-      });
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
-    function openFacility(facility) {
-      selectedFacility = facility;
-      const modeRule = getEffectiveModeRestriction(facility);
-      selectedFacilityName.textContent = facility.facility;
-
-      if (bookingMode === "college") {
-        selectedFacilityHours.textContent = "00:00 – 24:00 (24H)";
-      } else if (modeRule.windowLabel) {
-        selectedFacilityHours.textContent = `WINDOW: ${modeRule.windowLabel}`;
-      } else {
-        selectedFacilityHours.textContent = `${facility.openingTime} – ${facility.closingTime}`;
-      }
-
-      const hintEl = document.getElementById("availabilityHintText");
-      if (bookingMode === "personal" && modeRule.maxHoursPerDay) {
-        const maxSlots = (modeRule.maxHoursPerDay * 60) / SLOT_INTERVAL;
-        hintEl.textContent = `30-min slots · Max ${maxSlots} per day (${modeRule.maxHoursPerDay}h).`;
-      } else {
-        hintEl.textContent = "30-min slots · 24-hour access.";
-      }
-
-      resetBookingState();
-
-      const minDate = new Date();
-      minDate.setDate(minDate.getDate() + 2);
-      const minDateStr = formatDateObject(minDate);
-      startDate.min = minDateStr;
-      endDate.min = minDateStr;
-
-      showPage(bookingPage);
-    }
-
-    function goBackToFacilities() { showPage(facilityPage); }
-    function goBackToBooking() { showPage(bookingPage); }
-
-    function resetBookingState() {
-      selectedStartDate = ""; selectedEndDate = "";
-      currentBookingsByDate = {}; selectedSlotsByDate = {};
-      startDate.value = ""; endDate.value = "";
-      availabilityContainer.innerHTML = "";
-      bookingSummary.className = "booking-summary hidden";
-      liveSelectionSummaryText.textContent = "None";
-      continueButton.disabled = true;
-    }
-
-    startDate.addEventListener("change", async () => {
-      selectedStartDate = startDate.value;
-      if (!selectedStartDate) return;
-
-      endDate.value = selectedStartDate;
-      selectedEndDate = selectedStartDate;
-      endDate.min = selectedStartDate;
-
-      selectedSlotsByDate = {};
-      updateBookingSummary();
-      updateLiveSelectionSummary();
-      await loadAvailability();
-    });
-
-    endDate.addEventListener("change", async () => {
-      selectedEndDate = endDate.value;
-      selectedSlotsByDate = {};
-      if (!selectedStartDate || !selectedEndDate) return;
-      if (selectedEndDate < selectedStartDate) {
-        toast("End date cannot precede start date.");
-        endDate.value = selectedStartDate;
-        selectedEndDate = selectedStartDate;
-        return;
-      }
-      updateBookingSummary();
-      updateLiveSelectionSummary();
-      await loadAvailability();
-    });
-
-    async function loadAvailability() {
-      availabilityContainer.innerHTML = "<div class='message loading'>Loading slots…</div>";
-      try {
-        const data = await fetchGviz("Bookings");
-        currentBookingsByDate = parseBookingsForRange(data, selectedFacility.facility, selectedStartDate, selectedEndDate);
-        renderAvailabilityMatrix();
-      } catch (err) {
-        availabilityContainer.innerHTML = "<div class='message error'>Failed to load slots.</div>";
-      }
-    }
-
-    function parseBookingsForRange(data, facilityName, startStr, endStr) {
-      const map = {};
-      getDatesBetween(parseDateOnly(startStr), parseDateOnly(endStr)).forEach(d => { map[formatDateObject(d)] = []; });
-      if (!data || !data.table || !Array.isArray(data.table.rows)) return map;
-
-      data.table.rows.forEach(row => {
-        const cells = row.c || [];
-        const facility = String(getCellValue(cells[0])).trim();
-        const date = parseSheetDate(cells[1]);
-        const bStart = normalizeSheetTime(cells[2]);
-        const bEnd = normalizeSheetTime(cells[3]);
-        const status = String(getCellValue(cells[4])).trim().toUpperCase();
-
-        if (facility.toLowerCase() !== facilityName.toLowerCase()) return;
-        if (status !== "PENDING" && status !== "APPROVED") return;
-        if (!date || !bStart || !bEnd) return;
-
-        const dateKey = formatDateObject(date);
-        if (map[dateKey]) map[dateKey].push({ start: bStart, end: bEnd, status });
-      });
-      return map;
-    }
-
-    function renderAvailabilityMatrix() {
-      availabilityContainer.innerHTML = "";
-      const modeRule = getEffectiveModeRestriction(selectedFacility);
-      const openMin = modeRule.unrestrictedHours ? 0 : parseTimeToMinutes(selectedFacility.openingTime);
-      const closeMin = modeRule.unrestrictedHours ? 24 * 60 : parseTimeToMinutes(selectedFacility.closingTime);
-      const dates = getDatesBetween(parseDateOnly(selectedStartDate), parseDateOnly(selectedEndDate));
-      const now = new Date();
-
-      dates.forEach(dateObj => {
-        const dateKey = formatDateObject(dateObj);
-        const bookings = currentBookingsByDate[dateKey] || [];
-
-        const dayBox = document.createElement("div");
-        dayBox.className = "day-availability-box";
-
-        const dayTitle = document.createElement("div");
-        dayTitle.className = "day-title";
-        dayTitle.textContent = formatDateForDisplay(dateObj);
-        dayBox.appendChild(dayTitle);
-
-        const grid = document.createElement("div");
-        grid.className = "availability-grid";
-
-        for (let m = openMin; m + SLOT_INTERVAL <= closeMin; m += SLOT_INTERVAL) {
-          const slotStart = minutesToTimeStr(m);
-          const slotEnd = minutesToTimeStr(m + SLOT_INTERVAL);
-          const slot = document.createElement("button");
-          slot.type = "button";
-          slot.className = "slot";
-          slot.textContent = slotStart + " – " + slotEnd;
-
-          const outsideAllowedWindow =
-            (modeRule.startMin !== null && m < modeRule.startMin) ||
-            (modeRule.endMin !== null && (m + SLOT_INTERVAL) > modeRule.endMin);
-
-          if (outsideAllowedWindow) {
-            slot.classList.add("booked");
-            slot.disabled = true;
-            grid.appendChild(slot);
-            continue;
-          }
-
-          const slotDateTime = new Date(dateKey + "T" + slotStart + ":00");
-          if (slotDateTime < now) {
-            slot.classList.add("booked");
-            slot.disabled = true;
-            grid.appendChild(slot);
-            continue;
-          }
-
-          let slotStatus = "available";
-          for (const b of bookings) {
-            const bS = parseTimeToMinutes(b.start);
-            const bE = parseTimeToMinutes(b.end);
-            if (bS !== null && bE !== null && m < bE && m + SLOT_INTERVAL > bS) {
-              slotStatus = b.status === "APPROVED" ? "booked" : "pending";
-              break;
-            }
-          }
-
-          if (slotStatus === "booked") {
-            slot.classList.add("booked"); slot.disabled = true;
-          } else if (slotStatus === "pending") {
-            slot.classList.add("pending"); slot.disabled = true;
-          } else {
-            if (selectedSlotsByDate[dateKey] && selectedSlotsByDate[dateKey].some(s => s.start === slotStart)) {
-              slot.classList.add("selected");
-            }
-            slot.addEventListener("click", () => toggleSlot(dateKey, slotStart, slotEnd, slot));
-          }
-          grid.appendChild(slot);
-        }
-        dayBox.appendChild(grid);
-        availabilityContainer.appendChild(dayBox);
-      });
-    }
-
-    function toggleSlot(dateKey, startStr, endStr, slotElement) {
-      if (!selectedSlotsByDate[dateKey]) selectedSlotsByDate[dateKey] = [];
-      const idx = selectedSlotsByDate[dateKey].findIndex(s => s.start === startStr);
-      const modeRule = getEffectiveModeRestriction(selectedFacility);
-
-      if (idx > -1) {
-        selectedSlotsByDate[dateKey].splice(idx, 1);
-        slotElement.classList.remove("selected");
-      } else {
-        if (modeRule.maxHoursPerDay) {
-          const maxSlotsPerDay = (modeRule.maxHoursPerDay * 60) / SLOT_INTERVAL;
-          if (selectedSlotsByDate[dateKey].length >= maxSlotsPerDay) {
-            toast(`Max ${modeRule.maxHoursPerDay} hours per day.`);
-            return;
-          }
-        }
-        selectedSlotsByDate[dateKey].push({ start: startStr, end: endStr });
-        slotElement.classList.add("selected");
-      }
-
-      let active = false;
-      for (const k in selectedSlotsByDate) {
-        if (selectedSlotsByDate[k] && selectedSlotsByDate[k].length > 0) {
-          active = true;
-          break;
-        }
-      }
-      continueButton.disabled = !active;
-      updateLiveSelectionSummary();
-    }
-
-    function updateLiveSelectionSummary() {
-      let totalSlots = 0;
-      for (const dateStr of Object.keys(selectedSlotsByDate)) {
-        const slots = selectedSlotsByDate[dateStr];
-        if (!slots || slots.length === 0) continue;
-        totalSlots += slots.length;
-      }
-
-      if (totalSlots === 0) {
-        liveSelectionSummaryText.textContent = "None";
-        return;
-      }
-
-      const totalHours = (totalSlots * SLOT_INTERVAL) / 60;
-      liveSelectionSummaryText.textContent = `${totalSlots} ${totalSlots === 1 ? "slot" : "slots"} · ${totalHours}h`;
-    }
-
-    function showDetailsForm() {
-      const modeText = bookingMode === "personal" ? "Personal use" : "KK5 College activity";
-      summaryReviewText.textContent = `${modeText} · ${selectedFacility.facility} · ${selectedStartDate} to ${selectedEndDate}`;
-      showPage(detailsPage);
-    }
-
-    async function submitBooking(event) {
-      event.preventDefault();
-      if (submitButton.disabled) return;
-      if (!bookingForm.reportValidity()) return;
-
-      const emailInput = document.getElementById("email").value.trim().toLowerCase();
-      if (!emailInput.endsWith("@siswa.um.edu.my") && !emailInput.endsWith("@um.edu.my")) {
-        toast("Use your official UM email (@siswa.um.edu.my or @um.edu.my).");
-        return;
-      }
-
-      submitButton.disabled = true;
-      submitButton.innerHTML = '<span class="spinner"></span> Submitting…';
-      const formInputs = bookingForm.querySelectorAll("input, textarea");
-      formInputs.forEach(input => input.disabled = true);
-      document.getElementById("submissionMessage").classList.add("hidden");
-
-      const dateSlots = [];
-      for (const dateStr of Object.keys(selectedSlotsByDate)) {
-        const slots = selectedSlotsByDate[dateStr];
-        if (!slots || slots.length === 0) continue;
-
-        slots.sort((a, b) => parseTimeToMinutes(a.start) - parseTimeToMinutes(b.start));
-
-        let currentBlock = { start: slots[0].start, end: slots[0].end };
-        for (let i = 1; i < slots.length; i++) {
-          if (slots[i].start === currentBlock.end) {
-            currentBlock.end = slots[i].end;
-          } else {
-            dateSlots.push({ date: dateStr, startTime: currentBlock.start, endTime: currentBlock.end });
-            currentBlock = { start: slots[i].start, end: slots[i].end };
-          }
-        }
-        dateSlots.push({ date: dateStr, startTime: currentBlock.start, endTime: currentBlock.end });
-      }
-
-      submittedDateSlotsCache = dateSlots;
-
-      const modeLabelText = bookingMode === "personal" ? "Personal use" : "KK5 College activity";
-      const rawPurpose = document.getElementById("purpose").value.trim();
-
-      const payload = {
-        action: "submitBooking",
-        bookingType: bookingMode,
-        dateSlots: dateSlots,
-        facility: selectedFacility.facility,
-        purpose: `[${modeLabelText}] ${rawPurpose}`,
-        bookerName: document.getElementById("bookerName").value.trim(),
-        matricNumber: document.getElementById("matricNumber").value.trim(),
-        email: emailInput,
-        phone: document.getElementById("phone").value.trim(),
-        organisation: document.getElementById("organisation").value.trim()
-      };
-
-      try {
-        const response = await fetch(APPS_SCRIPT_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify(payload)
-        });
-
-        const result = await response.json();
-
-        if (!result.success) {
-          throw new Error(result.message || "Submission failed.");
-        }
-
-        document.getElementById("confBookingId").textContent = result.bookingId;
-        document.getElementById("confMode").textContent = modeLabelText;
-        document.getElementById("confFacility").textContent = payload.facility;
-        document.getElementById("confName").textContent = payload.bookerName;
-        document.getElementById("confEmail").textContent = payload.email;
-        document.getElementById("confOrg").textContent = payload.organisation;
-        document.getElementById("confPurpose").textContent = rawPurpose;
-
-        const slotsList = document.getElementById("confSlotsList");
-        slotsList.innerHTML = "";
-        submittedDateSlotsCache.forEach(slot => {
-          const li = document.createElement("li");
-          li.textContent = formatDateForDisplay(parseDateOnly(slot.date)) + ", " + slot.startTime + " – " + slot.endTime;
-          slotsList.appendChild(li);
-        });
-
-        showPage(successPage);
-      } catch (error) {
-        const subMsg = document.getElementById("submissionMessage");
-        subMsg.textContent = "Failed: " + error.message;
-        subMsg.className = "message error";
-        subMsg.classList.remove("hidden");
-
-        formInputs.forEach(input => input.disabled = false);
-        submitButton.disabled = false;
-        submitButton.textContent = "Submit request";
-      }
-    }
-
-    function normalizeSheetTime(cell) { return cell && cell.v ? String(cell.v) : ""; }
-    function parseSheetDate(cell) {
-      if (!cell) return null;
-      if (cell.v && String(cell.v).startsWith("Date(")) {
-        const m = cell.v.match(/Date\((\d+),(\d+),(\d+)\)/);
-        if (m) return new Date(Number(m[1]), Number(m[2]), Number(m[3]));
-      }
-      return parseDateOnly(cell.f || cell.v);
-    }
-
-    function formatDateObject(d) {
-      const year = d.getFullYear();
-      const month = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
-      return year + "-" + month + "-" + day;
-    }
-
-    function parseDateOnly(val) {
-      if (!val) return null;
-      const m = String(val).match(/^(\d{4})-(\d{2})-(\d{2})$/);
-      return m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : null;
-    }
-    function getDatesBetween(start, end) {
-      const dates = []; let cur = new Date(start);
-      while (cur <= end) { dates.push(new Date(cur)); cur.setDate(cur.getDate() + 1); }
-      return dates;
-    }
-    function parseTimeToMinutes(t) {
-      if (!t) return null;
-      const str = String(t).trim();
-      if (str === "24:00" || str === "24:00:00") return 24 * 60;
-      const p = str.split(":");
-      return p.length >= 2 ? Number(p[0]) * 60 + Number(p[1]) : null;
-    }
-    function minutesToTimeStr(m) {
-      return String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0");
-    }
-    function formatDateForDisplay(d) { return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" }); }
-    function updateBookingSummary() {
-      bookingSummary.className = "booking-summary";
-      bookingSummary.textContent = selectedStartDate + (selectedEndDate ? " to " + selectedEndDate : "");
-    }
-  </script>
+    dateSlots.push({ date, startTime: cur.start, endTime: cur.end });
+  }
+
+  const label = mode === "personal" ? "Personal use" : "KK5 College activity";
+  const payload = {
+    action: "submitBooking", bookingType: mode, dateSlots, facility: fac.facility,
+    purpose: `[${label}] ${$("purpose").value.trim()}`,
+    bookerName: $("bookerName").value.trim(), matricNumber: $("matricNumber").value.trim(),
+    email, phone: $("phone").value.trim(), organisation: $("organisation").value.trim()
+  };
+
+  try {
+    const res = await (await fetch(API, {
+      method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload)
+    })).json();
+    if (!res.success) throw new Error(res.message || "Submission failed.");
+    $("cId").textContent = res.bookingId;
+    $("cFac").textContent = fac.facility;
+    const ul = $("cSlots");
+    ul.innerHTML = "";
+    dateSlots.forEach(s => ul.append(mk("li", "", `${fmtDate(parseDate(s.date))}, ${s.startTime} – ${s.endTime}`)));
+    showPage("successPage");
+  } catch (e) {
+    const m = $("formMsg");
+    m.textContent = "Failed: " + e.message;
+    m.className = "msg err wide";
+    lock(false);
+    btn.disabled = false;
+    btn.textContent = "Submit request";
+  }
+};
+
+(async () => { await checkMaintenance(); await loadFacilities(); })();
+</script>
 </body>
 </html>
