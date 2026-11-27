@@ -80,7 +80,7 @@
       backdrop-filter: saturate(180%) blur(18px);
       -webkit-backdrop-filter: saturate(180%) blur(18px);
       border-bottom: 1px solid var(--line);
-      padding: calc(13px + env(safe-area-inset-top, 0px)) max(20px, env(safe-area-inset-right, 0px)) 13px max(20px, env(safe-area-inset-left, 0px));
+      padding: calc(10px + env(safe-area-inset-top, 0px)) max(20px, env(safe-area-inset-right, 0px)) 10px max(20px, env(safe-area-inset-left, 0px));
     }
     .top-nav-inner {
       max-width: 1020px;
@@ -96,22 +96,24 @@
       align-items: center;
       gap: 12px;
     }
-    .nav-brand {
-      font-weight: 800;
-      font-size: 17px;
-      color: var(--black);
-      letter-spacing: -0.03em;
+    .nav-crest-logo {
+      width: 30px;
+      height: 36px;
+      min-width: 30px;
+      flex: none;
+      display: block;
+      object-fit: contain;
     }
-    .nav-brand .asterisk-trigger { color: var(--red); }
     .nav-divider {
       width: 1px;
-      height: 14px;
+      height: 16px;
       background: var(--line-strong);
     }
     .nav-org {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--black);
+      letter-spacing: -0.01em;
     }
     .nav-note {
       font-size: 13px;
@@ -211,72 +213,28 @@
       width: 100%;
       max-width: 1020px;
       margin: 0 auto;
-      padding: clamp(28px, 5vw, 52px) max(20px, env(safe-area-inset-left, 0px)) calc(68px + env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-right, 0px));
+      padding: clamp(28px, 5vw, 48px) max(20px, env(safe-area-inset-left, 0px)) calc(68px + env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-right, 0px));
       display: flex;
       flex-direction: column;
     }
 
-   /* STRUCTURED HERO CARD */
-    .hero-panel {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: var(--r-lg);
-      padding: clamp(24px, 4vw, 36px);
-      margin-bottom: 28px;
-      box-shadow: var(--shadow-card);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
+    /* CLEAN TITLE HEADER (NO HERO BOX) */
+    .page-header {
+      margin-bottom: 32px;
     }
-    .hero-brand-wrap {
-      display: flex;
-      align-items: center;
-      gap: clamp(20px, 3.5vw, 32px);
-      width: 100%;
-    }
-    .hero-brand-wrap > div {
-      flex: 1;
-      min-width: 0;
-    }
-    .kk5-crest-svg {
-      width: clamp(92px, 12vw, 120px);
-      height: auto;
-      min-width: 92px;
-      flex: none;
-      display: block;
-      object-fit: contain;
-      filter: drop-shadow(0 6px 14px rgba(17, 17, 17, 0.1));
-    }
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      color: var(--red);
-      background: var(--red-soft);
-      border: 1px solid var(--red-border);
-      padding: 5px 12px;
-      border-radius: var(--r-pill);
-      margin-bottom: 10px;
-    }
-    .hero-panel h1 {
-      font-size: clamp(30px, 5.2vw, 46px);
+    .page-header h1 {
+      font-size: clamp(34px, 6vw, 52px);
       font-weight: 800;
       color: var(--black);
       letter-spacing: -0.035em;
     }
-    .hero-panel h1 .asterisk-trigger {
+    .page-header h1 .asterisk-trigger {
       margin-right: 2px;
     }
-    .hero-subtitle {
+    .page-subtitle {
       margin: 8px 0 0;
       color: var(--muted);
       font-size: 15px;
-      max-width: none;
     }
 
     /* SECTION HEADER */
@@ -1321,12 +1279,6 @@
     }
 
     @media (max-width: 680px) {
-      .hero-panel {
-        padding: 20px 18px;
-      }
-      .hero-brand-wrap {
-        gap: 14px;
-      }
       .mode-card {
         padding: 20px;
         gap: 16px;
@@ -1469,11 +1421,16 @@
     <div class="red-manifesto-foot">jtkd teknikal · @f9teh</div>
   </div>
 
-  <!-- FROSTED TOP BAR -->
+  <!-- FROSTED TOP BAR WITH KK5 CREST LOGO -->
   <nav class="top-nav" aria-label="System header">
     <div class="top-nav-inner">
       <div class="nav-left">
-        <div class="nav-brand"><span class="asterisk-trigger" role="button" tabindex="0" onclick="openRedManifesto()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openRedManifesto();}">*</span>kk5</div>
+        <img
+          src="kk5-logo.svg"
+          alt="Kolej Kediaman Kelima Crest"
+          class="nav-crest-logo"
+          onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 220 264&quot;><rect x=&quot;6&quot; y=&quot;6&quot; width=&quot;208&quot; height=&quot;72&quot; fill=&quot;%233E4095&quot; stroke=&quot;%23111&quot; stroke-width=&quot;4&quot;/><path d=&quot;M68 23 Q89 19 110 25 Q131 19 152 23 V64 Q131 60 110 66 Q89 60 68 64 Z&quot; fill=&quot;%23FFF200&quot; stroke=&quot;%23111&quot; stroke-width=&quot;3&quot;/><text x=&quot;89&quot; y=&quot;51&quot; text-anchor=&quot;middle&quot; font-family=&quot;sans-serif&quot; font-weight=&quot;900&quot; font-size=&quot;24&quot; fill=&quot;%23111&quot;>U</text><text x=&quot;131&quot; y=&quot;51&quot; text-anchor=&quot;middle&quot; font-family=&quot;sans-serif&quot; font-weight=&quot;900&quot; font-size=&quot;24&quot; fill=&quot;%23111&quot;>M</text><rect x=&quot;6&quot; y=&quot;83&quot; width=&quot;208&quot; height=&quot;8&quot; fill=&quot;%23ED1C24&quot; stroke=&quot;%23111&quot; stroke-width=&quot;3&quot;/><path d=&quot;M8 96 H212 C212 174, 174 224, 110 256 C46 224, 8 174, 8 96 Z&quot; fill=&quot;%23ED1C24&quot; stroke=&quot;%23111&quot; stroke-width=&quot;4&quot;/><path d=&quot;M40 97 L110 218 L180 97 H148 L110 163 L72 97 Z&quot; fill=&quot;%23FFF&quot; stroke=&quot;%23111&quot; stroke-width=&quot;5&quot;/><path d=&quot;M56 97 L110 190 L164 97&quot; fill=&quot;none&quot; stroke=&quot;%23111&quot; stroke-width=&quot;4.5&quot;/></svg>');"
+        >
         <span class="nav-divider" aria-hidden="true"></span>
         <span class="nav-org">Kolej Kediaman Kelima · UM</span>
       </div>
@@ -1482,17 +1439,10 @@
   </nav>
 
   <main class="container">
-    <!-- STRUCTURED HERO HEADER WITH KK5 SVG FILE -->
-    <header class="hero-panel">
-      <div class="hero-brand-wrap">
-        <img src="kk5-logo.svg" alt="Kolej Kediaman Kelima Crest" class="kk5-crest-svg">
-
-        <div>
-          <div class="hero-badge">Facility Reservation Portal</div>
-          <h1><span class="asterisk-trigger" role="button" tabindex="0" title="Click *" onclick="openRedManifesto()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openRedManifesto();}">*</span>kk5 booking</h1>
-          <p class="hero-subtitle">Reserve sports courts and recreational rooms at Kolej Kediaman Kelima.</p>
-        </div>
-      </div>
+    <!-- CLEAN PAGE HEADER (NO HERO BOX) -->
+    <header class="page-header">
+      <h1><span class="asterisk-trigger" role="button" tabindex="0" title="Click *" onclick="openRedManifesto()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openRedManifesto();}">*</span>kk5 booking</h1>
+      <p class="page-subtitle">Reserve sports courts and recreational rooms at Kolej Kediaman Kelima.</p>
     </header>
 
     <div id="maintenanceBanner" class="message error hidden"></div>
