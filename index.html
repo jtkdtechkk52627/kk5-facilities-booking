@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#F7F6F2">
   <title>*kk5 — Facility Booking</title>
   <style>
     :root {
@@ -26,18 +27,26 @@
       --shadow-float: 0 20px 40px rgba(11, 11, 11, 0.18);
     }
 
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+    }
 
     body {
       margin: 0;
       min-height: 100vh;
+      min-height: 100dvh;
       display: flex;
       flex-direction: column;
       font-family: var(--font-sans);
       background-color: var(--bg);
       color: var(--black);
       line-height: 1.45;
+      overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
     }
@@ -48,6 +57,10 @@
       margin: 0;
     }
 
+    button, a, input, select, textarea, summary, label {
+      touch-action: manipulation;
+    }
+
     :focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
     .hidden { display: none !important; }
 
@@ -56,11 +69,11 @@
       position: sticky;
       top: 0;
       z-index: 30;
-      background: rgba(247, 246, 242, 0.88);
+      background: rgba(247, 246, 242, 0.9);
       backdrop-filter: saturate(180%) blur(18px);
       -webkit-backdrop-filter: saturate(180%) blur(18px);
       border-bottom: 1px solid var(--line);
-      padding: 13px 24px;
+      padding: calc(12px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 12px max(16px, env(safe-area-inset-left, 0px));
     }
     .top-nav-inner {
       max-width: 940px;
@@ -73,7 +86,7 @@
     }
     .nav-brand {
       font-weight: 700;
-      font-size: 15px;
+      font-size: 16px;
       color: var(--black);
       letter-spacing: -0.03em;
     }
@@ -93,6 +106,7 @@
       height: 6px;
       border-radius: 50%;
       background: var(--red);
+      flex: none;
     }
 
     /* CLICKABLE ASTERISK TRIGGER */
@@ -115,7 +129,10 @@
       z-index: 99999;
       background-color: var(--red);
       color: #FFFFFF;
-      padding: clamp(28px, 6vw, 64px);
+      padding: calc(clamp(24px, 6vw, 64px) + env(safe-area-inset-top, 0px))
+               max(clamp(20px, 6vw, 64px), env(safe-area-inset-right, 0px))
+               calc(clamp(24px, 6vw, 64px) + env(safe-area-inset-bottom, 0px))
+               max(clamp(20px, 6vw, 64px), env(safe-area-inset-left, 0px));
       flex-direction: column;
       justify-content: space-between;
       text-transform: lowercase;
@@ -132,6 +149,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 12px;
       font-size: 13px;
       font-weight: 700;
       text-transform: lowercase;
@@ -142,16 +160,17 @@
       border: 1px solid rgba(255, 255, 255, 0.35);
       color: #FFFFFF;
       font-family: inherit;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 700;
       text-transform: lowercase;
       letter-spacing: 0.03em;
-      padding: 8px 14px;
+      min-height: 38px;
+      padding: 8px 16px;
       border-radius: 8px;
       cursor: pointer;
       transition: background-color 0.15s, color 0.15s;
     }
-    .red-close-btn:hover {
+    .red-close-btn:hover, .red-close-btn:active {
       background: #FFFFFF;
       color: var(--red);
     }
@@ -163,7 +182,7 @@
       text-transform: lowercase;
     }
     .red-manifesto-words span {
-      font-size: clamp(48px, 11vw, 112px);
+      font-size: clamp(46px, 12vw, 112px);
       font-weight: 700;
       line-height: 0.96;
       letter-spacing: -0.045em;
@@ -183,17 +202,17 @@
       width: 100%;
       max-width: 940px;
       margin: 0 auto;
-      padding: clamp(32px, 5vw, 56px) clamp(16px, 4vw, 32px) 64px;
+      padding: clamp(24px, 5vw, 56px) max(16px, env(safe-area-inset-left, 0px)) calc(56px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-right, 0px));
       display: flex;
       flex-direction: column;
     }
 
     /* CLEAN HERO */
     .header {
-      margin-bottom: 34px;
+      margin-bottom: 28px;
     }
     .header-eyebrow {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.06em;
@@ -201,7 +220,7 @@
       margin-bottom: 8px;
     }
     .header h1 {
-      font-size: clamp(38px, 6vw, 58px);
+      font-size: clamp(34px, 7vw, 58px);
       font-weight: 700;
       color: var(--black);
       letter-spacing: -0.04em;
@@ -210,39 +229,39 @@
       margin-right: 2px;
     }
     .header p {
-      margin: 10px 0 0;
+      margin: 8px 0 0;
       color: var(--muted);
-      font-size: 16px;
+      font-size: 15px;
     }
 
     /* MODE GATE */
     .mode-gate {
-      margin-bottom: 32px;
+      margin-bottom: 28px;
     }
     .mode-gate h2 {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.06em;
       color: var(--muted);
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
     .mode-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(255px, 1fr));
-      gap: 14px;
+      gap: 12px;
     }
     .mode-card {
       text-align: left;
       background: var(--surface);
       border: 1px solid var(--line);
       border-radius: var(--r-lg);
-      padding: 24px;
+      padding: 20px;
       cursor: pointer;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      gap: 22px;
+      gap: 18px;
       font: inherit;
       color: var(--black);
       box-shadow: var(--shadow-card);
@@ -252,6 +271,9 @@
       transform: translateY(-2px);
       box-shadow: var(--shadow-hover);
       border-color: var(--black);
+    }
+    .mode-card:active {
+      transform: scale(0.99);
     }
     .mode-card.active {
       border-color: var(--black);
@@ -269,9 +291,9 @@
       color: var(--red);
     }
     .mode-title {
-      font-size: 20px;
+      font-size: 19px;
       font-weight: 700;
-      margin: 8px 0 6px;
+      margin: 6px 0 5px;
     }
     .mode-desc {
       font-size: 14px;
@@ -296,23 +318,24 @@
     }
     .mode-card:hover .link-btn { color: var(--red); }
 
-    /* WORKFLOW HEADER SECTION (MATCHING REFERENCE SCREENSHOT) */
+    /* WORKFLOW HEADER SECTION */
     .mode-bar {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
-      gap: 12px 16px;
+      gap: 10px 16px;
       background: var(--surface);
       border: 1px solid var(--line);
       border-radius: var(--r-md);
-      padding: 14px 18px;
+      padding: 13px 16px;
       margin-bottom: 18px;
       font-size: 14px;
       box-shadow: var(--shadow-card);
     }
     .mode-bar-text {
       color: var(--black);
+      line-height: 1.4;
     }
     .mode-bar-text strong {
       font-weight: 700;
@@ -324,7 +347,8 @@
     .mode-bar .change-link {
       background: none;
       border: none;
-      padding: 0;
+      padding: 4px 0;
+      min-height: 32px;
       color: var(--red);
       font-family: inherit;
       font-size: 13px;
@@ -332,6 +356,7 @@
       text-decoration: underline;
       text-underline-offset: 3px;
       cursor: pointer;
+      white-space: nowrap;
     }
     .mode-bar .change-link:hover {
       color: var(--red-hover);
@@ -341,8 +366,8 @@
     .steps {
       list-style: none;
       display: flex;
-      gap: 12px;
-      margin: 0 0 22px;
+      gap: 10px;
+      margin: 0 0 20px;
       padding: 0;
       counter-reset: step;
     }
@@ -350,14 +375,15 @@
       flex: 1;
       display: flex;
       align-items: center;
-      gap: 9px;
-      padding-top: 12px;
+      gap: 8px;
+      padding-top: 10px;
       border-top: 3px solid rgba(11, 11, 11, 0.14);
       font-size: 13px;
       font-weight: 700;
       color: var(--muted);
       counter-increment: step;
       transition: border-color 0.2s, color 0.2s;
+      min-width: 0;
     }
     .steps li::before {
       content: counter(step);
@@ -371,6 +397,11 @@
       font-weight: 700;
       background: rgba(11, 11, 11, 0.1);
       color: var(--muted);
+    }
+    .steps li span {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .steps li.current {
       border-color: var(--red);
@@ -394,7 +425,7 @@
     .support-line {
       display: flex;
       flex-wrap: wrap;
-      gap: 4px 10px;
+      gap: 4px 8px;
       align-items: center;
       font-size: 14px;
       color: var(--muted);
@@ -404,6 +435,7 @@
       color: var(--black);
       font-weight: 700;
       text-decoration: none;
+      padding: 2px 0;
     }
     .support-line a:hover {
       color: var(--red);
@@ -414,14 +446,15 @@
       background: var(--surface);
       border: 1px solid var(--line);
       border-radius: var(--r-md);
-      margin-bottom: 24px;
+      margin-bottom: 22px;
       font-size: 14px;
       box-shadow: var(--shadow-card);
       overflow: hidden;
     }
     .rules-banner summary {
       cursor: pointer;
-      padding: 14px 18px;
+      padding: 14px 16px;
+      min-height: 48px;
       font-weight: 700;
       font-size: 14px;
       color: var(--black);
@@ -429,6 +462,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 12px;
     }
     .rules-banner summary::-webkit-details-marker { display: none; }
     .rules-banner summary::after {
@@ -437,12 +471,13 @@
       font-weight: 700;
       line-height: 1;
       color: var(--red);
+      flex: none;
     }
     .rules-banner[open] summary { border-bottom: 1px solid var(--line); }
     .rules-banner[open] summary::after { content: "–"; }
     .rules-banner ul {
       margin: 0;
-      padding: 14px 20px 16px 36px;
+      padding: 14px 18px 16px 32px;
       color: var(--black);
       line-height: 1.6;
     }
@@ -454,6 +489,7 @@
       font-family: var(--font-mono);
       font-size: 12px;
       color: var(--black);
+      word-break: break-all;
     }
 
     .message {
@@ -482,14 +518,15 @@
       padding: 4px;
       background: var(--surface-alt);
       border-radius: var(--r-md);
-      margin-bottom: 24px;
+      margin-bottom: 22px;
     }
     .category-tab {
       border: none;
       background: transparent;
       color: var(--muted);
       border-radius: var(--r-sm);
-      padding: 8px 14px;
+      padding: 9px 14px;
+      min-height: 38px;
       font-family: inherit;
       font-weight: 700;
       font-size: 12px;
@@ -498,6 +535,7 @@
       cursor: pointer;
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 7px;
       transition: background-color 0.16s, color 0.16s;
     }
@@ -517,14 +555,14 @@
     }
 
     /* FACILITY CARDS */
-    .facility-group { margin-bottom: 32px; }
+    .facility-group { margin-bottom: 28px; }
     .facility-group-heading {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.05em;
       color: var(--black);
-      margin-bottom: 14px;
+      margin-bottom: 12px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -532,19 +570,19 @@
     .facility-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(265px, 1fr));
-      gap: 14px;
+      gap: 12px;
     }
     .facility-card {
       background: var(--surface);
       border: 1px solid var(--line);
       border-radius: var(--r-lg);
-      padding: 20px;
-      min-height: 152px;
+      padding: 18px 20px;
+      min-height: 140px;
       cursor: pointer;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      gap: 16px;
+      gap: 14px;
       box-shadow: var(--shadow-card);
       transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s ease, border-color 0.2s ease;
     }
@@ -552,6 +590,9 @@
       transform: translateY(-2px);
       box-shadow: var(--shadow-hover);
       border-color: var(--black);
+    }
+    .facility-card:active:not(.inactive) {
+      transform: scale(0.99);
     }
     .facility-card.inactive {
       cursor: not-allowed;
@@ -610,8 +651,9 @@
       border: 1px solid var(--line);
       background: var(--surface);
       border-radius: var(--r-sm);
-      padding: 8px 14px;
-      margin-bottom: 16px;
+      padding: 10px 14px;
+      min-height: 40px;
+      margin-bottom: 14px;
       color: var(--black);
       font-family: inherit;
       font-weight: 700;
@@ -622,17 +664,17 @@
       box-shadow: var(--shadow-card);
       transition: background-color 0.15s, color 0.15s;
     }
-    .back-button:hover { background: var(--black); color: var(--surface); }
+    .back-button:hover, .back-button:active { background: var(--black); color: var(--surface); }
 
     .facility-header {
       background: var(--black);
       color: var(--surface);
       border-radius: var(--r-lg);
-      padding: clamp(20px, 3vw, 28px);
-      margin-bottom: 16px;
+      padding: clamp(18px, 3vw, 28px);
+      margin-bottom: 14px;
     }
     .facility-header h2 {
-      font-size: clamp(22px, 3.2vw, 30px);
+      font-size: clamp(21px, 3.5vw, 30px);
       font-weight: 700;
       color: var(--surface);
     }
@@ -646,7 +688,7 @@
       background: var(--surface);
       border: 1px solid var(--line);
       border-radius: var(--r-lg);
-      padding: clamp(20px, 3vw, 28px);
+      padding: clamp(18px, 3vw, 28px);
       box-shadow: var(--shadow-card);
     }
 
@@ -667,11 +709,13 @@
       background: var(--bg);
       color: var(--black);
       font-family: inherit;
-      font-size: 15px;
+      font-size: 16px; /* Prevents iOS auto-zoom on focus */
       transition: border-color 0.15s, background-color 0.15s, box-shadow 0.15s;
+      -webkit-appearance: none;
+      appearance: none;
     }
-    input, select { height: 46px; }
-    textarea { resize: vertical; min-height: 92px; }
+    input, select { height: 48px; }
+    textarea { resize: vertical; min-height: 96px; }
     input:focus, textarea:focus {
       outline: none;
       background: var(--surface);
@@ -686,7 +730,7 @@
       gap: 14px;
     }
     .booking-summary {
-      margin: 16px 0 0;
+      margin: 14px 0 0;
       padding: 10px 14px;
       background: var(--surface-alt);
       border-radius: var(--r-sm);
@@ -708,7 +752,7 @@
       background: var(--red-soft);
       border-radius: var(--r-sm);
       padding: 12px 14px;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
       font-size: 13px;
       font-weight: 700;
       color: var(--black);
@@ -720,7 +764,7 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.04em;
-      margin: 24px 0 3px;
+      margin: 22px 0 3px;
     }
     .availability-hint {
       font-size: 13px;
@@ -730,9 +774,9 @@
     .legend {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px 18px;
-      margin: 0 0 16px;
-      padding: 9px 14px;
+      gap: 8px 16px;
+      margin: 0 0 14px;
+      padding: 10px 14px;
       background: var(--bg);
       border-radius: var(--r-sm);
       list-style: none;
@@ -749,6 +793,7 @@
       border-radius: 3px;
       border: 1px solid var(--line-strong);
       background: var(--surface);
+      flex: none;
     }
     .legend .l-sel { background: var(--red); border-color: var(--red); }
     .legend .l-pend { background: var(--surface); border: 1.5px dashed var(--black); }
@@ -757,7 +802,7 @@
     .day-availability-box {
       background: var(--bg);
       border-radius: var(--r-md);
-      padding: 16px;
+      padding: 14px;
       margin-bottom: 12px;
     }
     .day-title {
@@ -765,20 +810,20 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.03em;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
     .availability-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
-      gap: 7px;
+      gap: 8px;
     }
     .slot {
       border: 1px solid var(--line-strong);
       background: var(--surface);
       color: var(--black);
       border-radius: var(--r-sm);
-      padding: 9px 4px;
-      min-height: 42px;
+      padding: 10px 4px;
+      min-height: 44px;
       text-align: center;
       font-family: var(--font-mono);
       font-weight: 600;
@@ -790,6 +835,9 @@
       border-color: var(--black);
       background: var(--black);
       color: var(--surface);
+    }
+    .slot:active:not(:disabled) {
+      transform: scale(0.97);
     }
     .slot.selected {
       background: var(--red);
@@ -814,15 +862,15 @@
     /* FLOATING ACTION BAR */
     .action-bar {
       position: sticky;
-      bottom: 20px;
+      bottom: calc(14px + env(safe-area-inset-bottom, 0px));
       z-index: 20;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 16px;
-      margin-top: 22px;
-      padding: 12px 16px 12px 20px;
-      background: rgba(11, 11, 11, 0.95);
+      gap: 14px;
+      margin-top: 20px;
+      padding: 12px 14px 12px 18px;
+      background: rgba(11, 11, 11, 0.96);
       backdrop-filter: saturate(180%) blur(18px);
       -webkit-backdrop-filter: saturate(180%) blur(18px);
       color: var(--surface);
@@ -832,6 +880,7 @@
     .selection-live-banner {
       font-size: 14px;
       font-weight: 700;
+      min-width: 0;
     }
     .selection-live-banner strong {
       display: block;
@@ -843,7 +892,7 @@
     }
 
     .continue-button, .submit-button {
-      min-height: 44px;
+      min-height: 46px;
       padding: 0 22px;
       border: none;
       border-radius: var(--r-sm);
@@ -855,6 +904,7 @@
       text-transform: uppercase;
       letter-spacing: 0.04em;
       cursor: pointer;
+      flex: none;
       transition: background-color 0.15s, transform 0.12s;
     }
     .continue-button:hover:not(:disabled), .submit-button:hover:not(:disabled) {
@@ -872,12 +922,12 @@
       background: var(--surface-alt);
       color: var(--muted);
     }
-    .submit-button { width: 100%; min-height: 48px; }
+    .submit-button { width: 100%; min-height: 50px; }
     .btn-secondary {
       background: var(--surface-alt) !important;
       color: var(--black) !important;
     }
-    .btn-secondary:hover {
+    .btn-secondary:hover, .btn-secondary:active {
       background: var(--black) !important;
       color: var(--surface) !important;
     }
@@ -902,7 +952,7 @@
       background: var(--surface);
       border: 1px solid var(--line);
       border-radius: var(--r-lg);
-      padding: clamp(24px, 4vw, 36px);
+      padding: clamp(20px, 4vw, 36px);
       box-shadow: var(--shadow-card);
     }
     .success-check {
@@ -917,16 +967,16 @@
       font-weight: 700;
       margin-bottom: 14px;
     }
-    .success-panel h2 { font-size: 26px; font-weight: 700; }
+    .success-panel h2 { font-size: 24px; font-weight: 700; }
     .success-panel > p {
       color: var(--muted);
       font-size: 14px;
-      margin: 6px 0 20px;
+      margin: 6px 0 18px;
     }
     .receipt {
       background: var(--bg);
       border-radius: var(--r-md);
-      padding: 18px;
+      padding: 16px;
       margin-bottom: 20px;
       display: grid;
       grid-template-columns: max-content 1fr;
@@ -954,7 +1004,7 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(11, 11, 11, 0.48);
+      background: rgba(11, 11, 11, 0.5);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
       z-index: 9999;
@@ -970,12 +1020,13 @@
       box-shadow: var(--shadow-float);
       max-width: 500px;
       width: 100%;
-      padding: 26px;
+      padding: 24px;
       display: flex;
       flex-direction: column;
       gap: 16px;
-      max-height: 90vh;
+      max-height: 88dvh;
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
     .modal-box h3 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
     .modal-box .sub {
@@ -987,7 +1038,7 @@
       background: var(--bg);
       border-radius: var(--r-md);
       padding: 14px 16px;
-      font-size: 13px;
+      font-size: 14px;
       line-height: 1.6;
       color: var(--black);
     }
@@ -1007,27 +1058,32 @@
       font-size: 13px;
       color: var(--red);
       text-decoration: none;
+      word-break: break-all;
     }
     .email-callout a:hover { text-decoration: underline; }
     .agree {
       display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      font-size: 13px;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
       font-weight: 700;
       cursor: pointer;
+      min-height: 44px;
+      padding: 4px 0;
     }
     .agree input {
-      width: 17px;
-      height: 17px;
+      width: 20px;
+      height: 20px;
       flex: none;
-      margin-top: 2px;
+      margin: 0;
       accent-color: var(--red);
+      -webkit-appearance: checkbox;
+      appearance: checkbox;
     }
     .modal-actions {
       display: flex;
       gap: 10px;
-      padding-top: 6px;
+      padding-top: 4px;
       flex-wrap: wrap;
     }
     .modal-actions button, .modal-actions a.modal-link-btn {
@@ -1039,10 +1095,10 @@
       justify-content: center;
     }
 
-    /* TEENY TINY RED CREDIT ON FRONT PAGE (LOWERCASE, NO F9TEH) */
+    /* TEENY TINY RED CREDIT ON FRONT PAGE */
     .front-credit {
       margin-top: auto;
-      padding-top: 48px;
+      padding-top: 44px;
       text-align: center;
       font-size: 11px;
       font-weight: 700;
@@ -1055,7 +1111,7 @@
     #toast {
       position: fixed;
       left: 50%;
-      bottom: 26px;
+      bottom: calc(82px + env(safe-area-inset-bottom, 0px));
       transform: translate(-50%, 16px);
       max-width: min(92vw, 440px);
       background: var(--black);
@@ -1069,17 +1125,141 @@
       pointer-events: none;
       transition: opacity 0.2s, transform 0.2s;
       z-index: 10000;
+      text-align: center;
     }
     #toast.show { opacity: 1; transform: translate(-50%, 0); }
 
+    /* MOBILE BREAKPOINTS */
     @media (max-width: 640px) {
-      .steps li span { display: none; }
-      .steps li.current span { display: inline; }
-      .date-row, #bookingForm { grid-template-columns: 1fr; }
-      .availability-grid { grid-template-columns: repeat(2, 1fr); }
-      .action-bar { padding: 12px 14px; }
-      .receipt { grid-template-columns: 1fr; gap: 4px; }
-      .receipt dd { margin-bottom: 8px; }
+      .header {
+        margin-bottom: 22px;
+      }
+      .header p {
+        font-size: 14px;
+      }
+      .mode-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+      .mode-card {
+        padding: 18px;
+        gap: 14px;
+        border-radius: var(--r-md);
+      }
+      .mode-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+        padding: 12px 14px;
+      }
+      .steps {
+        gap: 8px;
+      }
+      .steps li {
+        font-size: 12px;
+        gap: 6px;
+      }
+      .steps li span {
+        display: none;
+      }
+      .steps li.current span {
+        display: inline;
+      }
+      .category-tabs {
+        display: flex;
+        width: 100%;
+      }
+      .category-tab {
+        flex: 1;
+        padding: 9px 8px;
+        font-size: 11px;
+        gap: 5px;
+      }
+      .facility-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+      .facility-card {
+        min-height: auto;
+        padding: 16px 18px;
+        gap: 12px;
+        border-radius: var(--r-md);
+      }
+      .date-row, #bookingForm {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      .legend {
+        gap: 6px 12px;
+        padding: 9px 12px;
+        font-size: 10px;
+      }
+      .day-availability-box {
+        padding: 12px;
+      }
+      .availability-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 7px;
+      }
+      .slot {
+        min-height: 46px;
+        font-size: 12px;
+      }
+      .action-bar {
+        padding: 10px 12px 10px 16px;
+        gap: 10px;
+      }
+      .continue-button {
+        padding: 0 18px;
+        font-size: 12px;
+      }
+      .receipt {
+        grid-template-columns: 1fr;
+        gap: 3px;
+        padding: 14px;
+      }
+      .receipt dd {
+        margin-bottom: 10px;
+      }
+      .receipt dd:last-child {
+        margin-bottom: 0;
+      }
+
+      /* Mobile Bottom-Sheet Modals */
+      .modal-backdrop {
+        align-items: flex-end;
+        padding: 0;
+      }
+      .modal-box {
+        max-width: 100%;
+        border-radius: var(--r-lg) var(--r-lg) 0 0;
+        border-left: none;
+        border-right: none;
+        border-bottom: none;
+        padding: 22px 18px calc(22px + env(safe-area-inset-bottom, 0px));
+        max-height: 90dvh;
+        animation: sheetSlideUp 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+      @keyframes sheetSlideUp {
+        from { transform: translateY(100%); }
+        to { transform: translateY(0); }
+      }
+      .modal-actions {
+        flex-direction: column-reverse;
+      }
+      .modal-actions button, .modal-actions a.modal-link-btn {
+        width: 100%;
+        min-height: 48px;
+      }
+    }
+
+    @media (max-width: 359px) {
+      .availability-grid {
+        grid-template-columns: 1fr;
+      }
+      .top-nav-inner {
+        font-size: 11px;
+      }
     }
   </style>
 </head>
@@ -1103,7 +1283,7 @@
   <nav class="top-nav" aria-label="System header">
     <div class="top-nav-inner">
       <div class="nav-brand"><span class="asterisk-trigger" role="button" tabindex="0" onclick="openRedManifesto()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openRedManifesto();}">*</span>kk5</div>
-      <div class="nav-note"><span class="nav-dot"></span>Book 2+ days ahead</div>
+      <div class="nav-note" id="topNavNote"><span class="nav-dot"></span><span id="topNavNoteText">2d personal · 1d college</span></div>
     </div>
   </nav>
 
@@ -1126,7 +1306,7 @@
           <div>
             <span class="mode-index">Option 01</span>
             <h3 class="mode-title">Personal use</h3>
-            <p class="mode-desc">Casual sessions for KK5 residents. Restricted booking hours apply.</p>
+            <p class="mode-desc">Casual sessions for KK5 residents. Book at least 2 days in advance.</p>
           </div>
           <span class="link-btn">Select →</span>
         </button>
@@ -1135,7 +1315,7 @@
           <div>
             <span class="mode-index">Option 02</span>
             <h3 class="mode-title">KK5 College activity</h3>
-            <p class="mode-desc">Official college programs, bureau meetings, and student events (24-hour access).</p>
+            <p class="mode-desc">Official college programs, bureau meetings, and student events (24-hour access, 1 day in advance).</p>
           </div>
           <span class="link-btn">Select →</span>
         </button>
@@ -1151,7 +1331,7 @@
       </div>
     </section>
 
-    <!-- BOOKING WORKFLOW (MATCHING SCREENSHOT LAYOUT) -->
+    <!-- BOOKING WORKFLOW -->
     <div id="bookingWorkflow" class="hidden">
       <div class="mode-bar">
         <div class="mode-bar-text">
@@ -1171,7 +1351,7 @@
       <details class="rules-banner">
         <summary>Booking rules &amp; guidelines</summary>
         <ul id="generalRulesList">
-          <li>Book at least <strong>2 days in advance</strong>.</li>
+          <li>Book at least <strong>2 days in advance</strong> for personal use (<strong>1 day</strong> for college activities).</li>
           <li>Use an official UM email (<code>@siswa.um.edu.my</code> or <code>@um.edu.my</code>).</li>
           <li>College management reserves the right to prioritise official college activities.</li>
         </ul>
@@ -1252,9 +1432,9 @@
 
           <form id="bookingForm">
             <div class="form-group"><label for="bookerName">Full name</label><input type="text" id="bookerName" required maxlength="120" placeholder="As on matric card" autocomplete="name"></div>
-            <div class="form-group"><label for="matricNumber">Matric number</label><input type="text" id="matricNumber" required maxlength="40" placeholder="e.g. 24001958"></div>
-            <div class="form-group"><label for="email">UM email</label><input type="email" id="email" required maxlength="254" placeholder="username@siswa.um.edu.my" autocomplete="email"></div>
-            <div class="form-group"><label for="phone">Phone</label><input type="tel" id="phone" required maxlength="30" placeholder="0104563287" autocomplete="tel"></div>
+            <div class="form-group"><label for="matricNumber">Matric number</label><input type="text" id="matricNumber" inputmode="numeric" required maxlength="40" placeholder="e.g. 24001958"></div>
+            <div class="form-group"><label for="email">UM email</label><input type="email" id="email" required maxlength="254" placeholder="username@siswa.um.edu.my" autocomplete="email" autocapitalize="off" autocorrect="off" spellcheck="false"></div>
+            <div class="form-group"><label for="phone">Phone</label><input type="tel" id="phone" inputmode="tel" required maxlength="30" placeholder="0104563287" autocomplete="tel"></div>
             <div class="form-group"><label for="organisation">Organisation / bureau</label><input type="text" id="organisation" required maxlength="120" placeholder="e.g. JTK, KEP"></div>
             <div class="form-group"><label for="purpose">Purpose</label><textarea id="purpose" required maxlength="2000" placeholder="Activity or session details"></textarea></div>
 
@@ -1287,7 +1467,7 @@
       </section>
     </div>
 
-    <!-- TEENY TINY RED CREDIT ON FRONT PAGE (LOWERCASE, F9TEH REMOVED) -->
+    <!-- TEENY TINY RED CREDIT ON FRONT PAGE -->
     <footer id="frontCredit" class="front-credit">jtkd teknikal</footer>
   </main>
 
@@ -1303,7 +1483,7 @@
       </div>
       <div class="email-callout">
         <a id="externalMailtoLink" href="mailto:jtk_kk5@um.edu.my?subject=KK5%20Facility%20Booking%20Inquiry%20(External%20%2F%20Non-KK5)">jtk_kk5@um.edu.my</a>
-        <button type="button" class="continue-button btn-secondary" style="min-height:34px;padding:0 12px;font-size:11px" onclick="copyExternalEmail()">Copy</button>
+        <button type="button" class="continue-button btn-secondary" style="min-height:36px;padding:0 14px;font-size:11px" onclick="copyExternalEmail()">Copy</button>
       </div>
       <div class="modal-actions">
         <button type="button" class="continue-button btn-secondary" onclick="closeExternalModal()">Close</button>
@@ -1399,6 +1579,7 @@
       </ul>
     `;
 
+    const topNavNoteText = document.getElementById("topNavNoteText");
     const redManifestoPage = document.getElementById("redManifestoPage");
     const modeGate = document.getElementById("modeGate");
     const frontCredit = document.getElementById("frontCredit");
@@ -1428,6 +1609,17 @@
 
     document.addEventListener("DOMContentLoaded", initializeApp);
     bookingForm.addEventListener("submit", submitBooking);
+
+    function getLeadDaysForMode() {
+      return bookingMode === "college" ? 1 : 2;
+    }
+
+    function getMinAllowedDateString() {
+      const minDate = new Date();
+      minDate.setHours(0, 0, 0, 0);
+      minDate.setDate(minDate.getDate() + getLeadDaysForMode());
+      return formatDateObject(minDate);
+    }
 
     function openRedManifesto() {
       redManifestoPage.classList.add("open");
@@ -1540,11 +1732,14 @@
       const sheetEnd = String(facilityObj.personalEnd || "").trim();
       const rawMax = Number(facilityObj.personalMaxHours);
 
+      const finalStart = sheetStart || (hasSheetEnabled ? null : fallback.startTime);
+      const finalEnd = sheetEnd || (hasSheetEnabled ? null : fallback.endTime);
+
       return {
         disabled: !enabled,
         reason: !enabled ? fallback.reason : "",
-        startTime: sheetStart || (hasSheetEnabled ? null : fallback.startTime),
-        endTime: sheetEnd || (hasSheetEnabled ? null : fallback.endTime),
+        startTime: finalStart,
+        endTime: finalEnd,
         maxHoursPerDay: (!isNaN(rawMax) && rawMax > 0) ? rawMax : fallback.maxHoursPerDay
       };
     }
@@ -1552,11 +1747,13 @@
     function getEffectiveModeRestriction(facilityObj) {
       if (bookingMode === "personal") {
         const p = getPersonalPolicyForFacility(facilityObj);
+        const startMin = p.startTime ? parseTimeToMinutes(p.startTime, false) : null;
+        const endMin = p.endTime ? parseTimeToMinutes(p.endTime, true) : null;
         return {
           disabled: p.disabled,
           reason: p.reason,
-          startMin: p.startTime ? parseTimeToMinutes(p.startTime) : null,
-          endMin: p.endTime ? parseTimeToMinutes(p.endTime) : null,
+          startMin: startMin,
+          endMin: endMin,
           windowLabel: p.startTime && p.endTime ? `${p.startTime} – ${p.endTime}` : null,
           maxHoursPerDay: p.maxHoursPerDay,
           unrestrictedHours: false
@@ -1590,18 +1787,20 @@
 
       if (mode === "personal") {
         modeLabel.textContent = "Personal use";
-        modeSummary.textContent = "Restricted booking hours; other venues follow per-venue settings.";
+        modeSummary.textContent = "Book 2+ days ahead · Restricted booking hours apply per venue.";
+        topNavNoteText.textContent = "Book 2+ days ahead";
         rulesList.innerHTML = `
-          <li>Book at least <strong>2 days in advance</strong>.</li>
+          <li>You <strong>must book at least 2 days in advance</strong>.</li>
           <li><strong>Restricted booking hours</strong> and daily hour limits apply per venue.</li>
           <li>Use an official UM email (<code>@siswa.um.edu.my</code> or <code>@um.edu.my</code>).</li>
           <li>College management reserves the right to prioritise official college activities.</li>
         `;
       } else {
         modeLabel.textContent = "KK5 College activity";
-        modeSummary.textContent = "24-hour window (00:00 – 24:00) for official college activities.";
+        modeSummary.textContent = "Book 1+ day ahead · 24 Hour Slots, No limits";
+        topNavNoteText.textContent = "Book 1+ day ahead";
         rulesList.innerHTML = `
-          <li>Book at least <strong>2 days in advance</strong>.</li>
+          <li>You <strong>must book at least 1 day in advance</strong>.</li>
           <li>Full <strong>00:00 – 24:00</strong> slot access applies.</li>
           <li>Use an official UM email (<code>@siswa.um.edu.my</code> or <code>@um.edu.my</code>).</li>
           <li>College management reserves the right to prioritise official college activities.</li>
@@ -1617,9 +1816,11 @@
     }
 
     function changeBookingMode() {
+      bookingMode = null;
       selectedFacility = null;
       pendingFacility = null;
       resetBookingState();
+      topNavNoteText.textContent = "2d personal · 1d college";
       bookingWorkflow.classList.add("hidden");
       modeGate.classList.remove("hidden");
       frontCredit.classList.remove("hidden");
@@ -1628,10 +1829,12 @@
 
     function openExternalModal() {
       document.getElementById("externalModal").classList.add("open");
+      document.body.style.overflow = "hidden";
     }
 
     function closeExternalModal() {
       document.getElementById("externalModal").classList.remove("open");
+      document.body.style.overflow = "";
       if (!bookingMode) {
         document.querySelectorAll(".mode-card").forEach(c => c.classList.remove("active"));
       }
@@ -1809,7 +2012,7 @@
       } else if (modeRule.windowLabel) {
         hours.textContent = modeRule.windowLabel;
       } else {
-        hours.textContent = facility.openingTime && facility.closingTime ? facility.openingTime + " – " + facility.closingTime : "";
+        hours.textContent = facility.openingTime && facility.closingTime ? facility.openingTime + " – " + facility.closingTime : "08:00 – 23:00";
       }
 
       const cardContent = document.createElement("div");
@@ -1875,18 +2078,22 @@
 
       let rulesHtml = facility.rules ? facility.rules : (SPECIFIC_RULES[facility.facility] || DEFAULT_RULES);
       if (bookingMode === "college") {
-        rulesHtml += `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--line)"><strong>COLLEGE ACTIVITY:</strong> 00:00 – 24:00 (2+ days ahead)</div>`;
+        rulesHtml += `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--line)"><strong>COLLEGE ACTIVITY:</strong> 00:00 – 24:00 · Book at least <strong>1 day in advance</strong></div>`;
+      } else {
+        rulesHtml += `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--line)"><strong>PERSONAL USE:</strong> Book at least <strong>2 days in advance</strong></div>`;
       }
       document.getElementById("rulesContentBody").innerHTML = rulesHtml;
 
       document.getElementById("agreeRulesCheckbox").checked = false;
       toggleProceedButton();
       document.getElementById("rulesModal").classList.add("open");
+      document.body.style.overflow = "hidden";
       document.getElementById("agreeRulesCheckbox").focus();
     }
 
     function closeRulesModal() {
       document.getElementById("rulesModal").classList.remove("open");
+      document.body.style.overflow = "";
       pendingFacility = null;
     }
 
@@ -1936,11 +2143,12 @@
       selectedFacilityName.textContent = facility.facility;
 
       if (bookingMode === "college") {
-        selectedFacilityHours.textContent = "00:00 – 24:00 (24H)";
+        selectedFacilityHours.textContent = "00:00 – 24:00 (24H) · BOOK 1+ DAY AHEAD";
       } else if (modeRule.windowLabel) {
-        selectedFacilityHours.textContent = `WINDOW: ${modeRule.windowLabel}`;
+        selectedFacilityHours.textContent = `WINDOW: ${modeRule.windowLabel} · BOOK 2+ DAYS AHEAD`;
       } else {
-        selectedFacilityHours.textContent = `${facility.openingTime} – ${facility.closingTime}`;
+        const hrs = facility.openingTime && facility.closingTime ? `${facility.openingTime} – ${facility.closingTime}` : "08:00 – 23:00";
+        selectedFacilityHours.textContent = `${hrs} · BOOK 2+ DAYS AHEAD`;
       }
 
       const hintEl = document.getElementById("availabilityHintText");
@@ -1953,9 +2161,7 @@
 
       resetBookingState();
 
-      const minDate = new Date();
-      minDate.setDate(minDate.getDate() + 2);
-      const minDateStr = formatDateObject(minDate);
+      const minDateStr = getMinAllowedDateString();
       startDate.min = minDateStr;
       endDate.min = minDateStr;
 
@@ -1976,9 +2182,16 @@
     }
 
     startDate.addEventListener("change", async () => {
-      selectedStartDate = startDate.value;
-      if (!selectedStartDate) return;
+      const minDateStr = getMinAllowedDateString();
+      if (!startDate.value) return;
 
+      if (startDate.value < minDateStr) {
+        const leadDays = getLeadDaysForMode();
+        toast(`Must book at least ${leadDays} ${leadDays === 1 ? "day" : "days"} in advance.`);
+        startDate.value = minDateStr;
+      }
+
+      selectedStartDate = startDate.value;
       endDate.value = selectedStartDate;
       selectedEndDate = selectedStartDate;
       endDate.min = selectedStartDate;
@@ -2041,8 +2254,28 @@
     function renderAvailabilityMatrix() {
       availabilityContainer.innerHTML = "";
       const modeRule = getEffectiveModeRestriction(selectedFacility);
-      const openMin = modeRule.unrestrictedHours ? 0 : parseTimeToMinutes(selectedFacility.openingTime);
-      const closeMin = modeRule.unrestrictedHours ? 24 * 60 : parseTimeToMinutes(selectedFacility.closingTime);
+
+      let openMin;
+      let closeMin;
+
+      if (modeRule.unrestrictedHours) {
+        openMin = 0;
+        closeMin = 24 * 60;
+      } else if (modeRule.startMin !== null && modeRule.endMin !== null) {
+        // Use the venue's personal window directly so slots always render even if sheet opening/closing is empty or narrower
+        openMin = modeRule.startMin;
+        closeMin = modeRule.endMin;
+      } else {
+        const sheetOpen = parseTimeToMinutes(selectedFacility.openingTime, false);
+        const sheetClose = parseTimeToMinutes(selectedFacility.closingTime, true);
+        openMin = sheetOpen !== null ? sheetOpen : 8 * 60;
+        closeMin = sheetClose !== null ? sheetClose : 23 * 60;
+      }
+
+      if (closeMin <= openMin) {
+        closeMin = 24 * 60;
+      }
+
       const dates = getDatesBetween(parseDateOnly(selectedStartDate), parseDateOnly(selectedEndDate));
       const now = new Date();
 
@@ -2090,8 +2323,8 @@
 
           let slotStatus = "available";
           for (const b of bookings) {
-            const bS = parseTimeToMinutes(b.start);
-            const bE = parseTimeToMinutes(b.end);
+            const bS = parseTimeToMinutes(b.start, false);
+            const bE = parseTimeToMinutes(b.end, true);
             if (bS !== null && bE !== null && m < bE && m + SLOT_INTERVAL > bS) {
               slotStatus = b.status === "APPROVED" ? "booked" : "pending";
               break;
@@ -2174,6 +2407,13 @@
       if (submitButton.disabled) return;
       if (!bookingForm.reportValidity()) return;
 
+      const minDateStr = getMinAllowedDateString();
+      if (selectedStartDate < minDateStr) {
+        const leadDays = getLeadDaysForMode();
+        toast(`Must book at least ${leadDays} ${leadDays === 1 ? "day" : "days"} in advance.`);
+        return;
+      }
+
       const emailInput = document.getElementById("email").value.trim().toLowerCase();
       if (!emailInput.endsWith("@siswa.um.edu.my") && !emailInput.endsWith("@um.edu.my")) {
         toast("Use your official UM email (@siswa.um.edu.my or @um.edu.my).");
@@ -2191,7 +2431,7 @@
         const slots = selectedSlotsByDate[dateStr];
         if (!slots || slots.length === 0) continue;
 
-        slots.sort((a, b) => parseTimeToMinutes(a.start) - parseTimeToMinutes(b.start));
+        slots.sort((a, b) => parseTimeToMinutes(a.start, false) - parseTimeToMinutes(b.start, false));
 
         let currentBlock = { start: slots[0].start, end: slots[0].end };
         for (let i = 1; i < slots.length; i++) {
@@ -2292,12 +2532,16 @@
       while (cur <= end) { dates.push(new Date(cur)); cur.setDate(cur.getDate() + 1); }
       return dates;
     }
-    function parseTimeToMinutes(t) {
+    function parseTimeToMinutes(t, isEndTime = false) {
       if (!t) return null;
       const str = String(t).trim();
       if (str === "24:00" || str === "24:00:00") return 24 * 60;
       const p = str.split(":");
-      return p.length >= 2 ? Number(p[0]) * 60 + Number(p[1]) : null;
+      if (p.length < 2) return null;
+      const mins = Number(p[0]) * 60 + Number(p[1]);
+      if (isNaN(mins)) return null;
+      if (isEndTime && mins === 0) return 24 * 60;
+      return mins;
     }
     function minutesToTimeStr(m) {
       return String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0");
