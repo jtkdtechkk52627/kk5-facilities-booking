@@ -3,29 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#F7F6F2">
-  <title>*kk5 — Facility Booking</title>
+  <meta name="theme-color" content="#F6F5F0">
+  <title>*kk5 — Facility Booking Portal · Kolej Kediaman Kelima</title>
   <style>
     :root {
-      --bg: #F7F6F2;          /* Warm off-white */
-      --surface: #FFFFFF;     /* Pure white cards */
-      --surface-alt: #EFECE6; /* Soft recessed surface */
-      --black: #0B0B0B;       /* Deep ink black */
-      --red: #D90404;         /* Crimson red */
-      --red-hover: #B80303;
-      --red-soft: rgba(217, 4, 4, 0.08);
-      --muted: #595854;       /* High-contrast secondary gray */
-      --line: rgba(11, 11, 11, 0.11);
-      --line-strong: rgba(11, 11, 11, 0.22);
-      --font-sans: Arial, "Helvetica Neue", Helvetica, sans-serif;
+      --bg: #F6F5F0;          /* Warm architectural alabaster */
+      --surface: #FFFFFF;     /* Crisp white cards */
+      --surface-alt: #ECEAE2; /* Soft warm stone */
+      --surface-tint: #FAF9F6;/* Subtle inner panel */
+      --black: #111111;       /* Rich charcoal ink */
+      --red: #C80404;         /* Refined institutional crimson */
+      --red-hover: #A30303;
+      --red-soft: rgba(200, 4, 4, 0.07);
+      --red-border: rgba(200, 4, 4, 0.22);
+      --green: #136F3A;
+      --green-soft: rgba(19, 111, 58, 0.09);
+      --muted: #5A5852;       /* Accessible warm slate */
+      --subtle: #78756E;
+      --line: rgba(17, 17, 17, 0.09);
+      --line-strong: rgba(17, 17, 17, 0.18);
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      --r-sm: 12px;
-      --r-md: 16px;
-      --r-lg: 24px;
+      --r-sm: 10px;
+      --r-md: 14px;
+      --r-lg: 20px;
       --r-pill: 9999px;
-      --shadow-card: 0 2px 12px rgba(11, 11, 11, 0.03), 0 1px 2px rgba(11, 11, 11, 0.02);
-      --shadow-hover: 0 12px 28px rgba(11, 11, 11, 0.07), 0 2px 6px rgba(11, 11, 11, 0.03);
-      --shadow-float: 0 20px 40px rgba(11, 11, 11, 0.16);
+      --shadow-xs: 0 1px 2px rgba(17, 17, 17, 0.04);
+      --shadow-card: 0 2px 10px rgba(17, 17, 17, 0.035), 0 1px 2px rgba(17, 17, 17, 0.03);
+      --shadow-hover: 0 12px 28px rgba(17, 17, 17, 0.08), 0 2px 6px rgba(17, 17, 17, 0.04);
+      --shadow-float: 0 18px 38px rgba(17, 17, 17, 0.18);
     }
 
     * {
@@ -53,8 +59,8 @@
     }
 
     h1, h2, h3 {
-      letter-spacing: -0.03em;
-      line-height: 1.1;
+      letter-spacing: -0.025em;
+      line-height: 1.15;
       margin: 0;
     }
 
@@ -65,19 +71,19 @@
     :focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
     .hidden { display: none !important; }
 
-    /* FROSTED TOP BAR */
+    /* FROSTED INSTITUTIONAL TOP BAR */
     .top-nav {
       position: sticky;
       top: 0;
       z-index: 30;
-      background: rgba(247, 246, 242, 0.9);
+      background: rgba(246, 245, 240, 0.92);
       backdrop-filter: saturate(180%) blur(18px);
       -webkit-backdrop-filter: saturate(180%) blur(18px);
       border-bottom: 1px solid var(--line);
-      padding: calc(14px + env(safe-area-inset-top, 0px)) max(20px, env(safe-area-inset-right, 0px)) 14px max(20px, env(safe-area-inset-left, 0px));
+      padding: calc(13px + env(safe-area-inset-top, 0px)) max(20px, env(safe-area-inset-right, 0px)) 13px max(20px, env(safe-area-inset-left, 0px));
     }
     .top-nav-inner {
-      max-width: 960px;
+      max-width: 1020px;
       margin: 0 auto;
       display: flex;
       justify-content: space-between;
@@ -85,20 +91,40 @@
       gap: 12px;
       font-size: 13px;
     }
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
     .nav-brand {
-      font-weight: 700;
+      font-weight: 800;
       font-size: 17px;
       color: var(--black);
       letter-spacing: -0.03em;
     }
     .nav-brand .asterisk-trigger { color: var(--red); }
+    .nav-divider {
+      width: 1px;
+      height: 14px;
+      background: var(--line-strong);
+    }
+    .nav-org {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+    }
     .nav-note {
       display: inline-flex;
       align-items: center;
       gap: 8px;
+      padding: 5px 12px;
+      border-radius: var(--r-pill);
+      background: var(--surface);
+      border: 1px solid var(--line);
       font-size: 12px;
       font-weight: 600;
-      color: var(--muted);
+      color: var(--black);
+      box-shadow: var(--shadow-xs);
     }
     .nav-dot {
       width: 6px;
@@ -137,9 +163,7 @@
       text-transform: lowercase;
       animation: fadeRed 0.2s ease-out;
     }
-    .red-manifesto-overlay.open {
-      display: flex;
-    }
+    .red-manifesto-overlay.open { display: flex; }
     @keyframes fadeRed {
       from { opacity: 0; }
       to { opacity: 1; }
@@ -199,52 +223,154 @@
     .container {
       flex: 1;
       width: 100%;
-      max-width: 960px;
+      max-width: 1020px;
       margin: 0 auto;
-      padding: clamp(32px, 6vw, 64px) max(20px, env(safe-area-inset-left, 0px)) calc(68px + env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-right, 0px));
+      padding: clamp(28px, 5vw, 52px) max(20px, env(safe-area-inset-left, 0px)) calc(68px + env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-right, 0px));
       display: flex;
       flex-direction: column;
     }
 
-    /* CLEAN HERO */
-    .header {
-      margin-bottom: 40px;
+    /* STRUCTURED HERO CARD */
+    .hero-panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--r-lg);
+      padding: clamp(24px, 4vw, 38px);
+      margin-bottom: 28px;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
     }
-    .header h1 {
-      font-size: clamp(36px, 7vw, 56px);
+    .hero-top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
       font-weight: 700;
-      color: var(--black);
-      letter-spacing: -0.04em;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--red);
+      background: var(--red-soft);
+      border: 1px solid var(--red-border);
+      padding: 5px 12px;
+      border-radius: var(--r-pill);
+      margin-bottom: 12px;
     }
-    .header h1 .asterisk-trigger {
+    .hero-panel h1 {
+      font-size: clamp(32px, 5.5vw, 48px);
+      font-weight: 800;
+      color: var(--black);
+      letter-spacing: -0.035em;
+    }
+    .hero-panel h1 .asterisk-trigger {
       margin-right: 2px;
     }
-    .header p {
-      margin: 10px 0 0;
+    .hero-subtitle {
+      margin: 8px 0 0;
       color: var(--muted);
-      font-size: 16px;
+      font-size: 15px;
+      max-width: 56ch;
+    }
+    .hero-contact-pill {
+      display: inline-flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 12px 16px;
+      background: var(--surface-tint);
+      border: 1px solid var(--line);
+      border-radius: var(--r-md);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .hero-contact-pill strong {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--subtle);
+    }
+    .hero-contact-pill a {
+      color: var(--black);
+      font-weight: 700;
+      font-size: 13px;
+      text-decoration: none;
+    }
+    .hero-contact-pill a:hover {
+      color: var(--red);
+      text-decoration: underline;
+    }
+
+    /* 3-COLUMN POLICY STRIP INSIDE HERO */
+    .policy-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
+    }
+    .policy-item {
+      background: var(--surface-tint);
+      border: 1px solid var(--line);
+      border-radius: var(--r-md);
+      padding: 13px 16px;
+    }
+    .policy-item-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--subtle);
+      margin-bottom: 3px;
+    }
+    .policy-item-value {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--black);
+    }
+
+    /* SECTION HEADER */
+    .section-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .section-label h2 {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
     }
 
     /* MODE GATE */
     .mode-gate {
-      margin-bottom: 36px;
+      margin-bottom: 32px;
     }
     .mode-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(265px, 1fr));
-      gap: 18px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
     }
     .mode-card {
       text-align: left;
       background: var(--surface);
       border: 1px solid var(--line);
       border-radius: var(--r-lg);
-      padding: 26px 24px;
+      padding: 24px;
       cursor: pointer;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      gap: 24px;
+      gap: 22px;
       font: inherit;
       color: var(--black);
       box-shadow: var(--shadow-card);
@@ -262,25 +388,65 @@
       border-color: var(--black);
       box-shadow: 0 0 0 1px var(--black), var(--shadow-hover);
     }
-    .mode-title {
-      font-size: 20px;
+    .mode-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .mode-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--surface-alt);
+      color: var(--black);
+      font-family: var(--font-mono);
+      font-size: 12px;
       font-weight: 700;
-      margin: 0 0 8px;
+    }
+    .mode-card.external-card .mode-num {
+      background: var(--red-soft);
+      color: var(--red);
+    }
+    .mode-tag {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: var(--r-pill);
+      background: var(--surface-tint);
+      border: 1px solid var(--line);
+      color: var(--muted);
+    }
+    .mode-card.external-card .mode-tag {
+      background: var(--red-soft);
+      border-color: var(--red-border);
+      color: var(--red);
+    }
+    .mode-title {
+      font-size: 19px;
+      font-weight: 700;
+      margin: 0 0 6px;
     }
     .mode-desc {
-      font-size: 14px;
+      font-size: 13.5px;
       color: var(--muted);
       margin: 0;
+      line-height: 1.5;
+    }
+    .mode-footer {
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
     .link-btn {
-      background: none;
-      border: none;
-      padding: 0;
       color: var(--black);
-      font-family: inherit;
       font-weight: 700;
       font-size: 13px;
-      cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -298,37 +464,50 @@
       background: var(--surface);
       border: 1px solid var(--line);
       border-radius: var(--r-md);
-      padding: 16px 20px;
-      margin-bottom: 28px;
+      padding: 15px 20px;
+      margin-bottom: 24px;
       font-size: 14px;
       box-shadow: var(--shadow-card);
     }
-    .mode-bar-text {
-      color: var(--black);
-      line-height: 1.45;
+    .mode-bar-left {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
     }
-    .mode-bar-text strong {
+    .mode-pill-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: var(--r-pill);
+      background: var(--black);
+      color: #FFFFFF;
+      font-size: 12px;
       font-weight: 700;
-      color: var(--black);
     }
-    .mode-bar-text .mode-policy {
+    .mode-bar-text {
       color: var(--muted);
+      font-size: 13.5px;
+      font-weight: 600;
     }
     .mode-bar .change-link {
-      background: none;
-      border: none;
-      padding: 4px 0;
-      min-height: 32px;
-      color: var(--red);
+      background: var(--surface-tint);
+      border: 1px solid var(--line);
+      border-radius: var(--r-pill);
+      padding: 6px 14px;
+      min-height: 34px;
+      color: var(--black);
       font-family: inherit;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
       cursor: pointer;
       white-space: nowrap;
+      transition: border-color 0.15s, color 0.15s;
     }
     .mode-bar .change-link:hover {
-      text-decoration: underline;
-      text-underline-offset: 3px;
+      border-color: var(--red);
+      color: var(--red);
     }
 
     /* FULL-WIDTH 3-COLUMN TOP-BORDERED STEPPER */
@@ -336,7 +515,7 @@
       list-style: none;
       display: flex;
       gap: 14px;
-      margin: 0 0 28px;
+      margin: 0 0 24px;
       padding: 0;
       counter-reset: step;
     }
@@ -346,7 +525,7 @@
       align-items: center;
       gap: 9px;
       padding-top: 12px;
-      border-top: 2px solid rgba(11, 11, 11, 0.14);
+      border-top: 2px solid rgba(17, 17, 17, 0.13);
       font-size: 13px;
       font-weight: 700;
       color: var(--muted);
@@ -364,7 +543,7 @@
       place-items: center;
       font-size: 12px;
       font-weight: 700;
-      background: rgba(11, 11, 11, 0.08);
+      background: rgba(17, 17, 17, 0.08);
       color: var(--muted);
     }
     .steps li span {
@@ -390,46 +569,22 @@
       color: #FFFFFF;
     }
 
-    /* SUPPORT & RULES */
-    .meta-strip {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-bottom: 32px;
-    }
-    .support-line {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px 8px;
-      align-items: center;
-      font-size: 13px;
-      color: var(--muted);
-      margin: 0;
-    }
-    .support-line a {
-      color: var(--black);
-      font-weight: 700;
-      text-decoration: none;
-    }
-    .support-line a:hover {
-      color: var(--red);
-      text-decoration: underline;
-    }
-
+    /* GUIDELINES ACCORDION */
     .rules-banner {
       background: var(--surface);
       border: 1px solid var(--line);
       border-radius: var(--r-md);
-      font-size: 14px;
+      margin-bottom: 28px;
+      font-size: 13.5px;
       box-shadow: var(--shadow-card);
       overflow: hidden;
     }
     .rules-banner summary {
       cursor: pointer;
-      padding: 15px 20px;
-      min-height: 50px;
+      padding: 14px 20px;
+      min-height: 48px;
       font-weight: 700;
-      font-size: 14px;
+      font-size: 13.5px;
       color: var(--black);
       list-style: none;
       display: flex;
@@ -440,7 +595,7 @@
     .rules-banner summary::-webkit-details-marker { display: none; }
     .rules-banner summary::after {
       content: "+";
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 700;
       line-height: 1;
       color: var(--red);
@@ -454,7 +609,7 @@
       color: var(--black);
       line-height: 1.65;
     }
-    .rules-banner li + li { margin-top: 8px; }
+    .rules-banner li + li { margin-top: 6px; }
     .rules-banner code {
       background: var(--surface-alt);
       padding: 2px 6px;
@@ -483,7 +638,7 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* EXACT PILL SEGMENTED FILTER TABS (MATCHING REFERENCE) */
+    /* EXACT PILL SEGMENTED FILTER TABS (PRESERVED AS REQUESTED) */
     .category-tabs {
       display: inline-flex;
       flex-wrap: wrap;
@@ -492,7 +647,7 @@
       padding: 6px;
       background: var(--surface-alt);
       border-radius: var(--r-pill);
-      margin-bottom: 32px;
+      margin-bottom: 28px;
     }
     .category-tab {
       border: none;
@@ -527,7 +682,7 @@
       height: 22px;
       padding: 0 8px;
       border-radius: var(--r-pill);
-      background: rgba(11, 11, 11, 0.08);
+      background: rgba(17, 17, 17, 0.08);
       color: var(--black);
       font-size: 12px;
       font-weight: 700;
@@ -540,13 +695,13 @@
     }
 
     /* FACILITY CARDS */
-    .facility-group { margin-bottom: 40px; }
+    .facility-group { margin-bottom: 36px; }
     .facility-group:last-child { margin-bottom: 0; }
     .facility-group-heading {
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 700;
       color: var(--black);
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       display: flex;
       align-items: center;
       gap: 10px;
@@ -566,20 +721,20 @@
     }
     .facility-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(275px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(285px, 1fr));
       gap: 16px;
     }
     .facility-card {
       background: var(--surface);
       border: 1px solid var(--line);
       border-radius: var(--r-lg);
-      padding: 22px 24px;
-      min-height: 148px;
+      padding: 20px 22px;
+      min-height: 156px;
       cursor: pointer;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      gap: 18px;
+      gap: 16px;
       box-shadow: var(--shadow-card);
       transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s ease, border-color 0.2s ease;
     }
@@ -593,9 +748,29 @@
     }
     .facility-card.inactive {
       cursor: not-allowed;
-      background: var(--surface-alt);
+      background: var(--surface-tint);
       box-shadow: none;
       opacity: 0.72;
+    }
+    .facility-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .facility-cat-tag {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      background: var(--surface-alt);
+      padding: 3px 9px;
+      border-radius: var(--r-pill);
+    }
+    .facility-limit-tag {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--subtle);
     }
     .facility-name {
       font-size: 17px;
@@ -604,24 +779,32 @@
       color: var(--black);
     }
     .facility-hours {
-      margin-top: 6px;
+      margin-top: 5px;
       font-size: 13px;
+      font-family: var(--font-mono);
       color: var(--muted);
     }
     .facility-notice {
-      margin-top: 12px;
+      margin-top: 10px;
       font-size: 12px;
-      font-weight: 700;
+      font-weight: 600;
       color: var(--red);
       background: var(--red-soft);
-      padding: 6px 12px;
+      padding: 5px 10px;
       border-radius: var(--r-sm);
       display: inline-block;
+    }
+    .facility-card-foot {
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
     .facility-status {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 7px;
       font-size: 12px;
       font-weight: 700;
     }
@@ -633,13 +816,20 @@
       background: currentColor;
     }
     .facility-status.available {
-      color: var(--black);
-    }
-    .facility-card:hover:not(.inactive) .facility-status.available {
-      color: var(--red);
+      color: var(--green);
     }
     .facility-status.unavailable {
       color: var(--muted);
+    }
+    .facility-arrow {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+      transition: transform 0.15s, color 0.15s;
+    }
+    .facility-card:hover:not(.inactive) .facility-arrow {
+      color: var(--red);
+      transform: translateX(2px);
     }
 
     /* PANELS & FORMS */
@@ -666,6 +856,11 @@
       border-radius: var(--r-lg);
       padding: clamp(22px, 3.5vw, 32px);
       margin-bottom: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
     }
     .facility-header h2 {
       font-size: clamp(22px, 3.5vw, 30px);
@@ -676,6 +871,14 @@
       margin: 6px 0 0;
       color: rgba(255, 255, 255, 0.78);
       font-size: 14px;
+    }
+    .facility-header-badge {
+      padding: 7px 14px;
+      border-radius: var(--r-pill);
+      background: rgba(255, 255, 255, 0.12);
+      color: #FFFFFF;
+      font-size: 12px;
+      font-weight: 700;
     }
 
     .booking-panel {
@@ -698,7 +901,7 @@
       border: 1px solid var(--line-strong);
       border-radius: var(--r-sm);
       padding: 12px 14px;
-      background: var(--bg);
+      background: var(--surface-tint);
       color: var(--black);
       font-family: inherit;
       font-size: 16px;
@@ -724,17 +927,64 @@
     .booking-summary {
       margin: 18px 0 0;
       padding: 12px 16px;
-      background: var(--surface-alt);
+      background: var(--surface-tint);
+      border: 1px solid var(--line);
       border-radius: var(--r-sm);
       color: var(--black);
       font-size: 13px;
       font-weight: 700;
     }
 
+    /* DETAILS TWO-COLUMN LAYOUT */
+    .details-layout {
+      display: grid;
+      grid-template-columns: 1.45fr 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+    .summary-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--r-lg);
+      padding: 24px;
+      box-shadow: var(--shadow-card);
+    }
+    .summary-card h3 {
+      font-size: 15px;
+      font-weight: 700;
+      padding-bottom: 14px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+    .summary-list {
+      margin: 0;
+      display: grid;
+      gap: 14px;
+      font-size: 13.5px;
+    }
+    .summary-list dt {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--subtle);
+      margin-bottom: 2px;
+    }
+    .summary-list dd {
+      margin: 0;
+      font-weight: 700;
+      color: var(--black);
+    }
+    .summary-list ul {
+      margin: 4px 0 0;
+      padding-left: 16px;
+      font-weight: 600;
+    }
+
     #bookingForm {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 20px;
+      gap: 18px;
     }
     #bookingForm .form-group:has(textarea),
     #submissionMessage,
@@ -742,11 +992,12 @@
 
     .disclaimer-banner {
       background: var(--red-soft);
+      border: 1px solid var(--red-border);
       border-radius: var(--r-sm);
-      padding: 14px 16px;
-      margin-bottom: 24px;
+      padding: 13px 16px;
+      margin-bottom: 22px;
       font-size: 13px;
-      font-weight: 700;
+      font-weight: 600;
       color: var(--black);
     }
 
@@ -767,7 +1018,8 @@
       gap: 10px 20px;
       margin: 0 0 18px;
       padding: 12px 16px;
-      background: var(--bg);
+      background: var(--surface-tint);
+      border: 1px solid var(--line);
       border-radius: var(--r-sm);
       list-style: none;
       font-size: 12px;
@@ -788,7 +1040,8 @@
     .legend .l-book { background: var(--surface-alt); border-color: transparent; }
 
     .day-availability-box {
-      background: var(--bg);
+      background: var(--surface-tint);
+      border: 1px solid var(--line);
       border-radius: var(--r-md);
       padding: 18px;
       margin-bottom: 16px;
@@ -836,7 +1089,7 @@
       border-color: transparent;
       color: #8E8D88;
       text-decoration: line-through;
-      background: rgba(11, 11, 11, 0.05);
+      background: rgba(17, 17, 17, 0.05);
     }
     .slot.pending {
       cursor: not-allowed;
@@ -856,7 +1109,7 @@
       gap: 16px;
       margin-top: 24px;
       padding: 12px 14px 12px 22px;
-      background: rgba(11, 11, 11, 0.96);
+      background: rgba(17, 17, 17, 0.96);
       backdrop-filter: saturate(180%) blur(18px);
       -webkit-backdrop-filter: saturate(180%) blur(18px);
       color: var(--surface);
@@ -930,7 +1183,7 @@
 
     /* RECEIPT */
     .success-panel {
-      max-width: 560px;
+      max-width: 580px;
       margin: 0 auto;
       background: var(--surface);
       border: 1px solid var(--line);
@@ -939,15 +1192,15 @@
       box-shadow: var(--shadow-card);
     }
     .success-check {
-      width: 44px;
-      height: 44px;
+      width: 46px;
+      height: 46px;
       border-radius: 50%;
-      background: var(--red);
-      color: var(--surface);
+      background: var(--green-soft);
+      color: var(--green);
       display: grid;
       place-items: center;
-      font-size: 20px;
-      font-weight: 700;
+      font-size: 22px;
+      font-weight: 800;
       margin-bottom: 16px;
     }
     .success-panel h2 { font-size: 26px; font-weight: 700; }
@@ -957,7 +1210,8 @@
       margin: 8px 0 22px;
     }
     .receipt {
-      background: var(--bg);
+      background: var(--surface-tint);
+      border: 1px solid var(--line);
       border-radius: var(--r-md);
       padding: 20px;
       margin-bottom: 24px;
@@ -985,7 +1239,7 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(11, 11, 11, 0.5);
+      background: rgba(17, 17, 17, 0.5);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
       z-index: 9999;
@@ -1016,7 +1270,8 @@
       margin: 0;
     }
     .rules-body {
-      background: var(--bg);
+      background: var(--surface-tint);
+      border: 1px solid var(--line);
       border-radius: var(--r-md);
       padding: 16px 18px;
       font-size: 14px;
@@ -1029,7 +1284,8 @@
       align-items: center;
       justify-content: space-between;
       gap: 10px;
-      background: var(--bg);
+      background: var(--surface-tint);
+      border: 1px solid var(--line);
       border-radius: var(--r-md);
       padding: 14px 16px;
     }
@@ -1076,10 +1332,10 @@
       justify-content: center;
     }
 
-    /* TEENY TINY RED CREDIT ON FRONT PAGE */
+    /* FOOTER */
     .front-credit {
       margin-top: auto;
-      padding-top: 56px;
+      padding-top: 48px;
       text-align: center;
       font-size: 11px;
       font-weight: 700;
@@ -1110,31 +1366,36 @@
     }
     #toast.show { opacity: 1; transform: translate(-50%, 0); }
 
-    /* MOBILE BREAKPOINTS */
-    @media (max-width: 680px) {
-      .header {
-        margin-bottom: 28px;
-      }
-      .header p {
-        font-size: 15px;
-      }
-      .mode-grid {
+    /* MOBILE & TABLET BREAKPOINTS */
+    @media (max-width: 820px) {
+      .policy-strip,
+      .mode-grid,
+      .details-layout {
         grid-template-columns: 1fr;
-        gap: 14px;
       }
-      .mode-card {
+      .nav-org, .nav-divider {
+        display: none;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .hero-panel {
         padding: 22px 20px;
         gap: 18px;
+      }
+      .mode-card {
+        padding: 20px;
+        gap: 16px;
       }
       .mode-bar {
         flex-direction: column;
         align-items: flex-start;
-        gap: 6px;
+        gap: 10px;
         padding: 14px 16px;
       }
       .steps {
         gap: 10px;
-        margin-bottom: 24px;
+        margin-bottom: 20px;
       }
       .steps li {
         font-size: 12px;
@@ -1171,8 +1432,7 @@
       }
       .facility-card {
         min-height: auto;
-        padding: 20px;
-        gap: 14px;
+        padding: 18px 20px;
       }
       .date-row, #bookingForm {
         grid-template-columns: 1fr;
@@ -1268,46 +1528,95 @@
   <!-- FROSTED TOP BAR -->
   <nav class="top-nav" aria-label="System header">
     <div class="top-nav-inner">
-      <div class="nav-brand"><span class="asterisk-trigger" role="button" tabindex="0" onclick="openRedManifesto()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openRedManifesto();}">*</span>kk5</div>
+      <div class="nav-left">
+        <div class="nav-brand"><span class="asterisk-trigger" role="button" tabindex="0" onclick="openRedManifesto()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openRedManifesto();}">*</span>kk5</div>
+        <span class="nav-divider" aria-hidden="true"></span>
+        <span class="nav-org">Kolej Kediaman Kelima · UM</span>
+      </div>
       <div class="nav-note" id="topNavNote"><span class="nav-dot"></span><span id="topNavNoteText">2 days personal · 1 day college</span></div>
     </div>
   </nav>
 
   <main class="container">
-    <!-- MINIMAL HERO -->
-    <header class="header">
-      <h1><span class="asterisk-trigger" role="button" tabindex="0" title="Click *" onclick="openRedManifesto()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openRedManifesto();}">*</span>kk5 booking</h1>
-      <p>Select a booking type.</p>
+    <!-- STRUCTURED HERO HEADER -->
+    <header class="hero-panel">
+      <div class="hero-top">
+        <div>
+          <div class="hero-badge">Facility Reservation Portal</div>
+          <h1><span class="asterisk-trigger" role="button" tabindex="0" title="Click *" onclick="openRedManifesto()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openRedManifesto();}">*</span>kk5 booking</h1>
+          <p class="hero-subtitle">Reserve sports courts and recreational rooms at Kolej Kediaman Kelima.</p>
+        </div>
+        <div class="hero-contact-pill">
+          <strong>Technical Support</strong>
+          <a href="tel:0104563287">jtkd teknikal (Fateh) · 010-456 3287</a>
+        </div>
+      </div>
+
+      <div class="policy-strip">
+        <div class="policy-item">
+          <span class="policy-item-label">Advance Notice</span>
+          <span class="policy-item-value">2 days personal · 1 day college</span>
+        </div>
+        <div class="policy-item">
+          <span class="policy-item-label">Eligibility</span>
+          <span class="policy-item-value">@siswa.um.edu.my / @um.edu.my</span>
+        </div>
+        <div class="policy-item">
+          <span class="policy-item-label">Slot Interval</span>
+          <span class="policy-item-value">30-minute blocks</span>
+        </div>
+      </div>
     </header>
 
     <div id="maintenanceBanner" class="message error hidden"></div>
     <div id="errorMessage" class="message error hidden" role="alert"></div>
 
     <!-- TIER SELECTION -->
-    <section id="modeGate" class="mode-gate" aria-label="Booking type">
+    <section id="modeGate" class="mode-gate" aria-labelledby="modeGateTitle">
+      <div class="section-label">
+        <h2 id="modeGateTitle">Select Booking Category</h2>
+      </div>
       <div class="mode-grid">
         <button type="button" class="mode-card" data-mode="personal" onclick="selectBookingMode('personal')">
           <div>
+            <div class="mode-card-header">
+              <span class="mode-num">01</span>
+              <span class="mode-tag">2+ Days Ahead</span>
+            </div>
             <h3 class="mode-title">Personal use</h3>
-            <p class="mode-desc">KK5 residents · Book 2 days ahead</p>
+            <p class="mode-desc">Individual and resident recreational sessions within designated evening hours.</p>
           </div>
-          <span class="link-btn">Select →</span>
+          <div class="mode-footer">
+            <span class="link-btn">Continue →</span>
+          </div>
         </button>
 
         <button type="button" class="mode-card" data-mode="college" onclick="selectBookingMode('college')">
           <div>
+            <div class="mode-card-header">
+              <span class="mode-num">02</span>
+              <span class="mode-tag">1+ Day Ahead</span>
+            </div>
             <h3 class="mode-title">KK5 College activity</h3>
-            <p class="mode-desc">24h access · Book 1 day ahead</p>
+            <p class="mode-desc">Official JTK bureaus, college committees, and approved student events (24h window).</p>
           </div>
-          <span class="link-btn">Select →</span>
+          <div class="mode-footer">
+            <span class="link-btn">Continue →</span>
+          </div>
         </button>
 
         <button type="button" class="mode-card external-card" data-mode="external" onclick="selectBookingMode('external')">
           <div>
+            <div class="mode-card-header">
+              <span class="mode-num">03</span>
+              <span class="mode-tag">Email Inquiry</span>
+            </div>
             <h3 class="mode-title">External / Non-KK5</h3>
-            <p class="mode-desc">Via email inquiry</p>
+            <p class="mode-desc">Non-resident organizations and external bodies processed via administrative email.</p>
           </div>
-          <span class="link-btn" style="color:var(--red)">jtk_kk5@um.edu.my →</span>
+          <div class="mode-footer">
+            <span class="link-btn" style="color:var(--red)">jtk_kk5@um.edu.my →</span>
+          </div>
         </button>
       </div>
     </section>
@@ -1315,30 +1624,27 @@
     <!-- BOOKING WORKFLOW -->
     <div id="bookingWorkflow" class="hidden">
       <div class="mode-bar">
-        <div class="mode-bar-text">
-          <strong id="activeModeLabel">—</strong> · <span id="activeModeSummary" class="mode-policy"></span>
+        <div class="mode-bar-left">
+          <span class="mode-pill-badge" id="activeModeLabel">—</span>
+          <span id="activeModeSummary" class="mode-bar-text"></span>
         </div>
-        <button type="button" class="change-link" onclick="changeBookingMode()">Change</button>
+        <button type="button" class="change-link" onclick="changeBookingMode()">Switch category</button>
       </div>
 
       <ol class="steps" id="steps" aria-label="Booking progress">
-        <li class="current" aria-current="step"><span>Venue</span></li>
+        <li class="current" aria-current="step"><span>Select venue</span></li>
         <li><span>Date &amp; time</span></li>
-        <li><span>Details</span></li>
+        <li><span>Applicant details</span></li>
       </ol>
 
-      <div class="meta-strip">
-        <p class="support-line">Help: <a href="tel:0104563287">jtkd teknikal (Fateh) · 010-456 3287</a></p>
-
-        <details class="rules-banner">
-          <summary>Guidelines</summary>
-          <ul id="generalRulesList">
-            <li>Book at least <strong>2 days ahead</strong> for personal use (<strong>1 day</strong> for college activities).</li>
-            <li>Official UM email required (<code>@siswa.um.edu.my</code> or <code>@um.edu.my</code>).</li>
-            <li>Official college activities take priority.</li>
-          </ul>
-        </details>
-      </div>
+      <details class="rules-banner">
+        <summary>General booking terms &amp; eligibility</summary>
+        <ul id="generalRulesList">
+          <li>Personal bookings must be submitted at least <strong>2 days ahead</strong>; college activities at least <strong>1 day ahead</strong>.</li>
+          <li>A valid Universiti Malaya email (<code>@siswa.um.edu.my</code> or <code>@um.edu.my</code>) is required.</li>
+          <li>College management reserves the right to prioritise official college activities.</li>
+        </ul>
+      </details>
 
       <!-- FACILITY SELECTION -->
       <section id="facilityPage" class="page active">
@@ -1359,10 +1665,13 @@
 
       <!-- DATE AND TIME SELECTION -->
       <section id="bookingPage" class="page">
-        <button type="button" class="back-button" onclick="goBackToFacilities()">← Venues</button>
+        <button type="button" class="back-button" onclick="goBackToFacilities()">← Back to venues</button>
         <div class="facility-header">
-          <h2 id="selectedFacilityName">Venue</h2>
-          <p id="selectedFacilityHours">Operating hours</p>
+          <div>
+            <h2 id="selectedFacilityName">Venue</h2>
+            <p id="selectedFacilityHours">Operating hours</p>
+          </div>
+          <span class="facility-header-badge" id="selectedFacilityLeadBadge">2+ days ahead</span>
         </div>
 
         <div class="booking-panel">
@@ -1380,12 +1689,12 @@
           <div id="bookingSummary" class="booking-summary hidden"></div>
 
           <div class="availability-section">
-            <h3 class="availability-title">Time slots</h3>
+            <h3 class="availability-title">Available time slots</h3>
             <p id="availabilityHintText" class="availability-hint">30-minute intervals</p>
             <ul class="legend" aria-label="Slot colour key">
               <li><i></i>Available</li>
               <li><i class="l-sel"></i>Selected</li>
-              <li><i class="l-pend"></i>Pending</li>
+              <li><i class="l-pend"></i>Pending approval</li>
               <li><i class="l-book"></i>Unavailable</li>
             </ul>
             <div id="availabilityContainer"></div>
@@ -1394,7 +1703,7 @@
 
         <div class="action-bar">
           <div id="selectionLiveBanner" class="selection-live-banner" aria-live="polite">
-            <strong>Selected</strong><span id="liveSelectionSummaryText">None</span>
+            <strong>Selected slots</strong><span id="liveSelectionSummaryText">None selected</span>
           </div>
           <button type="button" id="continueButton" class="continue-button" onclick="showDetailsForm()" disabled>Continue</button>
         </div>
@@ -1402,28 +1711,42 @@
 
       <!-- BOOKING DETAILS -->
       <section id="detailsPage" class="page">
-        <button type="button" class="back-button" onclick="goBackToBooking()">← Date &amp; time</button>
+        <button type="button" class="back-button" onclick="goBackToBooking()">← Back to date &amp; time</button>
         <div class="facility-header">
-          <h2>Your details</h2>
-          <p id="summaryReviewText">Complete your contact information.</p>
+          <div>
+            <h2>Applicant details</h2>
+            <p id="summaryReviewText">Complete your contact information to submit this request.</p>
+          </div>
         </div>
 
-        <div class="booking-panel">
-          <div class="disclaimer-banner">
-            Official college and student activities take priority.
+        <div class="details-layout">
+          <div class="booking-panel">
+            <div class="disclaimer-banner">
+              Official college and student activities take priority over casual reservations.
+            </div>
+
+            <form id="bookingForm">
+              <div class="form-group"><label for="bookerName">Full name</label><input type="text" id="bookerName" required maxlength="120" placeholder="As on matric card" autocomplete="name"></div>
+              <div class="form-group"><label for="matricNumber">Matric number</label><input type="text" id="matricNumber" inputmode="numeric" required maxlength="40" placeholder="e.g. 24001958"></div>
+              <div class="form-group"><label for="email">UM email</label><input type="email" id="email" required maxlength="254" placeholder="username@siswa.um.edu.my" autocomplete="email" autocapitalize="off" autocorrect="off" spellcheck="false"></div>
+              <div class="form-group"><label for="phone">Phone number</label><input type="tel" id="phone" inputmode="tel" required maxlength="30" placeholder="0104563287" autocomplete="tel"></div>
+              <div class="form-group"><label for="organisation">Organisation / bureau</label><input type="text" id="organisation" required maxlength="120" placeholder="e.g. JTK, KEP, Resident"></div>
+              <div class="form-group"><label for="purpose">Purpose of booking</label><textarea id="purpose" required maxlength="2000" placeholder="Describe the planned activity"></textarea></div>
+
+              <div id="submissionMessage" class="message hidden" role="status"></div>
+              <button type="submit" id="submitButton" class="submit-button">Submit booking request</button>
+            </form>
           </div>
 
-          <form id="bookingForm">
-            <div class="form-group"><label for="bookerName">Full name</label><input type="text" id="bookerName" required maxlength="120" placeholder="As on matric card" autocomplete="name"></div>
-            <div class="form-group"><label for="matricNumber">Matric number</label><input type="text" id="matricNumber" inputmode="numeric" required maxlength="40" placeholder="e.g. 24001958"></div>
-            <div class="form-group"><label for="email">UM email</label><input type="email" id="email" required maxlength="254" placeholder="username@siswa.um.edu.my" autocomplete="email" autocapitalize="off" autocorrect="off" spellcheck="false"></div>
-            <div class="form-group"><label for="phone">Phone</label><input type="tel" id="phone" inputmode="tel" required maxlength="30" placeholder="0104563287" autocomplete="tel"></div>
-            <div class="form-group"><label for="organisation">Organisation / bureau</label><input type="text" id="organisation" required maxlength="120" placeholder="e.g. JTK, KEP"></div>
-            <div class="form-group"><label for="purpose">Purpose</label><textarea id="purpose" required maxlength="2000" placeholder="Activity details"></textarea></div>
-
-            <div id="submissionMessage" class="message hidden" role="status"></div>
-            <button type="submit" id="submitButton" class="submit-button">Submit request</button>
-          </form>
+          <aside class="summary-card" aria-label="Reservation summary">
+            <h3>Reservation summary</h3>
+            <dl class="summary-list">
+              <div><dt>Category</dt><dd id="reviewMode">—</dd></div>
+              <div><dt>Venue</dt><dd id="reviewVenue">—</dd></div>
+              <div><dt>Date range</dt><dd id="reviewDates">—</dd></div>
+              <div><dt>Selected time slots</dt><dd><ul id="reviewSlotsList"></ul></dd></div>
+            </dl>
+          </aside>
         </div>
       </section>
 
@@ -1431,26 +1754,26 @@
       <section id="successPage" class="page">
         <div class="success-panel">
           <div class="success-check" aria-hidden="true">✓</div>
-          <h2>Request submitted</h2>
-          <p>Pending approval · Updates will be sent to your UM email.</p>
+          <h2>Booking request submitted</h2>
+          <p>Status: <strong>Pending Approval</strong> · Confirmation and updates will be sent to your UM email.</p>
 
           <dl class="receipt">
             <dt>Booking ID</dt><dd id="confBookingId"></dd>
-            <dt>Type</dt><dd id="confMode"></dd>
+            <dt>Category</dt><dd id="confMode"></dd>
             <dt>Venue</dt><dd id="confFacility"></dd>
-            <dt>Name</dt><dd id="confName"></dd>
+            <dt>Applicant</dt><dd id="confName"></dd>
             <dt>Email</dt><dd id="confEmail"></dd>
             <dt>Organisation</dt><dd id="confOrg"></dd>
             <dt>Purpose</dt><dd id="confPurpose"></dd>
             <dt>Slots</dt><dd><ul id="confSlotsList"></ul></dd>
           </dl>
 
-          <button type="button" class="continue-button" style="width:100%" onclick="location.reload()">Book another</button>
+          <button type="button" class="continue-button" style="width:100%" onclick="location.reload()">Make another booking</button>
         </div>
       </section>
     </div>
 
-    <!-- TEENY TINY RED CREDIT ON FRONT PAGE -->
+    <!-- FOOTER CREDIT -->
     <footer id="frontCredit" class="front-credit">jtkd teknikal</footer>
   </main>
 
@@ -1458,8 +1781,11 @@
   <div id="externalModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="externalModalTitle">
     <div class="modal-box">
       <div>
-        <h3 id="externalModalTitle">External / Non-KK5</h3>
-        <p class="sub">Email your venue, date, time, and proposal.</p>
+        <h3 id="externalModalTitle">External / Non-KK5 Inquiries</h3>
+        <p class="sub">External bookings are processed via email rather than online slot selection.</p>
+      </div>
+      <div class="rules-body">
+        Please include your requested venue, date, time, organisation name, and event proposal in your email.
       </div>
       <div class="email-callout">
         <a id="externalMailtoLink" href="mailto:jtk_kk5@um.edu.my?subject=KK5%20Facility%20Booking%20Inquiry%20(External%20%2F%20Non-KK5)">jtk_kk5@um.edu.my</a>
@@ -1467,7 +1793,7 @@
       </div>
       <div class="modal-actions">
         <button type="button" class="continue-button btn-secondary" onclick="closeExternalModal()">Close</button>
-        <a class="continue-button modal-link-btn" href="mailto:jtk_kk5@um.edu.my?subject=KK5%20Facility%20Booking%20Inquiry%20(External%20%2F%20Non-KK5)">Open email</a>
+        <a class="continue-button modal-link-btn" href="mailto:jtk_kk5@um.edu.my?subject=KK5%20Facility%20Booking%20Inquiry%20(External%20%2F%20Non-KK5)">Compose email</a>
       </div>
     </div>
   </div>
@@ -1476,17 +1802,17 @@
   <div id="rulesModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="rulesFacilityTitle">
     <div class="modal-box">
       <div>
-        <h3 id="rulesFacilityTitle">Venue rules</h3>
-        <p class="sub">Agree before choosing a date.</p>
+        <h3 id="rulesFacilityTitle">Venue guidelines</h3>
+        <p class="sub">Review and accept the terms below before selecting a date.</p>
       </div>
       <div id="rulesContentBody" class="rules-body"></div>
       <label class="agree" for="agreeRulesCheckbox">
         <input type="checkbox" id="agreeRulesCheckbox" onchange="toggleProceedButton()">
-        <span>I agree to these rules</span>
+        <span>I have read and agree to these venue rules</span>
       </label>
       <div class="modal-actions">
         <button type="button" class="continue-button btn-secondary" onclick="closeRulesModal()">Cancel</button>
-        <button type="button" id="proceedBtn" class="continue-button" disabled onclick="confirmRulesAndProceed()">Continue</button>
+        <button type="button" id="proceedBtn" class="continue-button" disabled onclick="confirmRulesAndProceed()">Proceed</button>
       </div>
     </div>
   </div>
@@ -1542,17 +1868,17 @@
     const SPECIFIC_RULES = {
       "Bilik Kaca": `
         <ul style="margin: 0 0 0 16px; padding: 0;">
-          <li>Prioritised for college activities.</li>
-          <li>External bookings: <strong>jtk_kk5@um.edu.my</strong></li>
+          <li>Prioritised for official college activities.</li>
+          <li>External inquiries: <strong>jtk_kk5@um.edu.my</strong></li>
         </ul>
       `
     };
 
     const DEFAULT_RULES = `
       <ul style="margin: 0 0 0 16px; padding: 0;">
-        <li>Keep the venue clean and orderly.</li>
-        <li>Report any damage to <strong>JTK/JKP</strong>.</li>
-        <li>Bookings are <strong>non-transferable</strong>.</li>
+        <li>Maintain cleanliness and return equipment after use.</li>
+        <li>Report any facility damage immediately to <strong>JTK/JKP</strong>.</li>
+        <li>Approved bookings are <strong>non-transferable</strong>.</li>
       </ul>
     `;
 
@@ -1571,6 +1897,7 @@
     const facilityLoading = document.getElementById("facilityLoading");
     const selectedFacilityName = document.getElementById("selectedFacilityName");
     const selectedFacilityHours = document.getElementById("selectedFacilityHours");
+    const selectedFacilityLeadBadge = document.getElementById("selectedFacilityLeadBadge");
 
     const startDate = document.getElementById("startDate");
     const endDate = document.getElementById("endDate");
@@ -1764,20 +2091,20 @@
 
       if (mode === "personal") {
         modeLabel.textContent = "Personal use";
-        modeSummary.textContent = "Book 2 days ahead";
+        modeSummary.textContent = "Minimum 2 days advance notice · Designated operating hours";
         topNavNoteText.textContent = "Book 2 days ahead";
         rulesList.innerHTML = `
-          <li>Must book at least <strong>2 days ahead</strong>.</li>
-          <li>Restricted hours and daily hour limits apply.</li>
+          <li>Bookings must be submitted at least <strong>2 days ahead</strong>.</li>
+          <li>Restricted hours and daily hour caps apply per venue.</li>
           <li>Official UM email required (<code>@siswa.um.edu.my</code> or <code>@um.edu.my</code>).</li>
         `;
       } else {
         modeLabel.textContent = "KK5 College activity";
-        modeSummary.textContent = "Book 1 day ahead · 24h access";
+        modeSummary.textContent = "Minimum 1 day advance notice · Full 24-hour window";
         topNavNoteText.textContent = "Book 1 day ahead";
         rulesList.innerHTML = `
-          <li>Must book at least <strong>1 day ahead</strong>.</li>
-          <li>24-hour slot access (<strong>00:00 – 24:00</strong>).</li>
+          <li>Bookings must be submitted at least <strong>1 day ahead</strong>.</li>
+          <li>Full 24-hour slot access (<strong>00:00 – 24:00</strong>).</li>
           <li>Official UM email required (<code>@siswa.um.edu.my</code> or <code>@um.edu.my</code>).</li>
         `;
       }
@@ -1956,6 +2283,8 @@
     function buildFacilityCard(facility) {
       const modeRule = getEffectiveModeRestriction(facility);
       const isInactive = facility.status !== "ACTIVE" || modeRule.disabled;
+      const cat = getFacilityCategory(facility);
+
       const card = document.createElement("div");
       card.className = "facility-card" + (isInactive ? " inactive" : "");
       card.tabIndex = 0;
@@ -1970,11 +2299,26 @@
         }
         if (facility.status !== "ACTIVE") return;
         if (modeRule.disabled) {
-          toast(modeRule.reason || "Unavailable for this booking type.");
+          toast(modeRule.reason || "Unavailable for this booking category.");
           return;
         }
         triggerFacilityRulesModal(facility);
       });
+
+      const topMeta = document.createElement("div");
+      topMeta.className = "facility-card-top";
+
+      const catTag = document.createElement("span");
+      catTag.className = "facility-cat-tag";
+      catTag.textContent = cat === "sports" ? "Sports" : "Recreational";
+      topMeta.appendChild(catTag);
+
+      if (!isInactive && bookingMode === "personal" && modeRule.maxHoursPerDay) {
+        const limitTag = document.createElement("span");
+        limitTag.className = "facility-limit-tag";
+        limitTag.textContent = `Max ${modeRule.maxHoursPerDay}h / day`;
+        topMeta.appendChild(limitTag);
+      }
 
       const name = document.createElement("div");
       name.className = "facility-name";
@@ -1991,6 +2335,7 @@
       }
 
       const cardContent = document.createElement("div");
+      cardContent.appendChild(topMeta);
       cardContent.appendChild(name);
       cardContent.appendChild(hours);
 
@@ -2005,12 +2350,24 @@
         cardContent.appendChild(noticeDiv);
       }
 
+      const foot = document.createElement("div");
+      foot.className = "facility-card-foot";
+
       const status = document.createElement("div");
       status.className = "facility-status " + (isInactive ? "unavailable" : "available");
       status.textContent = isInactive ? "Unavailable" : "Available";
 
+      foot.appendChild(status);
+
+      if (!isInactive) {
+        const arrow = document.createElement("span");
+        arrow.className = "facility-arrow";
+        arrow.textContent = "Select →";
+        foot.appendChild(arrow);
+      }
+
       card.appendChild(cardContent);
-      card.appendChild(status);
+      card.appendChild(foot);
       return card;
     }
 
@@ -2053,9 +2410,9 @@
 
       let rulesHtml = facility.rules ? facility.rules : (SPECIFIC_RULES[facility.facility] || DEFAULT_RULES);
       if (bookingMode === "college") {
-        rulesHtml += `<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line)">Book at least <strong>1 day ahead</strong> · 24h access</div>`;
+        rulesHtml += `<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line)">Advance notice: <strong>1 day ahead</strong> · 24h access</div>`;
       } else {
-        rulesHtml += `<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line)">Book at least <strong>2 days ahead</strong></div>`;
+        rulesHtml += `<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line)">Advance notice: <strong>2 days ahead</strong></div>`;
       }
       document.getElementById("rulesContentBody").innerHTML = rulesHtml;
 
@@ -2118,20 +2475,23 @@
       selectedFacilityName.textContent = facility.facility;
 
       if (bookingMode === "college") {
-        selectedFacilityHours.textContent = "00:00 – 24:00 · Book 1 day ahead";
+        selectedFacilityHours.textContent = "Operating window: 00:00 – 24:00";
+        selectedFacilityLeadBadge.textContent = "Book 1+ day ahead";
       } else if (modeRule.windowLabel) {
-        selectedFacilityHours.textContent = `${modeRule.windowLabel} · Book 2 days ahead`;
+        selectedFacilityHours.textContent = `Operating window: ${modeRule.windowLabel}`;
+        selectedFacilityLeadBadge.textContent = "Book 2+ days ahead";
       } else {
         const hrs = facility.openingTime && facility.closingTime ? `${facility.openingTime} – ${facility.closingTime}` : "08:00 – 23:00";
-        selectedFacilityHours.textContent = `${hrs} · Book 2 days ahead`;
+        selectedFacilityHours.textContent = `Operating window: ${hrs}`;
+        selectedFacilityLeadBadge.textContent = "Book 2+ days ahead";
       }
 
       const hintEl = document.getElementById("availabilityHintText");
       if (bookingMode === "personal" && modeRule.maxHoursPerDay) {
         const maxSlots = (modeRule.maxHoursPerDay * 60) / SLOT_INTERVAL;
-        hintEl.textContent = `30-min slots · Max ${maxSlots} per day (${modeRule.maxHoursPerDay}h)`;
+        hintEl.textContent = `30-minute intervals · Maximum ${maxSlots} slots (${modeRule.maxHoursPerDay} hours) per day`;
       } else {
-        hintEl.textContent = "30-min slots · 24h access";
+        hintEl.textContent = "30-minute intervals · 24-hour college activity access";
       }
 
       resetBookingState();
@@ -2152,7 +2512,7 @@
       startDate.value = ""; endDate.value = "";
       availabilityContainer.innerHTML = "";
       bookingSummary.className = "booking-summary hidden";
-      liveSelectionSummaryText.textContent = "None";
+      liveSelectionSummaryText.textContent = "None selected";
       continueButton.disabled = true;
     }
 
@@ -2193,13 +2553,13 @@
     });
 
     async function loadAvailability() {
-      availabilityContainer.innerHTML = "<div class='message loading'>Loading slots…</div>";
+      availabilityContainer.innerHTML = "<div class='message loading'>Loading time slots…</div>";
       try {
         const data = await fetchGviz("Bookings");
         currentBookingsByDate = parseBookingsForRange(data, selectedFacility.facility, selectedStartDate, selectedEndDate);
         renderAvailabilityMatrix();
       } catch (err) {
-        availabilityContainer.innerHTML = "<div class='message error'>Failed to load slots.</div>";
+        availabilityContainer.innerHTML = "<div class='message error'>Failed to load time slots.</div>";
       }
     }
 
@@ -2334,7 +2694,7 @@
         if (modeRule.maxHoursPerDay) {
           const maxSlotsPerDay = (modeRule.maxHoursPerDay * 60) / SLOT_INTERVAL;
           if (selectedSlotsByDate[dateKey].length >= maxSlotsPerDay) {
-            toast(`Max ${modeRule.maxHoursPerDay}h per day.`);
+            toast(`Maximum ${modeRule.maxHoursPerDay} hours per day.`);
             return;
           }
         }
@@ -2362,17 +2722,53 @@
       }
 
       if (totalSlots === 0) {
-        liveSelectionSummaryText.textContent = "None";
+        liveSelectionSummaryText.textContent = "None selected";
         return;
       }
 
       const totalHours = (totalSlots * SLOT_INTERVAL) / 60;
-      liveSelectionSummaryText.textContent = `${totalSlots} ${totalSlots === 1 ? "slot" : "slots"} · ${totalHours}h`;
+      liveSelectionSummaryText.textContent = `${totalSlots} ${totalSlots === 1 ? "slot" : "slots"} (${totalHours}h)`;
+    }
+
+    function buildMergedDateSlots() {
+      const dateSlots = [];
+      for (const dateStr of Object.keys(selectedSlotsByDate).sort()) {
+        const slots = selectedSlotsByDate[dateStr];
+        if (!slots || slots.length === 0) continue;
+
+        const sorted = [...slots].sort((a, b) => parseTimeToMinutes(a.start, false) - parseTimeToMinutes(b.start, false));
+
+        let currentBlock = { start: sorted[0].start, end: sorted[0].end };
+        for (let i = 1; i < sorted.length; i++) {
+          if (sorted[i].start === currentBlock.end) {
+            currentBlock.end = sorted[i].end;
+          } else {
+            dateSlots.push({ date: dateStr, startTime: currentBlock.start, endTime: currentBlock.end });
+            currentBlock = { start: sorted[i].start, end: sorted[i].end };
+          }
+        }
+        dateSlots.push({ date: dateStr, startTime: currentBlock.start, endTime: currentBlock.end });
+      }
+      return dateSlots;
     }
 
     function showDetailsForm() {
       const modeText = bookingMode === "personal" ? "Personal use" : "KK5 College activity";
-      summaryReviewText.textContent = `${modeText} · ${selectedFacility.facility} · ${selectedStartDate} to ${selectedEndDate}`;
+      const dateLabel = selectedStartDate === selectedEndDate ? selectedStartDate : `${selectedStartDate} to ${selectedEndDate}`;
+      summaryReviewText.textContent = `${modeText} · ${selectedFacility.facility} · ${dateLabel}`;
+
+      document.getElementById("reviewMode").textContent = modeText;
+      document.getElementById("reviewVenue").textContent = selectedFacility.facility;
+      document.getElementById("reviewDates").textContent = dateLabel;
+
+      const reviewList = document.getElementById("reviewSlotsList");
+      reviewList.innerHTML = "";
+      buildMergedDateSlots().forEach(slot => {
+        const li = document.createElement("li");
+        li.textContent = `${formatDateForDisplay(parseDateOnly(slot.date))} (${slot.startTime} – ${slot.endTime})`;
+        reviewList.appendChild(li);
+      });
+
       showPage(detailsPage);
     }
 
@@ -2400,25 +2796,7 @@
       formInputs.forEach(input => input.disabled = true);
       document.getElementById("submissionMessage").classList.add("hidden");
 
-      const dateSlots = [];
-      for (const dateStr of Object.keys(selectedSlotsByDate)) {
-        const slots = selectedSlotsByDate[dateStr];
-        if (!slots || slots.length === 0) continue;
-
-        slots.sort((a, b) => parseTimeToMinutes(a.start, false) - parseTimeToMinutes(b.start, false));
-
-        let currentBlock = { start: slots[0].start, end: slots[0].end };
-        for (let i = 1; i < slots.length; i++) {
-          if (slots[i].start === currentBlock.end) {
-            currentBlock.end = slots[i].end;
-          } else {
-            dateSlots.push({ date: dateStr, startTime: currentBlock.start, endTime: currentBlock.end });
-            currentBlock = { start: slots[i].start, end: slots[i].end };
-          }
-        }
-        dateSlots.push({ date: dateStr, startTime: currentBlock.start, endTime: currentBlock.end });
-      }
-
+      const dateSlots = buildMergedDateSlots();
       submittedDateSlotsCache = dateSlots;
 
       const modeLabelText = bookingMode === "personal" ? "Personal use" : "KK5 College activity";
@@ -2475,7 +2853,7 @@
 
         formInputs.forEach(input => input.disabled = false);
         submitButton.disabled = false;
-        submitButton.textContent = "Submit request";
+        submitButton.textContent = "Submit booking request";
       }
     }
 
@@ -2523,7 +2901,9 @@
     function formatDateForDisplay(d) { return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" }); }
     function updateBookingSummary() {
       bookingSummary.className = "booking-summary";
-      bookingSummary.textContent = selectedStartDate + (selectedEndDate ? " to " + selectedEndDate : "");
+      bookingSummary.textContent = selectedStartDate === selectedEndDate
+        ? `Selected date: ${selectedStartDate}`
+        : `Selected range: ${selectedStartDate} to ${selectedEndDate}`;
     }
   </script>
 </body>
